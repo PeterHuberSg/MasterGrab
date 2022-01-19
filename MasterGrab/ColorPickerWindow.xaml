@@ -1,0 +1,30 @@
+﻿<Window x:Class="MasterGrab.ColorPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MasterGrab"
+        mc:Ignorable="d"
+        Title="Color Picker" Height="200" Width="400">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="Gainsboro">
+      <StackPanel.Resources>
+        <Style TargetType="TextBox">
+          <Setter Property="VerticalAlignment" Value="Center"/>
+          <Setter Property="MinWidth" Value="30"/>
+        </Style>
+      </StackPanel.Resources>
+      <Label Content="R"/>
+      <TextBox x:Name="RTextBox"/>
+      <Label Content="G"/>
+      <TextBox x:Name="GTextBox"/>
+      <Label Content="B"/>
+      <TextBox x:Name="BTextBox"/>
+      <Rectangle x:Name="ColorRectangle" Width="30" Margin="9,5" Stroke="black"/>
+      <Button x:Name="OkButton" Content="Ok" VerticalAlignment="Center"/>
+    </StackPanel>
+    <Grid x:Name="ColorGrid">
+
+    </Grid>
+  </DockPanel>
+</Window>

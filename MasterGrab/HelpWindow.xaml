@@ -1,0 +1,213 @@
+﻿<Window x:Class="MasterGrab.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MasterGrab"
+        mc:Ignorable="d"
+        Title="Help MasterGrab Game" Height="800" MinWidth="6" Width="800" MaxWidth="900">
+  <FlowDocumentReader Zoom="100" ViewingMode="Scroll" MaxWidth="800">
+    <FlowDocument FontSize="14" FontFamily="Calibri">
+      <Paragraph FontSize="18">
+        <Bold>Explanation MasterGrab Game</Bold>
+      </Paragraph>
+      <Paragraph>
+        The MasterGrab game shows per default a map of countries for 4 players. 3 players are simulated by the computer, the countries 
+        with the
+        <Run Foreground="#FF4040">red coulour</Run> are owned by the user. The goal is to grab all countries. 
+      </Paragraph>
+      <Paragraph>
+        The map itself has no borders, like earth, which has also no edge. The countries at the left border of the window wrap around to the right window border.
+      </Paragraph>
+      <Paragraph>
+        The user makes the first move by clicking on the country he wants to attack. The computer evaluates if the attack succeeded, updates the 
+        ownership of the countries on the map. Then each player simultated by the computer (=Robot) makes immediately 
+        its own move. The program then waits for the user to make his next move. The game is won once the user owns all countries or
+        lost when the user has no country left. Clicking on button "New Game" starts a new game. Clicking on the button "Replay" plays 
+        the same game agin.
+      </Paragraph>
+
+      <Paragraph Margin="0,6,0,0" FontSize="16">
+        <Bold>How to attack</Bold>
+      </Paragraph>
+      <Paragraph>
+        <Image Source="AttackHelpBeforeAttack.png" Stretch="None"></Image>
+      </Paragraph>
+      <Paragraph>
+        In this example, the mouse hovers (is just positioned over, but not clicked yet) over the green country with the number 10, 
+        which indicates, how many armies are in this country. The borders of this country are marked in yellow, because the mouse 
+        hovers it. The immediate neighbour countries are marked with bold boundaries. An attack will be successfull, when the sum of
+        all attacking countries is <Run FontWeight="Bold" Text="more"/> than double of the defending countrie. Only the 
+        user's countries which are immediate neigbours of the defender will attack. If an enemy country shares no border with any of
+        your countries, you cannot attack it.
+      </Paragraph>
+      <Paragraph>
+        In this example, the red countries with the numbers 4, 9 and 15 are attacking, meaning 28 armies can attack. The defender has 
+        10 armies. For a successfull attack, more than double that number is needed, about 24 might be enough.
+      </Paragraph>
+      <Paragraph>
+        <Image Source="AttackHelpAfterAttack.png" Stretch="None"></Image>
+      </Paragraph>
+      <Paragraph>
+        When the attack is successful, the attacker looses the armies needed for the attack, in this example 24, but gets
+        also some bonus armies. The number of bonus armies depends on the size of the newly won country.
+      </Paragraph>
+      
+      <BlockUIContainer Margin="0,3,0,3">
+        <Grid RenderOptions.EdgeMode="Aliased" UseLayoutRounding="True" HorizontalAlignment="Left">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+          </Grid.RowDefinitions>
+          <Grid.Resources>
+            <Style x:Key="BorderBase" TargetType="Border">
+              <Setter Property="BorderBrush" Value="Black"/>
+              <Setter Property="Padding" Value="2,1,2,1"/>
+            </Style>
+            <Style x:Key="BorderTopLeft" BasedOn="{StaticResource BorderBase}" TargetType="Border">
+              <Setter Property="BorderThickness" Value="1,1,1,1"/>
+            </Style>
+            <Style x:Key="BorderTop" BasedOn="{StaticResource BorderBase}" TargetType="Border">
+              <Setter Property="BorderThickness" Value="0,1,1,1"/>
+            </Style>
+            <Style x:Key="BorderLeft" BasedOn="{StaticResource BorderBase}" TargetType="Border">
+              <Setter Property="BorderThickness" Value="1,0,1,1"/>
+            </Style>
+            <Style x:Key="BorderOther" BasedOn="{StaticResource BorderBase}" TargetType="Border">
+              <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            </Style>
+
+          </Grid.Resources>
+          <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource BorderTopLeft}">
+            <TextBlock Text="Attacker 4+9+15"/>
+          </Border>
+          <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource BorderTop}">
+            <TextBlock TextAlignment="Right" Text="28"/>
+          </Border>
+          <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource BorderLeft}">
+            <TextBlock Text="Losses"/>
+          </Border>
+          <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource BorderOther}">
+            <TextBlock TextAlignment="Right" Text="-24"/>
+          </Border>
+          <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource BorderLeft}">
+            <TextBlock Text="Bonus"/>
+          </Border>
+          <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource BorderOther}">
+            <TextBlock TextAlignment="Right" Text="+21"/>
+          </Border>
+          <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource BorderLeft}">
+            <TextBlock Text="Armies to distribute"/>
+          </Border>
+          <Border Grid.Row="3" Grid.Column="2" Style="{StaticResource BorderOther}">
+            <TextBlock TextAlignment="Right" FontWeight="Bold" Text="25"/>
+          </Border>
+        </Grid>
+      </BlockUIContainer>
+      <Paragraph>
+        Once a new country is won, the game distributes the <Italic>"Armies to distribute"</Italic> to the attacking countries 
+        and the newly won country. The more enemies a country faces, the more armies it will receive.
+      </Paragraph>
+
+      <Paragraph Margin="0,6,0,0" FontSize="16">
+        <Bold>How to move armies</Bold>
+      </Paragraph>
+      <Paragraph>
+        Each time the users clicks, every country gains some armies until the maximum possible number of armies for this country
+        is reached. This is indicated by a bold number.
+      </Paragraph>
+      <Paragraph>
+        Sometimes it is better not to attack, but to move armies from some owned countries to their neighbour. This has 2 advantages:
+      </Paragraph>
+      <List MarkerStyle="Decimal">
+        <ListItem>
+          <Paragraph>
+            More armies available for attack
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            The number of armies in the source countries can grow again
+          </Paragraph>
+        </ListItem>
+      </List>
+      <Paragraph>
+        <Image Source="AttackHelpBeforeCollect.png" Stretch="None"></Image>
+      </Paragraph>
+      <Paragraph>
+        To collect armies, click on any country belonging to you.
+      </Paragraph>
+      <Paragraph>
+        <Image Source="AttackHelpAfterCollect.png" Stretch="None"></Image>
+      </Paragraph>
+      <Paragraph>
+        After the click, the armies in your neighbouring countries move to the clicked country. If one of those countries has 
+        enemy neighbours, some armies will be left for defence, otherwise all armies will be moved. With every future click the 
+        number of armies will grow again, until they have reached their country specific limit. However, the receiving country 
+        can hold an unlimitted number of armies.
+      </Paragraph>
+      <Paragraph>
+        The dark areas on the map are mountains. Nobody can move there. Except there is still a bug in the game. If the mountain has
+        a number, you must attack also the mountain to win the game. Luckily, this happens seldom.
+      </Paragraph>
+
+      <Paragraph Margin="0,6,0,0">
+        <Bold>Some tips</Bold>
+      </Paragraph>
+      <List MarkerStyle="Disc">
+        <List.Resources>
+          <Style TargetType="ListItem">
+            <Setter Property="Margin" Value="0,0,0,3"/>
+          </Style>
+        </List.Resources>
+        <ListItem>
+          <Paragraph>
+            It's good if your countries are neighbours. Then most of their borders are protected from attack.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            If you play against several enemies, don't fight just one. You might win over him, but the other enemies might
+            grow bigger than you and beat you. Sometimes it's good to leave some weak enemy countries at your border as a
+            protection against big enemies.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            You can further minimise your enemies facing border by owning all countries from the top of the screen to the bottom.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            Towards the end of the game, there is usually only 1, strong enemy left. In this situation, the computer plays quite
+            strongly and will beat you, unless you keep collecting armies in 2-4 countries regularly.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            Click on the Options button to change the number of enemies.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            Changing the game parameters in the Advanced Options requires from the players quite different strategies. Try for example
+            setting Attack Benefit Factor to 3.
+          </Paragraph>
+        </ListItem>
+      </List>
+      <Paragraph>
+        Now have fun playing the game !
+      </Paragraph>
+      <Paragraph>
+        Jürgpeter Huber, 2016 - 2022, Horgen &amp; Singapore
+      </Paragraph>
+
+    </FlowDocument>
+  </FlowDocumentReader>
+</Window>

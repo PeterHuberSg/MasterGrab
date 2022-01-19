@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasterGrab", "MasterGrab\MasterGrab.csproj", "{FDA1DA19-1E35-4F34-AF62-E790091E5BA1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BL", "BL\BL.csproj", "{2FE957B6-AA19-4B1A-9B1F-E6D7D93F011A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLTest", "BLTest\BLTest.csproj", "{3AE15C9D-B18F-4CF0-AA40-539AE22B49B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Robots", "Robots\Robots.csproj", "{827A0990-11D9-40E0-A06D-E877891582E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7ED0A2F8-7201-4386-AD72-4CFF69936B71}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		BorderProblem.docx = BorderProblem.docx
+		Design.pptx = Design.pptx
+		License CC0.html = License CC0.html
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDA1DA19-1E35-4F34-AF62-E790091E5BA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA1DA19-1E35-4F34-AF62-E790091E5BA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA1DA19-1E35-4F34-AF62-E790091E5BA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA1DA19-1E35-4F34-AF62-E790091E5BA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FE957B6-AA19-4B1A-9B1F-E6D7D93F011A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FE957B6-AA19-4B1A-9B1F-E6D7D93F011A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FE957B6-AA19-4B1A-9B1F-E6D7D93F011A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FE957B6-AA19-4B1A-9B1F-E6D7D93F011A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AE15C9D-B18F-4CF0-AA40-539AE22B49B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AE15C9D-B18F-4CF0-AA40-539AE22B49B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AE15C9D-B18F-4CF0-AA40-539AE22B49B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AE15C9D-B18F-4CF0-AA40-539AE22B49B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{827A0990-11D9-40E0-A06D-E877891582E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{827A0990-11D9-40E0-A06D-E877891582E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{827A0990-11D9-40E0-A06D-E877891582E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{827A0990-11D9-40E0-A06D-E877891582E6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0801508-0A66-449F-BE27-EDFF79F071DE}
+	EndGlobalSection
+EndGlobal

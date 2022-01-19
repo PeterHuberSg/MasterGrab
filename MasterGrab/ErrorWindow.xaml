@@ -1,0 +1,25 @@
+﻿<Window x:Class="MasterGrab.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MasterGrab"
+        Title="Error" SizeToContent="WidthAndHeight">
+    <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="auto"/>
+    </Grid.RowDefinitions>
+    <TextBlock Name="ErrorTextBlock" Grid.Row="0" Margin="3"/>
+    <DockPanel Name="DetailsDockPanel" Grid.Row="1" Background="WhiteSmoke">
+      <ScrollViewer Margin="3">
+        <TextBlock Name="DetailsTextBlock" Margin="3"/>
+      </ScrollViewer>
+    </DockPanel>
+    <DockPanel Background="Gainsboro" Grid.Row="2" LastChildFill="False">
+      <CheckBox Name="DetailCheckbox" DockPanel.Dock="Left"  Margin="3" Height="auto"  VerticalAlignment="Center" Width="auto" Content="show details"/>
+      <Button Name="CopyButton" DockPanel.Dock="Right"  Margin="3" Height="auto" Width="auto" Content="_Copy"/>
+    </DockPanel>
+    </Grid>
+</Window>

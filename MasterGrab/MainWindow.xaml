@@ -1,0 +1,39 @@
+﻿<Window x:Class="MasterGrab.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MasterGrab"
+        mc:Ignorable="d"
+        Title="MasterGrab Game" Height="350" Width="888" WindowState="Maximized">
+  <DockPanel x:Name="MainDockPanel">
+    <DockPanel DockPanel.Dock="Bottom" Background="Silver">
+      <Button Name="StartButton" Content="_New Game" DockPanel.Dock="Left" Margin="3,2,3,2" VerticalAlignment="Center"/>
+      <Button Name="OptionsButton" Content="_Options" DockPanel.Dock="Left" Margin="3,2,3,2" VerticalAlignment="Center"/>
+      <Button Name="ReplayButton" Content="_Replay" DockPanel.Dock="Left" Margin="3,2,3,2" VerticalAlignment="Center"/>
+      <Label Content="Info:" DockPanel.Dock="Left" Margin="3,2,0,2"/>
+      <ComboBox Name="InfoWindowComboBox" DockPanel.Dock="Left" Margin="0,2,3,2" VerticalAlignment="Center">
+        <ComboBoxItem IsSelected="True">None</ComboBoxItem>
+        <ComboBoxItem >Ranking</ComboBoxItem>
+        <ComboBoxItem >Trace</ComboBoxItem>
+      </ComboBox>
+      <Label Content="Show:" DockPanel.Dock="Left" Margin="3,0,3,2" VerticalAlignment="Center"/>
+      <ComboBox Name="ShowComboBox" DockPanel.Dock="Left" Margin="0,2,3,2" VerticalAlignment="Center">
+        <ComboBoxItem IsSelected="True">Armies</ComboBoxItem>
+        <ComboBoxItem >Country Ids</ComboBoxItem>
+      </ComboBox>
+      <Button x:Name="NextStepButton" Content="Next _Step" Margin="15,2,3,2" VerticalAlignment="Center"/>
+      <StackPanel x:Name="AutoPlayStackPanel" Orientation="Horizontal" Visibility="Collapsed">
+        <Label Content="Autoplay:"/>
+        <ComboBox x:Name="AutoPlayComboBox"  Margin="0,2,3,2" VerticalAlignment="Center">
+          <ComboBoxItem IsSelected="True">Single Step</ComboBoxItem>
+          <ComboBoxItem IsSelected="True">0.5 sec</ComboBoxItem>
+          <ComboBoxItem IsSelected="True">1 sec</ComboBoxItem>
+          <ComboBoxItem IsSelected="True">2 sec</ComboBoxItem>
+        </ComboBox>
+      </StackPanel>
+      <Button Name="HelpButton" Content="_Help" DockPanel.Dock="Right" Margin="3,2,3,2" VerticalAlignment="Center"/>
+      <Rectangle Fill="Gainsboro"/>
+    </DockPanel>
+  </DockPanel>
+</Window>
