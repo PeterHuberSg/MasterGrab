@@ -57,6 +57,7 @@ namespace MasterGrab {
     readonly TextBlock[,] textblocks;
     readonly ColorBox[] colorBoxes;
     readonly ComboBox[] comboBoxes;
+    readonly ComboBoxItem[] robotsComboboxItems;
 
     int mountainsPercentage;
     double armiesInBiggestCountry;
@@ -98,6 +99,13 @@ namespace MasterGrab {
       RobotsGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
       RobotsGrid.ColumnDefinitions.Add(new ColumnDefinition());
 
+      //ComboBoxItem values for robots
+      robotsComboboxItems = new ComboBoxItem[Options.RobotInfos.Count];
+      for (int robotInfosIndex = 0; robotInfosIndex < Options.RobotInfos.Count; robotInfosIndex++) {
+        var robotInfo = Options.RobotInfos[robotInfosIndex];
+        robotsComboboxItems[robotInfosIndex] = new ComboBoxItem { Content = robotInfo.Name, ToolTip = robotInfo.Description };
+      }
+
       copyOptionsToScreen(options);
 
       updateButtonState();
@@ -109,14 +117,14 @@ namespace MasterGrab {
 
 
     private void copyOptionsToScreen(Options options) {
-     // NumberOfCountriesTextBox.Set(options, );
-
+      PlayerEnabledCheckBox.IsChecked = options.IsHumanPlaying;
+      PlayerColorBox.Visibility = PlayerEnabledCheckBox.IsChecked.Value ? Visibility.Visible : Visibility.Hidden;
       PlayerColorBox.Color = Color.FromArgb(options.Colors[0, 0], options.Colors[0, 1], options.Colors[0, 2], options.Colors[0, 3]);
-
-      for (var robotIndex = 0; robotIndex < options.RobotTypes.Count; robotIndex++) {
+      for (var robotIndex = 0; robotIndex < options.Robots.Count; robotIndex++) {
         addRobotRow(options, robotIndex);
       }
     }
+
 
     readonly int lineWidth = 1;
 
@@ -127,7 +135,7 @@ namespace MasterGrab {
       if (textblocks[robotIndex, 0]==null) {
         textblock = new TextBlock {Padding=new Thickness(2) };
         textblocks[robotIndex, 0] = textblock;
-        textblock.Text = "Robot" + robotIndex;
+        textblock.Text = "Robot" + (robotIndex + 1);
       } else {
         textblock = textblocks[robotIndex, 0];
       }
@@ -153,30 +161,21 @@ namespace MasterGrab {
 
       ComboBox comboBox;
       if (comboBoxes[robotIndex]==null) {
-        comboBox = new ComboBox();
+        comboBox = new ComboBox {ItemsSource = robotsComboboxItems};
         comboBoxes[robotIndex] = comboBox;
-        ComboBoxItem cboxitem = new ComboBoxItem {Content = "Easy"};
-        comboBox.Items.Add(cboxitem);
-        cboxitem = new ComboBoxItem {Content = "Difficult"
-        };
-        comboBox.Items.Add(cboxitem);
       } else {
         comboBox = comboBoxes[robotIndex];
       }
-      if (robotIndex<options.RobotTypes.Count) {
-        Type robotType = options.RobotTypes[robotIndex];
-        #pragma warning disable IDE0045 // Convert to conditional expression
-        if (robotType==typeof(SimpleRobot)) {
-          comboBox.SelectedIndex = 0;
-        } else if (robotType==typeof(BasicRobot)) {
-          comboBox.SelectedIndex = 1;
-        } else {
-          throw new NotSupportedException();
+      if (robotIndex<options.Robots.Count) {
+        var robotInfo = options.Robots[robotIndex];
+        for (int robotInfoIndex = 0; robotInfoIndex < Options.RobotInfos.Count; robotInfoIndex++) {
+          if (Options.RobotInfos[robotInfoIndex]==robotInfo) {
+            comboBox.SelectedIndex = robotInfoIndex;
+            break;
+          }
         }
-        #pragma warning restore IDE0045
       } else {
-        comboBox.SelectedIndex =robotIndex==0 ? 0 : comboBoxes[robotIndex-1].SelectedIndex;
-
+        comboBox.SelectedIndex = robotIndex==0 ? 0 : comboBoxes[robotIndex-1].SelectedIndex;
       }
       comboBox.Margin = robotIndex==0 ? new Thickness(0, lineWidth, lineWidth, lineWidth) : new Thickness(0, 0, lineWidth, lineWidth);
       RobotsGrid.Children.Add(comboBox);
@@ -257,44 +256,55 @@ namespace MasterGrab {
     private void ApplyButton_Click(object sender, RoutedEventArgs e) {
       DialogResult = true;
 
-      Type[] robotTypes = new Type[RobotsGrid.RowDefinitions.Count];
-      for (int robotIndex = 0; robotIndex < robotTypes.Length; robotIndex++) {
-        robotTypes[robotIndex] =comboBoxes[robotIndex].SelectedIndex switch {
-          0 => typeof(SimpleRobot),
-          1 => typeof(BasicRobot),
-          _ => throw new NotSupportedException(),
-        };
+      RobotInfo[] robots = new RobotInfo[RobotsGrid.RowDefinitions.Count];
+      for (int robotsIndex = 0; robotsIndex < robots.Length; robotsIndex++) {
+        robots[robotsIndex] = Options.RobotInfos[comboBoxes[robotsIndex].SelectedIndex];
       }
 
-      if (isRandomOptions) {
-        NewOptions = new Options(
-          xCount: OriginalOptions.XCount,
-          yCount: OriginalOptions.YCount,
-          typeofBasicRobot: typeof(BasicRobot)); //just used to sets IsRandomOptions = true 
-      } else {
-        NewOptions = new Options(
-          countriesCount: (int)NumberOfCountriesNumberTextBox.Value,
-          xCount: OriginalOptions.XCount,
-          yCount: OriginalOptions.YCount,
-          mountainsPercentage: mountainsPercentage,
-          armiesInBiggestCountry: armiesInBiggestCountry,
-          armyGrowthFactor: armyGrowthFactor,
-          protectionFactor: protectionFactor,
-          attackFactor: attackFactor,
-          attackBenefitFactor: attackBenefitFactor,
-          isRandomOptions: isRandomOptions,
-          isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
-          robotTypes: robotTypes);
-      }
+      //if (isRandomOptions) {
+      //  NewOptions = new Options(
+      //    xCount: OriginalOptions.XCount, 
+      //    yCount: OriginalOptions.YCount, 
+      //    isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false); 
+      //} else {
+      //  NewOptions = new Options(
+      //    countriesCount: (int)NumberOfCountriesNumberTextBox.Value,
+      //    xCount: OriginalOptions.XCount,
+      //    yCount: OriginalOptions.YCount,
+      //    mountainsPercentage: mountainsPercentage,
+      //    armiesInBiggestCountry: armiesInBiggestCountry,
+      //    armyGrowthFactor: armyGrowthFactor,
+      //    protectionFactor: protectionFactor,
+      //    attackFactor: attackFactor,
+      //    attackBenefitFactor: attackBenefitFactor,
+      //    isRandomOptions: isRandomOptions,
+      //    isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
+      //    robots: robots);
+      //}
 
-      Color playerColor = PlayerColorBox.Color;
+      //these options get overwritten when isRandomOptions is true
+      NewOptions = new Options(
+        countriesCount: (int)NumberOfCountriesNumberTextBox.Value,
+        xCount: OriginalOptions.XCount,
+        yCount: OriginalOptions.YCount,
+        mountainsPercentage: mountainsPercentage,
+        armiesInBiggestCountry: armiesInBiggestCountry,
+        armyGrowthFactor: armyGrowthFactor,
+        protectionFactor: protectionFactor,
+        attackFactor: attackFactor,
+        attackBenefitFactor: attackBenefitFactor,
+        isRandomOptions: isRandomOptions,
+        isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
+        robots: robots);
+
+      var playerColor = PlayerColorBox.Color;
       NewOptions.SetColor(0, playerColor.A, playerColor.R, playerColor.G, playerColor.B);
-      for (int robotIndex = 0; robotIndex < robotTypes.Length; robotIndex++) {
-        Color robotColor = colorBoxes[robotIndex].Color;
-        NewOptions.SetColor(robotIndex+1, robotColor.A, robotColor.R, robotColor.G, robotColor.B);
+      for (int robotsIndex = 0; robotsIndex < robots.Length; robotsIndex++) {
+        var robotColor = colorBoxes[robotsIndex].Color;
+        NewOptions.SetColor(robotsIndex+1, robotColor.A, robotColor.R, robotColor.G, robotColor.B);
       }
-      for (int colorIndex = robotTypes.Length + 1; colorIndex < NewOptions.Colors.Length/4; colorIndex++) {
-        NewOptions.SetDefaultColor(colorIndex);
+      for (int colorIndex = robots.Length + 1; colorIndex < NewOptions.Colors.Length/4; colorIndex++) {
+        NewOptions.UseDefaultColor(colorIndex);
       }
     }
     #endregion

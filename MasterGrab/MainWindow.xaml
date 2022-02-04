@@ -27,9 +27,11 @@
         <Label Content="Autoplay:"/>
         <ComboBox x:Name="AutoPlayComboBox"  Margin="0,2,3,2" VerticalAlignment="Center">
           <ComboBoxItem IsSelected="True">Single Step</ComboBoxItem>
-          <ComboBoxItem IsSelected="True">0.5 sec</ComboBoxItem>
-          <ComboBoxItem IsSelected="True">1 sec</ComboBoxItem>
-          <ComboBoxItem IsSelected="True">2 sec</ComboBoxItem>
+          <ComboBoxItem >0.1 sec</ComboBoxItem>
+          <ComboBoxItem >0.2 sec</ComboBoxItem>
+          <ComboBoxItem >0.5 sec</ComboBoxItem>
+          <ComboBoxItem >1 sec</ComboBoxItem>
+          <ComboBoxItem >2 sec</ComboBoxItem>
         </ComboBox>
       </StackPanel>
       <Button Name="HelpButton" Content="_Help" DockPanel.Dock="Right" Margin="3,2,3,2" VerticalAlignment="Center"/>

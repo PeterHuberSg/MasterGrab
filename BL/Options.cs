@@ -22,6 +22,9 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace MasterGrab {
@@ -59,14 +62,14 @@ namespace MasterGrab {
     /// Number of map-pixels in x direction. This is usually the available screen width. Note that the biggest x coordinate is 
     /// XCount-1. 
     /// </summary>
-    public int XCount;
+    public int XCount; //gets set in MapControl.OnRenderContent
 
 
     /// <summary>
     /// Number of map-pixels in y direction. This is usually the available screen height. Note that the biggest y coordinate is 
     /// YCount-1
     /// </summary>
-    public int YCount;
+    public int YCount; //gets set in MapControl.OnRenderContent
 
 
     /// <summary>
@@ -139,11 +142,11 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Defines how many robots and their types to be created
+    /// Defines which robots will be in the game
     /// </summary>
-    public IReadOnlyList<Type> RobotTypes => robotTypes;
+    public IReadOnlyList<RobotInfo> Robots => robots;
 
-    readonly Type[] robotTypes;
+    readonly RobotInfo[] robots;
 
 
     /// <summary>
@@ -164,22 +167,100 @@ namespace MasterGrab {
     public byte[,] Colors = new byte[ColorsCount, BytesPerColor];
 
 
-    #region Option Default
-    //      --------------
+    #region Static Default Options and static constructor
+    //      ---------------------------------------------
 
     //The user can change some options. If he wants to undo every change, he can apply the Default options. Options 
-    //defines a set of proposed default options. They can be changed by another class using this library, without
-    //changing the code here.
+    //defines a set of proposed default options. They can be changed with InitialiseDefault() by another class using
+    //this library, without changing the code here.
+
+    /// <summary>
+    /// Contains all the classes in the Robots directory which inherit from Robot
+    /// </summary>
+    public static IReadOnlyList<RobotInfo> RobotInfos => robotInfos;
+    static readonly RobotInfo[] robotInfos;
+
+
+    /// <summary>
+    /// Contains all robots which can be used by the default options.
+    /// </summary>
+    public static IReadOnlyList<RobotInfo> DefaultRobots => defaultRobots;
+    static readonly RobotInfo[] defaultRobots;
+
 
     /// <summary>
     /// Provides a set of recommended default option values. This can be used when starting the game or when the user
     /// has changed some values and wants to reset the options.
     /// </summary>
-    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. 
-    //Default will be set by InitialiseDefault()
     public static Options Default { get; private set; }
-    #pragma warning restore CS8618
 
+
+    static Options() {
+      var robotInfos = new List<RobotInfo>();
+      var id = 0;
+      var robotsAssembly = Assembly.LoadFrom(new FileInfo("Robots.dll").FullName);
+      foreach (var robotType in robotsAssembly.ExportedTypes) {
+        if (robotType.BaseType?.Name=="Robot") {
+          var robotAttribute = robotType.GetCustomAttribute(typeof(RobotAttribute)) as RobotAttribute;
+          robotInfos.Add(new RobotInfo(
+            id++,
+            robotType,
+            robotAttribute?.Name??robotType.Name,
+            robotAttribute?.Description,
+            robotAttribute?.IsUsedForDefault??true));
+        }
+      }
+
+      if (robotInfos.Count==0) {
+        throw new Exception($"The must be at least 1 class inheriting from Robot in the Robots directory " +
+          $"{new DirectoryInfo("Robots").FullName}.");
+      }
+
+      Options.robotInfos = robotInfos.ToArray();
+
+      defaultRobots = RobotInfos.Where(ri => ri.IsUsedForDefault).ToArray();
+      if (defaultRobots.Length==0) {
+        //if no robot is marked to be included in the default options, then include all of them
+        defaultRobots = RobotInfos.ToArray();
+      }
+
+      var robots = new RobotInfo[3];
+      var defaultRobotsIndex = 0;
+      for (var robotsIndex = 0; robotsIndex < robots.Length; robotsIndex++) {
+        robots[robotsIndex] = DefaultRobots[defaultRobotsIndex++];
+        defaultRobotsIndex %= DefaultRobots.Count;
+      }
+
+      Default = new Options(
+        countriesCount: 140,
+        mountainsPercentage: 5,
+        xCount: int.MinValue,
+        yCount: int.MinValue,
+        armiesInBiggestCountry: 20.0,
+        armyGrowthFactor: 0.1,
+        protectionFactor: 2.0 / 3.0,
+        attackFactor: 0.5,
+        attackBenefitFactor: 1.0,
+        isRandomOptions: false,
+        isHumanPlaying: true,
+        robots: robots);
+      Default.SetColor(0, 0xFF, 0xFF, 0x60, 0x60);
+      Default.SetColor(1, 0xFF, 0xFF, 0xFF, 0x30);
+      Default.SetColor(2, 0xFF, 0x80, 0xEF, 0x80);
+      Default.SetColor(3, 0xFF, 0x80, 0xEF, 0xEF);
+      Default.SetColor(4, 0xFF, 0x80, 0x80, 0xEF);
+      Default.SetColor(5, 0xFF, 0xEF, 0x80, 0xEF);
+      Default.SetColor(6, 0xFF, 0xE0, 0xE0, 0x70);
+      Default.SetColor(7, 0xFF, 0xE0, 0xE0, 0xE0);
+      Default.SetColor(8, 0xFF, 0xCF, 0x80, 0x80);
+      Default.SetColor(9, 0xFF, 0xCF, 0xFF, 0x30);
+      Default.SetColor(10, 0xFF, 0x80, 0xBF, 0x80);
+      Default.SetColor(11, 0xFF, 0x80, 0xBF, 0xEF);
+      Default.SetColor(12, 0xFF, 0x80, 0x80, 0xBF);
+      Default.SetColor(13, 0xFF, 0xEF, 0x80, 0xBF);
+      Default.SetColor(14, 0xFF, 0xA0, 0xE0, 0x70);
+      Default.SetColor(15, 0xFF, 0xA0, 0xA0, 0xE0);
+    }
 
     /// <summary>
     /// A class using this library can change Options.Default without changing the code in Options.cs
@@ -193,44 +274,6 @@ namespace MasterGrab {
 
     #region Constructor
     //      -----------
-
-    /// <summary>
-    /// returns random options
-    /// </summary>
-    public Options(int xCount, int yCount, Type typeofBasicRobot) {
-
-      CountriesCount = randomize(CountriesCountDef);
-      MountainsPercentage = randomize(MountainsPercentageDef);
-      XCount = xCount;
-      YCount = yCount;
-      ArmiesInBiggestCountry = randomize(ArmiesInBiggestCountryDef, 0);
-      ArmyGrowthFactor = randomize(ArmyGrowthFactorDef, 2);
-      ProtectionFactor = randomize(ProtectionFactorDef, 2);
-      AttackFactor = randomize(AttackFactorDef, 2);
-      AttackBenefitFactor = randomize(AttackBenefitFactorDef, 2);
-      IsRandomOptions = true;
-      IsHumanPlaying = true;
-      var robotCount = random.Next(5)+1;
-      var robotTypes = new Type[robotCount];
-      for (var robotTypesIndex = 0; robotTypesIndex < robotCount; robotTypesIndex++) {
-        robotTypes[robotTypesIndex] = typeofBasicRobot;
-      }
-      this.robotTypes = robotTypes;
-    }
-
-
-    readonly Random random = new();
-
-
-    private int randomize(OptionDef<int> optionDef) {
-      return random.Next(optionDef.RandomOffset, optionDef.RandomRange);
-    }
-
-
-    private double randomize(OptionDef<double> optionDef, int digits) {
-        return Math.Round(optionDef.RandomOffset + (optionDef.RandomRange-optionDef.RandomOffset)*random.NextDouble(), digits);
-    }
-
 
     /// <summary>
     /// Constructor
@@ -247,7 +290,7 @@ namespace MasterGrab {
       double attackBenefitFactor,
       bool isRandomOptions,
       bool isHumanPlaying,
-      Type[] robotTypes) 
+      RobotInfo[] robots) 
     {
       CountriesCount = countriesCount;
       MountainsPercentage = mountainsPercentage;
@@ -260,7 +303,54 @@ namespace MasterGrab {
       AttackBenefitFactor = attackBenefitFactor;
       IsRandomOptions = isRandomOptions;
       IsHumanPlaying = isHumanPlaying;
-      this.robotTypes = robotTypes;
+      this.robots = robots;
+    }
+
+
+    /// <summary>
+    /// returns random options, keeps screen size, if human palying and Colors from options
+    /// </summary>
+    public Options(Options options) {
+
+      CountriesCount = randomize(CountriesCountDef);
+      MountainsPercentage = randomize(MountainsPercentageDef);
+      XCount = options.XCount;
+      YCount = options.YCount;
+      ArmiesInBiggestCountry = randomize(ArmiesInBiggestCountryDef, 0);
+      ArmyGrowthFactor = randomize(ArmyGrowthFactorDef, 2);
+      ProtectionFactor = randomize(ProtectionFactorDef, 2);
+      AttackFactor = randomize(AttackFactorDef, 2);
+      AttackBenefitFactor = randomize(AttackBenefitFactorDef, 2);
+      IsRandomOptions = true;
+      IsHumanPlaying = options.IsHumanPlaying;
+      var robotsCount = random.Next(5)+1;
+      if (!IsHumanPlaying) {
+        robotsCount++;
+      }
+      var robots = new RobotInfo[robotsCount];
+      for (var robotsIndex = 0; robotsIndex < robotsCount; robotsIndex++) {
+        robots[robotsIndex] = DefaultRobots[random.Next(DefaultRobots.Count)];
+      }
+      this.robots = robots;
+      for (var colorsIndex = 0; colorsIndex<ColorsCount; colorsIndex++) {
+        Colors[colorsIndex, 0] = options.Colors[colorsIndex, 0];
+        Colors[colorsIndex, 1] = options.Colors[colorsIndex, 1];
+        Colors[colorsIndex, 2] = options.Colors[colorsIndex, 2];
+        Colors[colorsIndex, 3] = options.Colors[colorsIndex, 3];
+      }
+    }
+
+
+    static readonly Random random = new();
+
+
+    private static int randomize(OptionDef<int> optionDef) {
+      return random.Next(optionDef.RandomOffset, optionDef.RandomRange);
+    }
+
+
+    private static double randomize(OptionDef<double> optionDef, int digits) {
+        return Math.Round(optionDef.RandomOffset + (optionDef.RandomRange-optionDef.RandomOffset)*random.NextDouble(), digits);
     }
     #endregion
 
@@ -283,7 +373,7 @@ namespace MasterGrab {
     /// Copies one color from Options.Default[colorIndex] to Options.Colors[colorIndex]
     /// </summary>
     /// <param name="colorIndex"></param>
-    public void SetDefaultColor(int colorIndex) {
+    public void UseDefaultColor(int colorIndex) {
       Colors[colorIndex, 0] = Default.Colors[colorIndex, 0];
       Colors[colorIndex, 1] = Default.Colors[colorIndex, 1];
       Colors[colorIndex, 2] = Default.Colors[colorIndex, 2];
@@ -326,9 +416,12 @@ namespace MasterGrab {
       stringBuilder.Append("YCount: ");
       stringBuilder.AppendLine(YCount.ToString());
 
-      foreach (Type robotType in robotTypes) {
-        stringBuilder.Append("Robots: ");
-        stringBuilder.Append(robotType.Name);
+      stringBuilder.Append("IsHumanPlaying: ");
+      stringBuilder.AppendLine(IsHumanPlaying.ToString());
+
+      for (var robotIndex = 0; robotIndex < robots.Length; robotIndex++) {
+        stringBuilder.Append($"Robot{robotIndex}: ");
+        stringBuilder.AppendLine(robots[robotIndex].ToString());
       }
       stringBuilder.AppendLine();
     }

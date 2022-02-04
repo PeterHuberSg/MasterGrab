@@ -189,14 +189,15 @@ namespace MasterGrab {
       var protectionFactor = 1.0;
       var attackFactor = 0.5;
       var attackBenefitFactor = 1.0;
-      var robotTypes = new Type[maxPlayerid];//there is one robot less than players, since player 0 is the guiPlayer
-      for (var robotsIndex = 0; robotsIndex < robotTypes.Length; robotsIndex++) {
-        robotTypes[robotsIndex] = typeof(Robot);
+      var robots = new RobotInfo[maxPlayerid];//there is one robot less than players, since player 0 is the guiPlayer
+      for (var robotsIndex = 0; robotsIndex < robots.Length; robotsIndex++) {
+        robots[robotsIndex] = Options.RobotInfos[0]; //which robot class is actually used doesn't matter here,
+                                                     //getOptions() is only used for testing
       }
       var xCount = 100;
       var yCount = 100;
       return new Options(countriesCount, mountainsPercentage, xCount, yCount, armiesInBiggestCountry, armyGrowthFactor, 
-        protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions: false, isHumanPlaying: true, robotTypes);
+        protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions: false, isHumanPlaying: true, robots);
     }
 
 
@@ -256,9 +257,11 @@ namespace MasterGrab {
       //after every move of any Player, the armies in every country grow a little
       growArmysizes();
 
-      if (playerId==Options.RobotTypes.Count) { //note that playerId = robotId + 1
-        //before the GUI makes its move, mark the countries with only few armies 
+      if (playerId==Options.Robots.Count) { //note that playerId = robotId + 1 if human plays
+        //before the GUI makes its move, mark the countries with only few armies, only if human plays 
         markCheapCountries();
+      }
+      if (playerId==masterGame.Players.Count-1) {
         decideIfGameIsFinished();
       }
     }
@@ -501,28 +504,29 @@ namespace MasterGrab {
 
 
     void decideIfGameIsFinished() {
-      var hasGuiPlayerCountries = false;
-      var haveRobotsCountries = false;
+      //check if GUI player has no more countries
+      if (Options.IsHumanPlaying) {
+        if (masterGame.Players[0].CountryIds.Count==0) {
+          masterGame.HasGameFinished = true;
+          masterGame.WinnerPlayerId = int.MinValue;
+          return;
+        }
+      }
+
+      //check if any player has won
+      var firstOwner = int.MinValue;
       foreach (var country in masterGame.Map) {
         if (country.IsMountain) continue;
 
-        if (country.OwnerId==GuiPlayerId) {
-          hasGuiPlayerCountries = true;
-          if (haveRobotsCountries) {
-            //Gui player and robots own countries. Game not finished yet
-            return;
-          }
-        } else {
-          haveRobotsCountries = true;
-          if (hasGuiPlayerCountries) {
-            //Gui player and robots own countries. Game not finished yet
-            return;
-          }
+        if (firstOwner==int.MinValue) {
+          firstOwner = country.OwnerId;
+        } else if (firstOwner!=country.OwnerId) {
+          return;
         }
       }
 
       masterGame.HasGameFinished = true;
-      masterGame.HasUserWon = hasGuiPlayerCountries;
+      masterGame.WinnerPlayerId = firstOwner;
     }
 
 

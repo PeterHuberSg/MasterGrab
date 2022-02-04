@@ -43,6 +43,12 @@ namespace MasterGrab {
 
 
     /// <summary>
+    /// Player's name
+    /// </summary>
+    public readonly string Name;
+
+
+    /// <summary>
     /// Game the Player is created for.
     /// </summary>
     public readonly Game Game;
@@ -62,8 +68,9 @@ namespace MasterGrab {
     /// <summary>
     /// Constructor using id and name. The caller has to ensure that id is unique.
     /// </summary>
-    public Player(int id, Game game) {
+    public Player(int id, string name, Game game) {
       Id = id;
+      Name = name;
       Game = game;
 
       countryIds = new List<int>();
@@ -75,7 +82,7 @@ namespace MasterGrab {
     /// must add the countries later, because if Player clones countries, they will not match with the countries cloned by 
     /// Map.
     /// </summary>
-    public Player(Game game, Player player) : this(player.Id, game) {
+    public Player(Game game, Player player) : this(player.Id, player.Name, game) {
       foreach (var countryId in player.CountryIds) {
         countryIds.Add(countryId);
       }
@@ -116,23 +123,4 @@ namespace MasterGrab {
     }
     #endregion
   }
-
-
-  #region Extensions
-  //      ----------
-
-  /// <summary>
-  /// Extensions related to Player
-  /// </summary>
-  public static class PlayerExtension {
-
-
-    /// <summary>
-    /// Returns the type of a player (user or robot) in a string
-    /// </summary>
-    public static string ToPlayerType(this int playerId) {
-      return playerId==0 ? "User" : "Robot" + playerId;
-    }
-  }
-  #endregion
 }

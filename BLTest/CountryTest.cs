@@ -18,7 +18,6 @@ Written 2016-2022 in Switzerland & Singapore by Jürgpeter Huber
 Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
@@ -29,8 +28,8 @@ namespace MasterGrab {
   public class CountryTest {
     [TestMethod]
     public void TestCountryGetNeigbourToNearestEnemy() {
-      Player testPlayer = new Player(0, null!);
-      Player opponent = new Player(1, null!);
+      var testPlayer = new Player(0, "testPlayer", null!);
+      var opponent = new Player(1, "opponent",null!);
       GameFix gameFix;
 
       gameFix = TestGame.Create(testPlayer, opponent, out var updates,
@@ -60,16 +59,14 @@ namespace MasterGrab {
 
 
     private static void assert(GameFix gameFix, int x1, int y1, int x2, int y2, int countriesPerRow) {
-      Country country = gameFix.GetClonedGame().Map[x1 + countriesPerRow*y1];
-      Country neighbour = country.GetNeigbourToNearestEnemy();
+      var country = gameFix.GetClonedGame().Map[x1 + countriesPerRow*y1];
+      var neighbour = country.GetNeigbourToNearestEnemy();
       if (x2>=0 && y2>=0) {
-        int neighbourId = x2 + countriesPerRow*y2;
+        var neighbourId = x2 + countriesPerRow*y2;
         Assert.AreEqual(neighbourId, neighbour.Id);
       } else {
         Assert.IsNull(neighbour);
       }
     }
-
-
   }
 }

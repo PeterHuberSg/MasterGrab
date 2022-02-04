@@ -30,9 +30,10 @@ namespace MasterGrab {
   /// Robot used in first version of game.It firstchecks which countires he is strong enough to attack and attacks then
   /// the biggest country with the smallest loss. Country size is more important than army loss. </para>
   /// 
-  /// If he is too weak to attack another player, he tries to find an own Country,
-  /// to which he can move as many armies as possible. In the next moves, he will move these armies to the nearest enemy.
+  /// If he is too weak to attack another player, he tries to find an own Country, to which he can move as many armies 
+  /// as possible. In the next moves, he will move these armies to the nearest enemy.
   /// </summary>
+  [Robot(name: "Basic Robot", description: "Default robot used by game", isUsedForDefault: true)]
   public class BasicRobot: Robot {
 
     #region Constructor

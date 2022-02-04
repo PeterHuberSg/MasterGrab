@@ -3,7 +3,7 @@
 MasterGrab.MasterGrab.MapInfoWindow
 ===================================
 
-Can be opened as small Window over the game map displaying some addition information
+Can be opened as small "window" over the game map displaying some addition information
 
 License
 -------
@@ -39,14 +39,17 @@ namespace MasterGrab {
     #region Properties
     //      ----------
 
-    public InfoWindowEnum InfoWindow {
-      get => infoWindow;
+    /// <summary>
+    /// Does the info window display ranking, tracing or no indormation ?
+    /// </summary>
+    public InfoWindowModeEnum InfoWindowMode {
+      get => infoWindowMode;
       set {
-        infoWindow = value;
+        infoWindowMode = value;
         switchInfoWindow();
       }
     }
-    InfoWindowEnum infoWindow = InfoWindowEnum.trace;
+    InfoWindowModeEnum infoWindowMode = InfoWindowModeEnum.none;
     #endregion
 
 
@@ -77,6 +80,21 @@ namespace MasterGrab {
     Grid traceGrid;
     TextBlock[,] traceTextBlocks;
 
+    const int rankingPlayersIndex = 0;
+    const int rankingRankIndex = rankingPlayersIndex + 1;
+    const int rankingCCountIndex = rankingRankIndex + 1;
+    const int rankingCPercentIndex = rankingCCountIndex + 1; //CountriesCount
+    const int rankingSizeIndex = rankingCPercentIndex + 1;   //CountriesPercent
+    const int rankingArmiesIndex = rankingSizeIndex + 1;
+    const int rankingColumnCount = rankingArmiesIndex + 1;
+
+    const int tracePlayerIndex = 0;
+    const int traceDefenderIndex = tracePlayerIndex + 1;
+    const int traceActionIndex = traceDefenderIndex + 1;
+    const int traceToIndex = traceActionIndex + 1;
+    const int traceFromIndex = traceToIndex + 1;
+    const int traceColumnCount = traceFromIndex + 1;
+
 
     internal void MapChanged() {
       if (isFirstTime) {
@@ -89,7 +107,7 @@ namespace MasterGrab {
         border = new Border();
         AddChild(border);
         border.Background = Brushes.White;
-        border.BorderBrush = Brushes.DarkGray;
+        border.BorderBrush = Brushes.Gray;
         border.BorderThickness = new Thickness(5);
         border.CornerRadius = new CornerRadius(10);
         //border.Padding = new Thickness(3);
@@ -99,10 +117,8 @@ namespace MasterGrab {
       }
 
       //ranking
-      //just overwrite rankingGrid, even if the map changes, i.e. number of players. 
+      //just overwrite rankingGrid, because number of players might have changed on new map 
       rankingGrid = new Grid();
-      //grid.ShowGridLines = true;
-      const int statsColumnCount = 6;
       for (var rowIndex = 0; rowIndex < mapControl.Game.Players.Count+1; rowIndex++) {
         var rowDefinition = new RowDefinition {Height = GridLength.Auto};
         rankingGrid.RowDefinitions.Add(rowDefinition);
@@ -111,14 +127,14 @@ namespace MasterGrab {
           rankingGrid.Children.Add(rectangle);
           Grid.SetRow(rectangle, rowIndex);
           Grid.SetColumn(rectangle, 1);
-          Grid.SetColumnSpan(rectangle, statsColumnCount-1);
+          Grid.SetColumnSpan(rectangle, rankingColumnCount-1);
           rectangle.Fill = gridLineBrush;
         }
       }
-      for (var columnIndex = 0; columnIndex < statsColumnCount; columnIndex++) {
+      for (var columnIndex = 0; columnIndex < rankingColumnCount; columnIndex++) {
         var columnDefinition = new ColumnDefinition {Width = GridLength.Auto};
         rankingGrid.ColumnDefinitions.Add(columnDefinition);
-        if (columnIndex == 1 || columnIndex == 4) {
+        if (columnIndex is 1 or 4) {
           var rectangle = new Rectangle();
           rankingGrid.Children.Add(rectangle);
           Grid.SetRow(rectangle, 0);
@@ -144,17 +160,16 @@ namespace MasterGrab {
           textBlock.Text = rowIndex + ", " + columnIndex;
         }
       }
-      rankingTextBlocks[0, 0].Text = "Players";
-      rankingTextBlocks[0, 1].Text = "Rank";
-      rankingTextBlocks[0, 2].Text = "Countries";
-      Grid.SetColumnSpan(rankingTextBlocks[0, 2], 2);
-      rankingTextBlocks[0, 3].Text = "";
-      rankingTextBlocks[0, 4].Text = "Size";
-      rankingTextBlocks[0, 5].Text = "Armies";
+      rankingTextBlocks[0, rankingPlayersIndex].Text = "Players";
+      rankingTextBlocks[0, rankingPlayersIndex].Text = "Rank";
+      rankingTextBlocks[0, rankingCCountIndex].Text = "Countries";
+      Grid.SetColumnSpan(rankingTextBlocks[0, rankingCCountIndex], 2);
+      rankingTextBlocks[0, rankingCPercentIndex].Text = "";
+      rankingTextBlocks[0, rankingSizeIndex].Text = "Size";
+      rankingTextBlocks[0, rankingArmiesIndex].Text = "Armies";
 
       //trace
       traceGrid = new Grid();
-      const int traceColumnCount = 6;
       for (var rowIndex = 0; rowIndex < mapControl.Game.Players.Count+1; rowIndex++) {
         var rowDefinition = new RowDefinition {Height = GridLength.Auto};
         traceGrid.RowDefinitions.Add(rowDefinition);
@@ -193,15 +208,13 @@ namespace MasterGrab {
           textBlock.Text = rowIndex + ", " + columnIndex;
         }
       }
-      traceTextBlocks[0, 0].Text = "Player";
-      traceTextBlocks[0, 1].Text = "Defender";
-      traceTextBlocks[0, 2].Text = "Action";
-      traceTextBlocks[0, 3].Text = "To";
-      traceTextBlocks[0, 4].Text = "From";
-      traceTextBlocks[0, 5].Text = "Chance";
+      traceTextBlocks[0, tracePlayerIndex].Text = "Player";
+      traceTextBlocks[0, traceDefenderIndex].Text = "Defender";
+      traceTextBlocks[0, traceActionIndex].Text = "Action";
+      traceTextBlocks[0, traceToIndex].Text = "To";
+      traceTextBlocks[0, traceFromIndex].Text = "From";
 
-
-      updateInfoWindow();
+      switchInfoWindow();
 
       InvalidateMeasure();
       InvalidateVisual();
@@ -231,45 +244,64 @@ namespace MasterGrab {
       }
 
       //place ranking away from cursor
-      var isMoveRanking = false;
+      //var isMoveRanking = false;
+      //if (rankingPositionLeft) {
+      //  if (mousePoint.X<mapControl.PixelMap.XMax/3) {
+      //    isMoveRanking = true;
+      //    rankingPositionLeft = false;
+      //  }
+      //} else {
+      //  if (mousePoint.X>mapControl.PixelMap.XMax*2/3) {
+      //    isMoveRanking = true;
+      //    rankingPositionLeft = true;
+      //  }
+      //}
+      //if (rankingPositionTop) {
+      //  if (mousePoint.Y<mapControl.PixelMap.YMax/3) {
+      //    isMoveRanking = true;
+      //    rankingPositionTop = false;
+      //  }
+      //} else {
+      //  if (mousePoint.Y>mapControl.PixelMap.YMax*2/3) {
+      //    isMoveRanking = true;
+      //    rankingPositionTop = true;
+      //  }
+      //}
+      //if (isMoveRanking) {
+      //  InvalidateArrange();
+      //}
+
+
+      bool shouldPositionLeftChange;
       if (rankingPositionLeft) {
-        if (mousePoint.X<mapControl.PixelMap.XMax/3) {
-          isMoveRanking = true;
-          rankingPositionLeft = false;
-        }
+        shouldPositionLeftChange = mousePoint.X<mapControl.PixelMap.XMax/3;
       } else {
-        if (mousePoint.X>mapControl.PixelMap.XMax*2/3) {
-          isMoveRanking = true;
-          rankingPositionLeft = true;
-        }
+        shouldPositionLeftChange = mousePoint.X>mapControl.PixelMap.XMax*2/3;
       }
+      bool shouldPositionTopChange;
       if (rankingPositionTop) {
-        if (mousePoint.Y<mapControl.PixelMap.YMax/3) {
-          isMoveRanking = true;
-          rankingPositionTop = false;
-        }
+        shouldPositionTopChange = mousePoint.Y<mapControl.PixelMap.YMax*3/7;
       } else {
-        if (mousePoint.Y>mapControl.PixelMap.YMax*2/3) {
-          isMoveRanking = true;
-          rankingPositionTop = true;
-        }
+        shouldPositionTopChange = mousePoint.Y>mapControl.PixelMap.YMax*4/7;
       }
 
-      if (isMoveRanking) {
+      if (shouldPositionLeftChange && shouldPositionTopChange) {
+        rankingPositionLeft = !rankingPositionLeft;
+        rankingPositionTop = !rankingPositionTop;
         InvalidateArrange();
       }
     }
 
 
     private void switchInfoWindow() {
-      switch (infoWindow) {
-      case InfoWindowEnum.none:
+      switch (infoWindowMode) {
+      case InfoWindowModeEnum.none:
         border.Visibility = Visibility.Collapsed;
         return;
-      case InfoWindowEnum.ranking:
+      case InfoWindowModeEnum.ranking:
         border.Child = rankingGrid;
         break;
-      case InfoWindowEnum.trace:
+      case InfoWindowModeEnum.trace:
         border.Child = traceGrid;
         break;
       default:
@@ -285,13 +317,13 @@ namespace MasterGrab {
       if (mapControl.Game==null)
         return;
 
-      switch (infoWindow) {
-      case InfoWindowEnum.none:
+      switch (infoWindowMode) {
+      case InfoWindowModeEnum.none:
         break;
-      case InfoWindowEnum.ranking:
+      case InfoWindowModeEnum.ranking:
         updateRanking();
         break;
-      case InfoWindowEnum.trace:
+      case InfoWindowModeEnum.trace:
         updateTrace();
         break;
       default:
@@ -307,14 +339,14 @@ namespace MasterGrab {
         var searchRank = rowIndex;
         for (var playerIdIndex = 0; playerIdIndex < playerStatistics.Length; playerIdIndex++) {
           if (playerStatistics[playerIdIndex].Rank==searchRank) {
-            var nameTextBlock = rankingTextBlocks[rowIndex, 0];
-            nameTextBlock.Text = playerIdIndex.ToPlayerType();
+            var nameTextBlock = rankingTextBlocks[rowIndex, rankingPlayersIndex];
+            nameTextBlock.Text = mapControl.Game.Players[playerIdIndex].Name;
             nameTextBlock.Background = mapControl.PlayerBrushes[playerIdIndex];
-            rankingTextBlocks[rowIndex, 1].Text = playerStatistics[playerIdIndex].Rank.ToString();
-            rankingTextBlocks[rowIndex, 2].Text = playerStatistics[playerIdIndex].Countries.ToString();
-            rankingTextBlocks[rowIndex, 3].Text = playerStatistics[playerIdIndex].CountriesPercent.ToString("#0.0%");
-            rankingTextBlocks[rowIndex, 4].Text = playerStatistics[playerIdIndex].Size.ToString();
-            rankingTextBlocks[rowIndex, 5].Text = playerStatistics[playerIdIndex].Armies.ToString();
+            rankingTextBlocks[rowIndex, rankingRankIndex].Text = playerStatistics[playerIdIndex].Rank.ToString();
+            rankingTextBlocks[rowIndex, rankingCCountIndex].Text = playerStatistics[playerIdIndex].Countries.ToString();
+            rankingTextBlocks[rowIndex, rankingCPercentIndex].Text = playerStatistics[playerIdIndex].CountriesPercent.ToString("#0.0%");
+            rankingTextBlocks[rowIndex, rankingSizeIndex].Text = playerStatistics[playerIdIndex].Size.ToString();
+            rankingTextBlocks[rowIndex, rankingArmiesIndex].Text = playerStatistics[playerIdIndex].Armies.ToString();
             rowIndex++;
           }
         }
@@ -323,53 +355,45 @@ namespace MasterGrab {
 
 
     private void updateTrace() {
-      IReadOnlyList<Result> results = mapControl.Game.Results;
+      var results = mapControl.Game.Results;
       for (var resultsIndex = 0; resultsIndex < results.Count; resultsIndex++) {
         var result = results[resultsIndex];
         var rowIndex = resultsIndex + 1;
 
-        var attackerTextBlock = traceTextBlocks[rowIndex, 0];
-        attackerTextBlock.Text = result.PlayerId.ToPlayerType();
+        var attackerTextBlock = traceTextBlocks[rowIndex, tracePlayerIndex];
+        attackerTextBlock.Text = mapControl.Game.Players[result.PlayerId].Name;
         attackerTextBlock.Background = mapControl.PlayerBrushes[result.PlayerId];
 
-        var defenderTextBlock = traceTextBlocks[rowIndex, 1];
+        var defenderTextBlock = traceTextBlocks[rowIndex, traceDefenderIndex];
         if (result.MoveType==MoveTypeEnum.attack) {
-          defenderTextBlock.Text = result.DefenderId.ToPlayerType();
+          defenderTextBlock.Text = mapControl.Game.Players[result.DefenderId].Name;
           defenderTextBlock.Background = mapControl.PlayerBrushes[result.DefenderId];
         } else {
           defenderTextBlock.Text = "";
+          defenderTextBlock.Background = null;
         }
 
-        traceTextBlocks[rowIndex, 2].Text = result.MoveType switch {
+        traceTextBlocks[rowIndex, traceActionIndex].Text = result.MoveType switch {
           MoveTypeEnum.none => "none",
           MoveTypeEnum.move => "moves",
           MoveTypeEnum.attack => result.IsSuccess ? "wins" : "loses",
           _ => throw new NotSupportedException(),
         };
         if (result.IsError) {
-          traceTextBlocks[rowIndex, 2].Text += " error";
+          traceTextBlocks[rowIndex, traceActionIndex].Text += " error";
         }
 
         if (result.MoveType==MoveTypeEnum.none) {
-          traceTextBlocks[rowIndex, 3].Text = "";
-          traceTextBlocks[rowIndex, 4].Text = "";
-          traceTextBlocks[rowIndex, 5].Text = "";
+          traceTextBlocks[rowIndex, traceToIndex].Text = "";
+          traceTextBlocks[rowIndex, traceFromIndex].Text = "";
         } else {
-          traceTextBlocks[rowIndex, 3].Text = result.BeforeArmies![0] + "->" + result.AfterArmies![0];
+          traceTextBlocks[rowIndex, traceToIndex].Text = result.BeforeArmies![0] + "->" + result.AfterArmies![0];
 
           var attackString = "";
           for (var countryIndex = 1; countryIndex < result.BeforeArmies.Count; countryIndex++) {
             attackString += result.BeforeArmies[countryIndex] + "->" + result.AfterArmies[countryIndex] + ", ";
           }
-          traceTextBlocks[rowIndex, 4].Text = attackString;
-
-          #pragma warning disable IDE0045 // Convert to conditional expression
-          if (result.MoveType==MoveTypeEnum.attack) {
-            traceTextBlocks[rowIndex, 5].Text = ((int)(result.Probability*100)).ToString() + "%";
-          } else {
-            traceTextBlocks[rowIndex, 5].Text = "";
-          }
-          #pragma warning restore IDE0045
+          traceTextBlocks[rowIndex, traceFromIndex].Text = attackString;
         }
       }
       traceGrid.InvalidateMeasure();
@@ -395,22 +419,18 @@ namespace MasterGrab {
         if (rankingPositionLeft) {
           left = mapControl.PixelMap.XMax / 10;
         } else {
-          left = mapControl.PixelMap.XMax - border.DesiredSize.Width - (mapControl.PixelMap.XMax / 10);
+          left = mapControl.PixelMap.XMax - border.DesiredSize.Width - mapControl.PixelMap.XMax / 10;
         }
         double top;
         if (rankingPositionTop) {
           top = mapControl.PixelMap.YMax / 10;
         } else {
-          top = mapControl.PixelMap.YMax - border.DesiredSize.Height - (mapControl.PixelMap.YMax / 10);
+          top = mapControl.PixelMap.YMax - border.DesiredSize.Height - mapControl.PixelMap.YMax / 10;
         }
         #pragma warning restore IDE0045
-        border.ArrangeBorderPadding(arrangeRect, left, top, border.DesiredSize.Width, border.DesiredSize.Width);
+        border.ArrangeBorderPadding(arrangeRect, left, top, border.DesiredSize.Width, border.DesiredSize.Height);
       }
       return arrangeRect.Size;
-    }
-
-
-    protected override void OnRenderContent(System.Windows.Media.DrawingContext drawingContext, Size renderContentSize) {
     }
     #endregion
   }

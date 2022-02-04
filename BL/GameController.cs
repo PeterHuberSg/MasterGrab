@@ -36,7 +36,7 @@ namespace MasterGrab {
   /// 
   /// GameController maps GuiPlayer and Robots to Players. GuiPlayer is player 0, the robots use 1 and higher.</para>
   /// 
-  /// GameContoller -> GameFix -> Game -> Map -> Country -> CountryFix
+  /// GameContoller -> GameFix -> Game -> Map -> Country
   /// </summary>
   public class GameController {
 
@@ -47,11 +47,11 @@ namespace MasterGrab {
     readonly Thread controlllerThread;
 
     Options options;
-    readonly Action<PixelMap, IReadOnlyList<CountryFix>, Game, Player> mapChanged;
-    readonly Action<Game, Player> gameChanged;
+    readonly Action<PixelMap, IReadOnlyList<CountryFix>, Game, Player?> mapChanged;
+    readonly Action<Game, Player?> gameChanged;
     readonly Action<Exception> exceptionRaised;
-    private bool isReplay;
-    private bool isClosed;
+    bool isReplay;
+    bool isClosed;
 
 
     /// <summary>
@@ -64,7 +64,8 @@ namespace MasterGrab {
     public GameController(
       Options options,
       Action<PixelMap, 
-      IReadOnlyList<CountryFix>, Game, Player> mapChanged, Action<Game, Player> gameChanged, 
+      IReadOnlyList<CountryFix>, Game, Player?> mapChanged, 
+      Action<Game, Player?> gameChanged, 
       Action<Exception> exceptionRaised,
       out Action<Move> move, 
       out Action replay, 
@@ -101,7 +102,7 @@ namespace MasterGrab {
     private void guiMove(Move move) {
       //on WPF thread
       if (moveGui!=null) throw new Exception();
-
+      //if GUI sends moves too quickly, moves get lost
       moveGui = move;
       autoResetEvent.Set();
     }
@@ -116,15 +117,19 @@ namespace MasterGrab {
 
     private Options startNewGame(Options options) {
       //on WPF thread
-      #pragma warning disable IDE0045 // Convert to conditional expression
+#pragma warning disable IDE0045 // Convert to conditional expression
+      //keep a local options copy, because startNewGameOptions might get set to null immediately because of autoResetEvent.Set()
+      //when singelstepping in debugger
+      Options newOptions;
       if (options.IsRandomOptions) {
-        startNewGameOptions = new Options(options.XCount, options.YCount, options.RobotTypes[0]);
+        newOptions = new Options(options);
       } else {
-        startNewGameOptions = options;
+        newOptions = options;
       }
+      startNewGameOptions = newOptions;
       #pragma warning restore IDE0045
       autoResetEvent.Set();
-      return startNewGameOptions;
+      return newOptions;
     }
 
 
@@ -154,22 +159,11 @@ namespace MasterGrab {
     /// gets called.
     /// </summary>
     private void controllerMethod() {
-      try {
-        startNewGame();
-      } catch (Exception ex) {
-        if (ex.Message.Contains("too many border points")) {
-          //just create a new map. This is the easiest solution, since this exception occures very seldom
-          //Todo: Solve problem with too many border points
-          //Tracer.TraceWarning("Exception occured: " + ex.ToDetailString());
-          startNewGameOptions = options;
-          isSkipWaiting = true;
-        } else { 
-          exceptionRaised(ex);
-        }
-      }
+      startNewGame();
 
       do {
         try {
+          //Thread.Sleep(500);
           if (isSkipWaiting) {
             isSkipWaiting = false;
           } else {
@@ -179,37 +173,46 @@ namespace MasterGrab {
             return;
 
           if (isReplay) {
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now:mm.ss.fff} controllerMethod: Replay");
             isReplay = false;
             executeReplay();
             var gameCloned = gameFix.GetClonedGame();
-            gameChanged(gameCloned, gameCloned.Players[GameFix.GuiPlayerId]);
+            var guiPlayer = options.IsHumanPlaying ? gameCloned.Players[GameFix.GuiPlayerId] : null;
+            gameChanged(gameCloned, guiPlayer);
 
           } else if (startNewGameOptions!=null) {
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now:mm.ss.fff} controllerMethod: NewGame");
             options = startNewGameOptions;
             startNewGameOptions = null;
             startNewGame();
 
           } else {
-            if (moveGui==null) throw new Exception();
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now:mm.ss.fff} controllerMethod: Move");
+            int humanPlayerOffset;
+            if (options.IsHumanPlaying) {
+              if (moveGui==null) throw new Exception();
+              executeMove(GameFix.GuiPlayerId, moveGui);
+              humanPlayerOffset = 1;
 
-            var moveGuiCopy = moveGui;
+            } else {
+              humanPlayerOffset = 0;
+            }
             moveGui = null;
-
-            executeMove(GameFix.GuiPlayerId, moveGuiCopy);
 
             for (var robotIndex = 0; robotIndex < robots.Length; robotIndex++) {
               try {
                 var robot = robots[robotIndex];
                 var gameRobot = gameFix.GetClonedGame();
-                var move = robot.PlanMove(gameRobot.Players[robotIndex+1]);
-                executeMove(robotIndex+1, move);
+                var move = robot.PlanMove(gameRobot.Players[robotIndex + humanPlayerOffset]);
+                executeMove(robotIndex + humanPlayerOffset, move);
               } catch (Exception ex) {
                 exceptionRaised(ex);
               }
             }
 
             var gameCloned = gameFix.GetClonedGame();
-            gameChanged(gameCloned, gameCloned.Players[GameFix.GuiPlayerId]);
+            var guiPlayer = options.IsHumanPlaying ? gameCloned.Players[GameFix.GuiPlayerId] : null;
+            gameChanged(gameCloned, guiPlayer);
           }
 
         } catch (Exception ex) {
@@ -221,18 +224,32 @@ namespace MasterGrab {
 
     //creates a new game and robots
     private void startNewGame() {
-      robots = new Robot[options.RobotTypes.Count];
+      robots = new Robot[options.Robots.Count];
       for (var robotIndex = 0; robotIndex < robots.Length; robotIndex++) {
-        var constructorInfos = options.RobotTypes[robotIndex].GetConstructors();
+        var constructorInfos = options.Robots[robotIndex].Type.GetConstructors();
         var constructorInfo = constructorInfos[0];
         robots[robotIndex] = (Robot)constructorInfo.Invoke(null);
       }
-      gameFix = new GameFix(options, out executeReplay, out executeMove);
 
-      //pass a copy of game to the GUI. Game values will change, but they should get reported to the Gui only in the next 
-      //gameChanged event.
-      var gameCloned = gameFix.GetClonedGame();
-      mapChanged(gameFix.PixelMap, gameFix.CountryFixArray, gameCloned, gameCloned.Players[GameFix.GuiPlayerId]);
+      try {
+        gameFix = new GameFix(options, out executeReplay, out executeMove);
+        //pass a copy of game to the GUI. Game values will change, but they should get reported to the Gui only in the next 
+        //gameChanged event.
+        var gameCloned = gameFix.GetClonedGame();
+        var guiPlayer = options.IsHumanPlaying ? gameCloned.Players[GameFix.GuiPlayerId] : null;
+        mapChanged(gameFix.PixelMap, gameFix.CountryFixArray, gameCloned, guiPlayer);
+
+      } catch (Exception ex) {
+        if (ex.Message.Contains("too many border points")) {
+          //just create a new map. This is the easiest solution, since this exception occures very seldom
+          //Todo: Solve problem with too many border points
+          //Tracer.TraceWarning("Exception occured: " + ex.ToDetailString());
+          startNewGameOptions = options;
+          isSkipWaiting = true;
+        } else {
+          exceptionRaised(ex);
+        }
+      }
     }
     #endregion
   }

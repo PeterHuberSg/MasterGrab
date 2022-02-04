@@ -24,7 +24,7 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 using System;
 using System.Windows;
 using System.Windows.Controls;
-
+using System.Windows.Threading;
 
 namespace MasterGrab {
 
@@ -50,41 +50,10 @@ namespace MasterGrab {
       InfoWindowComboBox.SelectionChanged += InfoWindowComboBox_SelectionChanged;
       ShowComboBox.SelectionChanged += ShowComboBox_SelectionChanged;
       NextStepButton.Click += NextStepButton_Click;
+      AutoPlayComboBox.SelectionChanged += AutoPlayComboBox_SelectionChanged;
       HelpButton.Click += HelpButton_Click;
 
-      Options defaultOptions = new Options(
-      countriesCount: 140,
-      mountainsPercentage: 5,
-      xCount: int.MinValue,
-      yCount: int.MinValue,
-      armiesInBiggestCountry: 20.0,
-      armyGrowthFactor: 0.1,
-      protectionFactor: 2.0 / 3.0,
-      attackFactor: 0.5,
-      attackBenefitFactor: 1.0,
-      isRandomOptions: false,
-      isHumanPlaying: true,
-      robotTypes: new Type[] { typeof(BasicRobot), typeof(BasicRobot), typeof(BasicRobot) });
-      defaultOptions.SetColor( 0, 0xFF, 0xFF, 0x60, 0x60);
-      defaultOptions.SetColor( 1, 0xFF, 0xFF, 0xFF, 0x30);
-      defaultOptions.SetColor( 2, 0xFF, 0x80, 0xEF, 0x80);
-      defaultOptions.SetColor( 3, 0xFF, 0x80, 0xEF, 0xEF);
-      defaultOptions.SetColor( 4, 0xFF, 0x80, 0x80, 0xEF);
-      defaultOptions.SetColor( 5, 0xFF, 0xEF, 0x80, 0xEF);
-      defaultOptions.SetColor( 6, 0xFF, 0xE0, 0xE0, 0x70);
-      defaultOptions.SetColor( 7, 0xFF, 0xE0, 0xE0, 0xE0);
-      defaultOptions.SetColor( 8, 0xFF, 0xCF, 0x80, 0x80);
-      defaultOptions.SetColor( 9, 0xFF, 0xCF, 0xFF, 0x30);
-      defaultOptions.SetColor(10, 0xFF, 0x80, 0xBF, 0x80);
-      defaultOptions.SetColor(11, 0xFF, 0x80, 0xBF, 0xEF);
-      defaultOptions.SetColor(12, 0xFF, 0x80, 0x80, 0xBF);
-      defaultOptions.SetColor(13, 0xFF, 0xEF, 0x80, 0xBF);
-      defaultOptions.SetColor(14, 0xFF, 0xA0, 0xE0, 0x70);
-      defaultOptions.SetColor(15, 0xFF, 0xA0, 0xA0, 0xE0);
-      Options.InitialiseDefault(defaultOptions);
-
       options = Options.Default;
-
       mapControl = new MapControl(options, 1, isShowArmySizeChanged);
       MainDockPanel.Children.Add(mapControl);
     }
@@ -108,7 +77,13 @@ namespace MasterGrab {
       bool? isOk = optionsWindow.ShowDialog();
       if (isOk.HasValue && isOk.Value) {
         options = optionsWindow.NewOptions;
-        AutoPlayStackPanel.Visibility = options.IsHumanPlaying ? Visibility.Collapsed : Visibility.Visible;
+        if (options.IsHumanPlaying) {
+          NextStepButton.IsEnabled = true;
+          AutoPlayStackPanel.Visibility = Visibility.Collapsed;
+        } else {
+          NextStepButton.IsEnabled = AutoPlayComboBox.SelectedIndex==0;
+          AutoPlayStackPanel.Visibility = Visibility.Visible;
+        }
         mapControl.StartNewGame(options);
       }
     }
@@ -122,10 +97,10 @@ namespace MasterGrab {
 
 
     private void InfoWindowComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      mapControl.InfoWindow = InfoWindowComboBox.SelectedIndex switch {
-        0 => InfoWindowEnum.none,
-        1 => InfoWindowEnum.ranking,
-        2 => InfoWindowEnum.trace,
+      mapControl.InfoWindowMode = InfoWindowComboBox.SelectedIndex switch {
+        0 => InfoWindowModeEnum.none,
+        1 => InfoWindowModeEnum.ranking,
+        2 => InfoWindowModeEnum.trace,
         _ => throw new NotSupportedException(),
       };
     }
@@ -147,6 +122,19 @@ namespace MasterGrab {
 
     private void NextStepButton_Click(object sender, RoutedEventArgs e) {
       mapControl.ControllerMove(Move.NoMove);
+    }
+
+
+    private void AutoPlayComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      switch (AutoPlayComboBox.SelectedIndex) {
+      case 0: NextStepButton.IsEnabled = true; mapControl.SetTimer(null); break;
+      case 1: NextStepButton.IsEnabled = false; mapControl.SetTimer(TimeSpan.FromMilliseconds(50)); break;
+      case 2: NextStepButton.IsEnabled = false; mapControl.SetTimer(TimeSpan.FromMilliseconds(200)); break;
+      case 3: NextStepButton.IsEnabled = false; mapControl.SetTimer(TimeSpan.FromMilliseconds(500)); break;
+      case 4: NextStepButton.IsEnabled = false; mapControl.SetTimer(TimeSpan.FromSeconds(1)); break;
+      case 5: NextStepButton.IsEnabled = false; mapControl.SetTimer(TimeSpan.FromSeconds(2)); break;
+      default: throw Tracer.Exception();
+      }
     }
 
 

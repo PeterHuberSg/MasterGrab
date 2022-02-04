@@ -24,14 +24,14 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
-
+using System.Windows.Threading;
 
 namespace MasterGrab {
 
   /// <summary>
   /// Info Window can be hidden or show ranking of players or the last move of each player
   /// </summary>
-  public enum InfoWindowEnum {
+  public enum InfoWindowModeEnum {
     none,
     ranking,
     trace
@@ -60,9 +60,9 @@ namespace MasterGrab {
     readonly Action<bool> isShowArmySizeChanged;
 
 
-    public InfoWindowEnum InfoWindow {
-      get => mapInfoWindow.InfoWindow;
-      set => mapInfoWindow.InfoWindow = value;
+    public InfoWindowModeEnum InfoWindowMode {
+      get => mapInfoWindow.InfoWindowMode;
+      set => mapInfoWindow.InfoWindowMode = value;
     }
     #endregion
 
@@ -77,6 +77,7 @@ namespace MasterGrab {
     readonly MapFinishedOverlayControl mapFinishedOverlayControl;
     bool isHighlightCountries;
     readonly MapInfoWindow mapInfoWindow;
+    readonly DispatcherTimer autoPlayTimer;
 
 
     /// <summary>
@@ -86,9 +87,11 @@ namespace MasterGrab {
     public MapControl(Options options, int scale, Action<bool> isShowArmySizeChanged) {
     #pragma warning restore CS8618
       this.options = options;
-      initialisePlayerBrushes(options.RobotTypes.Count + 1);
+      initialisePlayerBrushes(options.Robots.Count + 1);
       this.scale = scale;
       this.isShowArmySizeChanged = isShowArmySizeChanged;
+      autoPlayTimer = new(DispatcherPriority.Input);
+      autoPlayTimer.Tick += AutoPlayTimer_Tick;
 
       //change some CustomControlBase properties
       Background = Brushes.Gray;
@@ -112,20 +115,26 @@ namespace MasterGrab {
     /// Let's the user play the last game again, with the same country map
     /// </summary>
     internal void Replay() {
+      if (isAutoPlaySelected && !options.IsHumanPlaying) {
+        autoPlayTimer.Start();
+      }
+      isGuiMoveAwaited = false;
       mapFinishedOverlayControl.Hide();
       controllerReplay();
     }
 
 
     /// <summary>
-    /// Let's the user play a new game with new country map
+    /// Lets the user play a new game with new country map
     /// </summary>
-    internal void StartNewGame(Options options){
-      this.options = options;
+    internal void StartNewGame(Options newOptions){
+      autoPlayTimer.Stop();
+      isGuiMoveAwaited = false;
       Visibility = Visibility.Hidden;
       mapFinishedOverlayControl.Hide();
-      options = controllerStartNewGame(options);
-      initialisePlayerBrushes(options.RobotTypes.Count + 1);
+      options = controllerStartNewGame(newOptions);
+      var playersCount = options.IsHumanPlaying ? options.Robots.Count + 1 : options.Robots.Count;
+      initialisePlayerBrushes(playersCount);
     }
 
 
@@ -140,6 +149,10 @@ namespace MasterGrab {
         advancedOptionsWindow.Close(); //it seems closing an already closed window doesn't give a problem
         advancedOptionsWindow = null;
       }
+      if (!isGuiMoveAwaited) {
+        return;
+      }
+      isGuiMoveAwaited = false;
       controllerMove(move);
     }
 
@@ -167,6 +180,25 @@ namespace MasterGrab {
         GeometryByCountry[countryFix.Id] = geometry;
       }
     }
+
+
+    /// <summary>
+    /// When human player is not enabled, SetTimer() starts autoplay every timespan. If timespan is null, autoplay gets
+    /// stopped.
+    /// </summary>
+    /// <param name="timerState"></param>
+    public void SetTimer(TimeSpan? timeSpan) {
+      isAutoPlaySelected = timeSpan is not null;
+      if (timeSpan is null || options.IsHumanPlaying || Game.HasGameFinished) {
+        autoPlayTimer.Stop();
+        autoPlayTimerIntervalMilliSec = int.MinValue;
+      } else {
+        autoPlayTimer.Start();
+        autoPlayTimer.Interval = timeSpan.Value;
+        autoPlayTimerIntervalMilliSec = (int)timeSpan.Value.TotalMilliseconds;
+      }
+      isTimerWaiting = false;
+    }
     #endregion
 
 
@@ -174,7 +206,27 @@ namespace MasterGrab {
     //      -------------
 
     private void ParentWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+      autoPlayTimer.Stop();
+      isGuiMoveAwaited = false;
       controllerStop();
+    }
+    #endregion
+
+
+    #region Events
+    //      ------
+
+    private void AutoPlayTimer_Tick(object? sender, EventArgs e) {
+      var now = DateTime.Now;
+      var nowMilliseconds = (int)now.TimeOfDay.TotalMilliseconds;
+      var timerInterval = autoPlayTimerIntervalMilliSec - nowMilliseconds%autoPlayTimerIntervalMilliSec + 5;//5: sometimes the tick comes few millisecs early
+      autoPlayTimer.Interval = TimeSpan.FromMilliseconds(timerInterval);
+      System.Diagnostics.Debug.WriteLine($"{now:mm.ss.fff} nowMilliseconds: {nowMilliseconds} timerInterval: {timerInterval}");
+      if (isGuiMoveAwaited) {
+        ControllerMove(Move.NoMove);
+      } else {
+        isTimerWaiting = true;
+      }
     }
     #endregion
 
@@ -215,7 +267,7 @@ namespace MasterGrab {
     Func<Options, Options> controllerStartNewGame;
     Action controllerStop;
 
-    internal Player GuiPlayer { get; private set; }
+    internal Player? GuiPlayer { get; private set; }
     internal PixelMap PixelMap { get; private set; }
     internal Game Game { get; private set; }
     IReadOnlyList<CountryFix> countryFixArray;
@@ -402,9 +454,13 @@ namespace MasterGrab {
 
 
     AdvancedOptionsWindow? advancedOptionsWindow; //gets displayed for new random game
+    bool isAutoPlaySelected; //did user select auto play. Even if this is true, autoplay will not run when user plays too.
+    bool isGuiMoveAwaited; //Is GameController waiting for the GUI player to make a move ?
+    bool isTimerWaiting; //did autoplay timer tick happen when controller was still busy ?
+    int autoPlayTimerIntervalMilliSec;
 
 
-    private void mapChanged(PixelMap map, IReadOnlyList<CountryFix> countryFixArray, Game game, Player guiPlayer) {
+    private void mapChanged(PixelMap map, IReadOnlyList<CountryFix> countryFixArray, Game game, Player? guiPlayer) {
       if (!Dispatcher.CheckAccess()) {
         // We're not in the UI thread, so we need to call BeginInvoke
         Dispatcher.BeginInvoke(new Action<PixelMap, IReadOnlyList<CountryFix>, Game, Player>(mapChanged), 
@@ -439,10 +495,15 @@ namespace MasterGrab {
         isReadOnly: true);
         advancedOptionsWindow.Show();
       }
+
+      isGuiMoveAwaited = true;
+      if (isAutoPlaySelected && !options.IsHumanPlaying) {
+        autoPlayTimer.Start();
+      }
     }
 
 
-    private void gameChanged(Game game, Player player) {
+    private void gameChanged(Game game, Player? player) {
       if (!Dispatcher.CheckAccess()) {
         // We're not in the UI thread, so we need to call BeginInvoke
         Dispatcher.BeginInvoke(new Action<Game, Player>(gameChanged), game, player);
@@ -453,10 +514,18 @@ namespace MasterGrab {
       Game = game;
       GuiPlayer = player;
       mapInfoWindow.GameChanged();
+
       if (game.HasGameFinished) {
-        mapFinishedOverlayControl.ShowResult(game.HasUserWon);
+        mapFinishedOverlayControl.ShowResult(options.IsHumanPlaying, game.WinnerPlayerId);
+        autoPlayTimer.Stop();
       } else {
         mapFinishedOverlayControl.Hide();
+      }
+
+      isGuiMoveAwaited = true;
+      if (isTimerWaiting) {
+        isTimerWaiting = false;
+        ControllerMove(Move.NoMove);
       }
       InvalidateVisual();
     }
@@ -732,7 +801,8 @@ namespace MasterGrab {
       PlayerBrushes = new Brush[playersCount];
       PlayerBrushes2 = new Brush[playersCount, shadeCount];
       for (var playerIdIndex = 0; playerIdIndex < playersCount; playerIdIndex++) {
-        var color = Color.FromArgb(options.Colors[playerIdIndex, 0], options.Colors[playerIdIndex, 1], options.Colors[playerIdIndex, 2], options.Colors[playerIdIndex, 3]);
+        var colorIndex = options.IsHumanPlaying ? playerIdIndex : playerIdIndex+1;
+        var color = Color.FromArgb(options.Colors[colorIndex, 0], options.Colors[colorIndex, 1], options.Colors[colorIndex, 2], options.Colors[colorIndex, 3]);
         PlayerBrushes[playerIdIndex] = new SolidColorBrush(color);
         var rDiff = 0xFF - color.R;
         var gDiff = 0xFF - color.G;

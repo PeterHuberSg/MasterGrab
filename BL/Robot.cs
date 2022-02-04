@@ -20,6 +20,7 @@ Written 2016-2022 in Switzerland & Singapore by Jürgpeter Huber
 Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
+using System;
 using System.Collections.Generic;
 
 
@@ -77,7 +78,7 @@ namespace MasterGrab {
     /// Constructor
     /// </summary>
     //Game, Map, Player, RobotCountryIds, Results will not be null after PlanMove() is called
-    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. 
     public Robot() {
     #pragma warning restore CS8618
     }
@@ -110,4 +111,36 @@ namespace MasterGrab {
     }
     #endregion
   }
+
+
+  [AttributeUsage(AttributeTargets.Class)]
+  public class RobotAttribute: Attribute {
+
+    /// <summary>
+    /// Name of Robot displayed to user
+    /// </summary>
+    public string Name { get; set; }
+
+
+    /// <summary>
+    /// Tooltip text of Robot displayed to user
+    /// </summary>
+    public string? Description { get; set; }
+
+
+    /// <summary>
+    /// Should robot be used for default options ?
+    /// </summary>
+    public bool IsUsedForDefault;
+
+
+    public RobotAttribute(string name, string? description = null, bool isUsedForDefault = true) {
+      Name = name;
+      Description = description;
+      IsUsedForDefault = isUsedForDefault;
+    }
+  }
+
+
+  public record RobotInfo(int ID, Type Type, string Name, string? Description, bool IsUsedForDefault);
 }

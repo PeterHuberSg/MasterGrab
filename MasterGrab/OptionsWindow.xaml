@@ -26,7 +26,7 @@
 
     <Label Grid.Row="1" Grid.Column="0" Content="Player:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
     <DockPanel Grid.Row="1" Grid.Column="1" >
-      <CheckBox DockPanel.Dock="Right" x:Name="PlayerEnabledCheckBox" Content="Enabled" VerticalAlignment="Center" Margin="0,0,5,0"
+      <CheckBox DockPanel.Dock="Right" x:Name="PlayerEnabledCheckBox" Content="_Enabled" VerticalAlignment="Center" Margin="0,0,5,0"
                 IsChecked="True"/>
       <local:ColorBox x:Name="PlayerColorBox" Margin="3"/>
     </DockPanel>
@@ -42,8 +42,8 @@
     <Rectangle Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Fill="Gainsboro" />
     <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
       <Button Name="DefaultButton" Content="_Default" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,4,0,6"/>
-      <Button Name="AdvancedOptionsButton" Content="_Advanced" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,4,0,6"/>
+      <Button Name="AdvancedOptionsButton" Content="Ad_vanced" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,4,0,6"/>
     </StackPanel>
-    <Button Grid.Row="4" Grid.Column="1" Name="ApplyButton" Content="_Apply" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5"/>
+    <Button Grid.Row="4" Grid.Column="1" Name="ApplyButton" Content="A_pply" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5"/>
   </Grid>
 </Window>

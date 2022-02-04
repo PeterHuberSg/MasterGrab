@@ -35,7 +35,7 @@ namespace MasterGrab {
     public void TestPixelMapString() {
       string mapString;
       PixelMap map;
-      CountryFix[] cFA /*CountryFixArray*/= new CountryFix[1];
+      //CountryFixArray
       //Game game;
       string plainString;
       string expectedString;
@@ -50,7 +50,7 @@ namespace MasterGrab {
         @"%%%%&& &!"+
         @"%% %&&&&!"+
         @"%%%%&&&&!";
-      map = new PixelMap(mapString, 0, 100, out cFA, out var armiesPerSize);
+      map = new PixelMap(mapString, 0, 100, out var cFA/*CountryFixArray*/, out var armiesPerSize);
       verifyCountry(map, cFA, 0, 1, 1, 16, 100, new int[] { 1, 2 }, "2,0!3,0!3,1!3,2!3,3!2,3!1,3!0,3!0,2!0,1!0,0!1,0");
       verifyCountry(map, cFA, 1, 5, 2, 16, 100, new int[] { 0, 3 }, "6,0!7,0!7,1!7,2!7,3!6,3!5,3!4,3!4,2!4,1!4,0!5,0");
       verifyCountry(map, cFA, 2, 2, 6, 16, 100, new int[] { 0, 3 }, "3,4!3,5!3,6!3,7!2,7!1,7!0,7!0,6!0,5!0,4!1,4!2,4");
@@ -137,7 +137,7 @@ namespace MasterGrab {
       @"#####%%$$$!"+
       @"# ###% %%%!"+
       @"#####%%%%%!";
-      map = new PixelMap(mapString, 0, 100, out cFA, out armiesPerSize);
+      map = new PixelMap(mapString, 0, 100, out _, out armiesPerSize);
       plainString = map.ToPlainString();
       expectedString =
       @"@""###$$$$$$$!""+" + Environment.NewLine +
@@ -164,7 +164,7 @@ namespace MasterGrab {
       @"###$$$$$##!"+
       @"###$$$$$##!"+
       @"###$$$$$##!";
-      map = new PixelMap(mapString, 0, 100, out cFA, out armiesPerSize);
+      _ = new PixelMap(mapString, 0, 100, out _, out armiesPerSize);
       Assert.AreEqual(100.0/30, armiesPerSize);
 
       //test if first pixel is at different border than last pixel
@@ -190,27 +190,27 @@ namespace MasterGrab {
     private static void verifyCountry(PixelMap map, CountryFix[] countryFixArray, int countryId, int x, int y, int size, 
       int capacity, int[] neighbours, string borderCordinatesString) 
     {
-      CountryFix country = countryFixArray[countryId];
+      var country = countryFixArray[countryId];
       Assert.AreEqual(countryId, country.Id);
       Assert.AreEqual(x, country.Coordinate.X);
       Assert.AreEqual(y, country.Coordinate.Y);
       Assert.AreEqual(size, country.Size);
       Assert.AreEqual(capacity, country.Capacity);
       Assert.AreEqual(neighbours.Length, country.NeighbourIds.Count);
-      for (int neighbourIndex = 0; neighbourIndex < neighbours.Length; neighbourIndex++) {
+      for (var neighbourIndex = 0; neighbourIndex < neighbours.Length; neighbourIndex++) {
         Assert.AreEqual(neighbours[neighbourIndex], country.NeighbourIds[neighbourIndex]);
       }
       Assert.AreEqual(countryId, map[country.Coordinate]);
-      foreach (Coordinate coordinate in country.BorderCoordinates) {
+      foreach (var coordinate in country.BorderCoordinates) {
         Assert.AreEqual(countryId, map[coordinate]);
       }
-      string[] borderCordinatesStrings = borderCordinatesString.Split('!');
+      var borderCordinatesStrings = borderCordinatesString.Split('!');
       Assert.AreEqual(borderCordinatesStrings.Length, country.BorderCoordinates.Count);
-      for (int bcIndex = 0; bcIndex < borderCordinatesStrings.Length; bcIndex++) {
-        string[] coordinateStrings = borderCordinatesStrings[bcIndex].Split(',');
+      for (var bcIndex = 0; bcIndex < borderCordinatesStrings.Length; bcIndex++) {
+        var coordinateStrings = borderCordinatesStrings[bcIndex].Split(',');
         Assert.AreEqual(2, coordinateStrings.Length);
 
-        Coordinate expectedCoordinate = new Coordinate(map, int.Parse(coordinateStrings[0]), int.Parse(coordinateStrings[1]));
+        var expectedCoordinate = new Coordinate(map, int.Parse(coordinateStrings[0]), int.Parse(coordinateStrings[1]));
         Assert.AreEqual(expectedCoordinate, country.BorderCoordinates[bcIndex]);
       }
     }
@@ -223,12 +223,14 @@ namespace MasterGrab {
     [TestMethod]
     public void TestPixelMapOption() {
       Options options;
-      Type[] robots = Array.Empty<Type>();
+      var robotInfos = Array.Empty<RobotInfo>();
 
-      for (int countryCountIndex = 5; countryCountIndex<=50; countryCountIndex += 5) {
+      for (var countryCountIndex = 5; countryCountIndex<=50; countryCountIndex += 5) {
         options = new Options(
         countriesCount: countryCountIndex,
         mountainsPercentage: 0,
+        xCount: 200,
+        yCount: 200,
         armiesInBiggestCountry: 100.0,
         armyGrowthFactor: double.MinValue,
         protectionFactor: double.MinValue,
@@ -236,18 +238,15 @@ namespace MasterGrab {
         attackBenefitFactor: double.MinValue,
         isRandomOptions: false,
         isHumanPlaying: true,
-        robotTypes: robots,
-        xCount: 200,
-        yCount: 200);
+        robots: robotInfos);
+        _ = new PixelMap(options, 0, out var countryFixArray, out _);
 
-        PixelMap pixelMap = new PixelMap(options, 0, out var countryFixArray, out var armiesPerSize);
-
-        int totalSize = 0;
-        foreach (CountryFix countryFix in countryFixArray) {
+        var totalSize = 0;
+        foreach (var countryFix in countryFixArray) {
           totalSize += countryFix.Size;
 
-          foreach (int neighbourId in countryFix.NeighbourIds) {
-            CountryFix neighbour = countryFixArray[neighbourId];
+          foreach (var neighbourId in countryFix.NeighbourIds) {
+            var neighbour = countryFixArray[neighbourId];
             Assert.IsTrue(neighbour.NeighbourIds.Contains(countryFix.Id));
           }
         }

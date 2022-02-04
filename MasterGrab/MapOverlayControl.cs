@@ -112,7 +112,7 @@ namespace MasterGrab {
         if (!country.IsMountain) {
           if (countryStateByCountry[countryId]!=countryStateEnum.selected) {
             countryStateByCountry[countryId] = 
-              country.OwnerId==mapControl.GuiPlayer.Id ? countryStateEnum.mouseHoverOwner : countryStateEnum.mouseHoverOpponent;
+              country.OwnerId==mapControl.GuiPlayer?.Id ? countryStateEnum.mouseHoverOwner : countryStateEnum.mouseHoverOpponent;
           }
           foreach (var neighbourId in country.NeighbourIds) {
             markAsOwnerOrOpponent(neighbourId);
@@ -128,12 +128,12 @@ namespace MasterGrab {
 
       var country = mapControl.Game.Map[countryId];
       countryStateByCountry[countryId] = 
-        country.OwnerId==mapControl.GuiPlayer.Id ? countryStateEnum.owner : countryStateEnum.opponent;
+        country.OwnerId==mapControl.GuiPlayer?.Id ? countryStateEnum.owner : countryStateEnum.opponent;
     }
 
 
     private void mapControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-      if (mapControl.Game.HasGameFinished) return;
+      if (mapControl.Game.HasGameFinished || mapControl.GuiPlayer is null) return;
 
       var point = e.GetPosition(this);
       if (!Coordinate.TryConvert(mapControl.PixelMap, (int)point.X, (int)point.Y, out var coordinate)) {
@@ -169,7 +169,7 @@ namespace MasterGrab {
           if (selectedCountries.Count==0) {
             foreach (var neighbourId in country.NeighbourIds) {
               var neighbour = mapControl.Game.Map[neighbourId];
-              if (neighbour.OwnerId==mapControl.GuiPlayer.Id) {
+              if (neighbour.OwnerId==mapControl.GuiPlayer?.Id) {
                 selectedCountries.Add(neighbour);
               }
             }

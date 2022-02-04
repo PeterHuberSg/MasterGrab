@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		BorderProblem.docx = BorderProblem.docx
 		Design.pptx = Design.pptx
 		License CC0.html = License CC0.html
+		Logo.png = Logo.png
+		Logo.xcf = Logo.xcf
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject

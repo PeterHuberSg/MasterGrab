@@ -40,71 +40,25 @@ namespace MasterGrab {
     //      -----------
 
     readonly Ellipse circle;
+    readonly ScaleTransform circleScaleTransform;
+    readonly StackPanel mainStackPanel;
+    readonly RotateTransform mainStackPanelRotateTransform;
+    readonly ScaleTransform mainStackPanelScaleTransform;
+    readonly Storyboard storyboard;
+    readonly Brush animatedFontBrush;
+    readonly Brush darkBackgroundBrush;
+    readonly Brush grayBackgroundBrush;
+    readonly TextBlock youTextBlock;
+    readonly TextBlock resultTextBlock;
 
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Many fields can only get filled in MapFinishedOverlayControl_Loaded()
     public MapFinishedOverlayControl() {
-    #pragma warning restore CS8618
-      circle = new Ellipse();
-      Children.Add(circle);
-
-      SizeChanged +=MapFinishedOverlayControl_SizeChanged;
-      Loaded += MapFinishedOverlayControl_Loaded;
-    }
-    #endregion
-
-
-    #region Eventhandlers
-    //      -------------
-
-    double fontSize;
-    static readonly Duration shortAnimationDuration = new(TimeSpan.FromSeconds(3));
-    static readonly Duration longAnimationDuration = new(TimeSpan.FromSeconds(6));
-
-
-    private void MapFinishedOverlayControl_SizeChanged(object sender, SizeChangedEventArgs e) {
-      double smaller = Math.Min(e.NewSize.Width, e.NewSize.Height);
-      fontSize = smaller / 9;
-      if (youTextBlock!=null) {
-        youTextBlock.FontSize = fontSize;
-        resultTextBlock.FontSize = fontSize;
-      }
-      circle.Width = smaller;
-      circle.Height = smaller;
-      Canvas.SetTop(circle, (e.NewSize.Height-smaller) / 2);
-      Canvas.SetLeft(circle, (e.NewSize.Width-smaller) / 2);
-    }
-
-
-    StackPanel mainStackPanel;
-    Storyboard storyboard;
-    Brush animatedFontBrush;
-    Brush darkBackgroundBrush;
-    TextBlock youTextBlock;
-    TextBlock resultTextBlock;
-
-
-    private void MapFinishedOverlayControl_Loaded(object sender, RoutedEventArgs e) {
-      //mainStackPanel
-      //--------------
-      mainStackPanel = new StackPanel { Orientation=Orientation.Horizontal, Name = "mainStackPanel" };
-      mainStackPanel.SizeChanged += MainStackPanel_SizeChanged;
-      RegisterName(mainStackPanel.Name, mainStackPanel);
-      Children.Add(mainStackPanel);
-
-      var mainStackPanelTransformGroup = new TransformGroup();
-      mainStackPanel.RenderTransform = mainStackPanelTransformGroup;
-
-      var mainStackPanelPRotateTransform = new RotateTransform{CenterX=25, CenterY=50, Angle=0 };
-      RegisterName("mainStackPanelPRotateTransform", mainStackPanelPRotateTransform);
-      mainStackPanelTransformGroup.Children.Add(mainStackPanelPRotateTransform);
-
-      var mainStackPanelScaleTransform = new ScaleTransform { CenterX=300, CenterY=50, ScaleX=1, ScaleY=1 };
-      RegisterName("mainStackPanelScaleTransform", mainStackPanelScaleTransform);
-      mainStackPanelTransformGroup.Children.Add(mainStackPanelScaleTransform);
+      NameScope.SetNameScope(this, new NameScope());
 
       //Circle
       //------
+      circle = new Ellipse { VerticalAlignment=VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center};
+      Children.Add(circle);
       var radialGradientBrush = new RadialGradientBrush {
         GradientOrigin = new Point(0.5, 0.5),
         Center = new Point(0.5, 0.5),
@@ -122,21 +76,40 @@ namespace MasterGrab {
 
       var circleTransformGroup = new TransformGroup();
       circle.RenderTransform = circleTransformGroup;
-      var circleScaleTransform = new ScaleTransform { CenterX=ActualWidth/2 - circle.ActualWidth/2, CenterY=ActualHeight/2, ScaleX=1, ScaleY=1 };
+      circleScaleTransform = new ScaleTransform();
       RegisterName("circleScaleTransform", circleScaleTransform);
       circleTransformGroup.Children.Add(circleScaleTransform);
+
+      //mainStackPanel
+      //--------------
+      mainStackPanel = new StackPanel { Orientation=Orientation.Horizontal, Name = "mainStackPanel" };
+      mainStackPanel.SizeChanged += MainStackPanel_SizeChanged;
+      RegisterName(mainStackPanel.Name, mainStackPanel);
+      Children.Add(mainStackPanel);
+
+      var mainStackPanelTransformGroup = new TransformGroup();
+      mainStackPanel.RenderTransform = mainStackPanelTransformGroup;
+
+      mainStackPanelRotateTransform = new RotateTransform { CenterX=25, CenterY=50, Angle=0 };
+      RegisterName("mainStackPanelRotateTransform", mainStackPanelRotateTransform);
+      mainStackPanelTransformGroup.Children.Add(mainStackPanelRotateTransform);
+
+      mainStackPanelScaleTransform = new ScaleTransform();
+      RegisterName("mainStackPanelScaleTransform", mainStackPanelScaleTransform);
+      mainStackPanelTransformGroup.Children.Add(mainStackPanelScaleTransform);
 
       //TextBlocks
       //----------
       animatedFontBrush = new SolidColorBrush(Colors.White);
       RegisterName("animatedFontBrush", animatedFontBrush);
       darkBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0x60, 0x60, 0x60));
+      grayBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0xA0, 0xA0, 0xA0));
 
-      youTextBlock = new TextBlock { FontSize = fontSize, FontWeight = FontWeights.Bold, Foreground = animatedFontBrush };
+      youTextBlock = new TextBlock {FontWeight = FontWeights.Bold, Foreground = animatedFontBrush };
       youTextBlock.Text = " You ";
       mainStackPanel.Children.Add(youTextBlock);
 
-      resultTextBlock = new TextBlock { FontSize = fontSize, FontWeight = FontWeights.Bold, Foreground = animatedFontBrush };
+      resultTextBlock = new TextBlock {FontWeight = FontWeights.Bold, Foreground = animatedFontBrush };
       mainStackPanel.Children.Add(resultTextBlock);
       Visibility = Visibility.Hidden;
 
@@ -148,7 +121,7 @@ namespace MasterGrab {
         Duration =  longAnimationDuration
       };
 
-      var circlePanelScaleXDoubleAnimation = new DoubleAnimation{
+      var circlePanelScaleXDoubleAnimation = new DoubleAnimation {
         From = 0.5,
         To = 1,
         Duration = shortAnimationDuration,
@@ -158,27 +131,27 @@ namespace MasterGrab {
       Storyboard.SetTargetName(circlePanelScaleXDoubleAnimation, "circleScaleTransform");
       Storyboard.SetTargetProperty(circlePanelScaleXDoubleAnimation, new PropertyPath(ScaleTransform.ScaleXProperty));
 
-      var circleScaleYDoubleAnimation = new DoubleAnimation{
+      var circleScaleYDoubleAnimation = new DoubleAnimation {
         From = 0.5,
         To = 1,
         Duration = shortAnimationDuration,
-        AutoReverse = false 
+        AutoReverse = false
       };
       storyboard.Children.Add(circleScaleYDoubleAnimation);
       Storyboard.SetTargetName(circleScaleYDoubleAnimation, "circleScaleTransform");
       Storyboard.SetTargetProperty(circleScaleYDoubleAnimation, new PropertyPath(ScaleTransform.ScaleYProperty));
 
-      var mainStackPanelRotateDoubleAnimation = new DoubleAnimation{
+      var mainStackPanelRotateDoubleAnimation = new DoubleAnimation {
         From = 0,
         To = 360,
         Duration = shortAnimationDuration,
-        AutoReverse = false 
+        AutoReverse = false
       };
       storyboard.Children.Add(mainStackPanelRotateDoubleAnimation);
-      Storyboard.SetTargetName(mainStackPanelRotateDoubleAnimation, "mainStackPanelPRotateTransform");
+      Storyboard.SetTargetName(mainStackPanelRotateDoubleAnimation, "mainStackPanelRotateTransform");
       Storyboard.SetTargetProperty(mainStackPanelRotateDoubleAnimation, new PropertyPath(RotateTransform.AngleProperty));
 
-      var mainStackPanelScaleXDoubleAnimation = new DoubleAnimation{
+      var mainStackPanelScaleXDoubleAnimation = new DoubleAnimation {
         From = 0,
         To = 1,
         Duration = shortAnimationDuration,
@@ -188,7 +161,7 @@ namespace MasterGrab {
       Storyboard.SetTargetName(mainStackPanelScaleXDoubleAnimation, "mainStackPanelScaleTransform");
       Storyboard.SetTargetProperty(mainStackPanelScaleXDoubleAnimation, new PropertyPath(ScaleTransform.ScaleXProperty));
 
-      var mainStackPanelScaleYDoubleAnimation = new DoubleAnimation{
+      var mainStackPanelScaleYDoubleAnimation = new DoubleAnimation {
         From = 0,
         To = 1,
         Duration = shortAnimationDuration,
@@ -198,7 +171,7 @@ namespace MasterGrab {
       Storyboard.SetTargetName(mainStackPanelScaleYDoubleAnimation, "mainStackPanelScaleTransform");
       Storyboard.SetTargetProperty(mainStackPanelScaleYDoubleAnimation, new PropertyPath(ScaleTransform.ScaleYProperty));
 
-      var fontColorAnimation = new ColorAnimationUsingKeyFrames{
+      var fontColorAnimation = new ColorAnimationUsingKeyFrames {
         FillBehavior=FillBehavior.HoldEnd,
         Duration = shortAnimationDuration,
         AutoReverse = false
@@ -209,12 +182,50 @@ namespace MasterGrab {
       storyboard.Children.Add(fontColorAnimation);
       Storyboard.SetTargetName(fontColorAnimation, "animatedFontBrush");
       Storyboard.SetTargetProperty(fontColorAnimation, new PropertyPath(SolidColorBrush.ColorProperty));
+
+      SizeChanged +=MapFinishedOverlayControl_SizeChanged;
+    }
+    #endregion
+
+
+    #region Eventhandlers
+    //      -------------
+
+    double fontSize;
+    static readonly Duration shortAnimationDuration = new(TimeSpan.FromSeconds(3));
+    static readonly Duration longAnimationDuration = new(TimeSpan.FromSeconds(6));
+
+
+    private void MapFinishedOverlayControl_SizeChanged(object sender, SizeChangedEventArgs e) {
+      var smaller = Math.Min(e.NewSize.Width, e.NewSize.Height);
+      fontSize = smaller / 9;
+      if (youTextBlock!=null) {
+        if (youTextBlock.FontSize==fontSize) {
+          adjustMainStackPanelPosition(mainStackPanel.ActualHeight, mainStackPanel.ActualWidth);
+        }
+        youTextBlock.FontSize = fontSize;
+        resultTextBlock.FontSize = fontSize;
+      }
+
+      circle.Width = smaller;
+      circle.Height = smaller;
+      SetTop(circle, (e.NewSize.Height-smaller) / 2);
+      SetLeft(circle, (e.NewSize.Width-smaller) / 2);
+      circleScaleTransform.CenterX = smaller/2;
+      circleScaleTransform.CenterY = smaller/2;
     }
 
 
     private void MainStackPanel_SizeChanged(object sender, SizeChangedEventArgs e) {
-      Canvas.SetTop(mainStackPanel, (ActualHeight - e.NewSize.Height) / 2);
-      Canvas.SetLeft(mainStackPanel, (ActualWidth - e.NewSize.Width) / 2);
+      adjustMainStackPanelPosition(e.NewSize.Height, e.NewSize.Width);
+    }
+
+
+    private void adjustMainStackPanelPosition(double height, double width) {
+      SetTop(mainStackPanel, (ActualHeight - height) / 2);
+      SetLeft(mainStackPanel, (ActualWidth - width) / 2);
+      mainStackPanelScaleTransform.CenterX = 0.8*width;
+      mainStackPanelScaleTransform.CenterY = 0.8*height;
     }
     #endregion
 
@@ -225,20 +236,33 @@ namespace MasterGrab {
     /// <summary>
     /// Unhides Canvas displaying if human player has won or lost
     /// </summary>
-    public void ShowResult(bool hasGuiPlayerWon) {
-      if (hasGuiPlayerWon) {
-        resultTextBlock.Text = "WON";
-        storyboard.Begin(this, isControllable: true);
-        circle.Visibility = Visibility.Visible;
-        Background = Brushes.Transparent;
-        youTextBlock.Foreground = animatedFontBrush;
-        resultTextBlock.Foreground = animatedFontBrush;
+    public void ShowResult(bool isHumanPlaying, int winnerId) {
+      if (isHumanPlaying) {
+        if (winnerId==0) {
+          resultTextBlock.Text = "WON";
+          storyboard.Begin(this, isControllable: true);
+          circle.Visibility = Visibility.Visible;
+          Background = Brushes.Transparent;
+          youTextBlock.Visibility = Visibility.Visible;
+          youTextBlock.Foreground = animatedFontBrush;
+          resultTextBlock.Foreground = animatedFontBrush;
+        } else {
+          storyboard.Stop(this);
+          resultTextBlock.Text = "LOST";
+          circle.Visibility = Visibility.Collapsed;
+          Background = darkBackgroundBrush;
+          youTextBlock.Visibility = Visibility.Visible;
+          youTextBlock.Foreground = Brushes.Black;
+          resultTextBlock.Foreground = Brushes.Black;
+        }
+
       } else {
+        //only robots playing
         storyboard.Stop(this);
-        resultTextBlock.Text = "LOST";
+        resultTextBlock.Text = $"Robot{winnerId+1} won";
         circle.Visibility = Visibility.Collapsed;
-        Background = darkBackgroundBrush;
-        youTextBlock.Foreground = Brushes.Black;
+        Background = Brushes.Transparent;
+        youTextBlock.Visibility = Visibility.Collapsed;
         resultTextBlock.Foreground = Brushes.Black;
       }
       Visibility = Visibility.Visible;

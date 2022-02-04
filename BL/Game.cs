@@ -45,7 +45,7 @@ namespace MasterGrab {
   /// The only class which can change the Game data (i.e. who holds which country, what is the army size in a country, etc.) is
   /// the GameController.</para>
   /// 
-  /// GameContoller -> GameFix -> Game -> Map -> Country -> CountryFix
+  /// GameContoller -> GameFix -> Game -> Map -> Country
   /// </summary>
   public class Game {
 
@@ -120,9 +120,9 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Indicates if user won, meaning he owns all countries once game has finished
+    /// Indicates which player has won, meaning he owns all countries once game has finished
     /// </summary>
-    public bool HasUserWon { get; internal set; }
+    public int WinnerPlayerId { get; internal set; }
     #endregion
 
 
@@ -140,13 +140,23 @@ namespace MasterGrab {
       MountainsCount = mountainsCount;
       if(options.IsHumanPlaying) {
         GuiPlayerId = guiPlayerId;
-        players = new Player[options.RobotTypes.Count + 1];
+        players = new Player[options.Robots.Count + 1];
       } else {
         GuiPlayerId = int.MinValue;
-        players = new Player[options.RobotTypes.Count];
+        players = new Player[options.Robots.Count];
       }
       for (var playerIndex = 0; playerIndex < players.Length; playerIndex++) {
-        players[playerIndex] = new Player(playerIndex, this);
+        string name;
+        if (options.IsHumanPlaying) {
+          if (playerIndex==0) {
+            name = "User";
+          } else {
+            name = "Robot" + playerIndex;
+          }
+        } else {
+          name = "Robot" + (playerIndex + 1);
+        }
+        players[playerIndex] = new Player(playerIndex, name, this);
       }
 
       ResultsInternal = new Result[players.Length];
@@ -157,7 +167,7 @@ namespace MasterGrab {
       }
 
       HasGameFinished = false;
-      HasUserWon = false;
+      WinnerPlayerId = int.MinValue;
       Map = new Map(options, this, countryFixArray);
     }
 
@@ -185,7 +195,7 @@ namespace MasterGrab {
         ResultsInternal[resultIndex] = game.Results[resultIndex].Clone();
       }
       HasGameFinished = game.HasGameFinished;
-      HasUserWon = game.HasUserWon;
+      WinnerPlayerId = game.WinnerPlayerId;
     }
     #endregion
 

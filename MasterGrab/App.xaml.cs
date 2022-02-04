@@ -18,6 +18,11 @@ Written 2016-2022 in Switzerland & Singapore by Jürgpeter Huber
 Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 
 

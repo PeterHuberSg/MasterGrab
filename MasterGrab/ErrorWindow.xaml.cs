@@ -46,6 +46,8 @@ namespace MasterGrab {
 
     public ErrorWindow(Window owner, Exception exception, MapControl mapControl) : this() {
       Owner = owner;
+      MaxWidth = Owner.ActualWidth/2;//this() executed InitializeComponent() already
+
       var gameException = exception as GameException;
       var run = gameException is null
           ? new Run("Game made an error, an exception occured")
@@ -98,9 +100,9 @@ namespace MasterGrab {
         ErrorTextBlock.Inlines.Add(messageSpan);
       }
 
-      DetailsTextBlock.Text = exception.ToDetailString();
+      DetailsTextBox.Text = exception.ToDetailString();
       if (gameException!=null && gameException.Game!=null) {
-        DetailsTextBlock.Text += Environment.NewLine + gameException.Game.ToGameString();
+        DetailsTextBox.Text += Environment.NewLine + gameException.Game.ToGameString();
       }
       DetailsDockPanel.Visibility = Visibility.Collapsed;
 
@@ -108,6 +110,11 @@ namespace MasterGrab {
       DetailCheckbox.Checked += DetailCheckbox_Checked;
       DetailCheckbox.Unchecked += DetailCheckbox_Unchecked;
       CopyButton.Click += CopyButton_Click;
+    }
+
+
+    public ErrorWindow() {
+      InitializeComponent();
     }
     #endregion
 
@@ -126,12 +133,7 @@ namespace MasterGrab {
 
 
     private void CopyButton_Click(object sender, RoutedEventArgs e) {
-      Clipboard.SetText(DetailsTextBlock.Text);
-    }
-
-
-    public ErrorWindow() {
-      InitializeComponent();
+      Clipboard.SetText(DetailsTextBox.Text);
     }
     #endregion
   }

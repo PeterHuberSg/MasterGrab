@@ -11,11 +11,10 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="auto"/>
     </Grid.RowDefinitions>
-    <TextBlock Name="ErrorTextBlock" Grid.Row="0" Margin="3"/>
+    <TextBlock Name="ErrorTextBlock" Grid.Row="0" Margin="3" TextWrapping="Wrap" />
     <DockPanel Name="DetailsDockPanel" Grid.Row="1" Background="WhiteSmoke">
-      <ScrollViewer Margin="3">
-        <TextBlock Name="DetailsTextBlock" Margin="3"/>
-      </ScrollViewer>
+      <TextBox Name="DetailsTextBox" TextWrapping="Wrap" IsReadOnly="True" 
+               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
     </DockPanel>
     <DockPanel Background="Gainsboro" Grid.Row="2" LastChildFill="False">
       <CheckBox Name="DetailCheckbox" DockPanel.Dock="Left"  Margin="3" Height="auto"  VerticalAlignment="Center" Width="auto" Content="show details"/>

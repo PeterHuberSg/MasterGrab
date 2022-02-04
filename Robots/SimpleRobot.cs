@@ -25,7 +25,10 @@ using System.Collections.Generic;
 
 namespace MasterGrab {
 
-
+  /// <summary>
+  /// Simple Robot player using only 1 country to attack
+  /// </summary>
+  [Robot(name: "SimpleRobot", isUsedForDefault: false)]
   public class SimpleRobot: Robot {
 
 
@@ -47,7 +50,7 @@ namespace MasterGrab {
       //+ how many defenders (the fewer the better)
       foreach (int countryId in RobotCountryIds) {
         var country = Map[countryId];
-        double attackingArmies = country.ArmySize / 2; //attacker needs twice as many armies then defender to win
+        double attackingArmies = country.ArmySize * Game.AttackFactor;
         //loop through every neighbour of this country
         foreach (int neighbourId in country.NeighbourIds) {
           var neighbour = Map[neighbourId];
@@ -69,6 +72,9 @@ namespace MasterGrab {
       }
       Move move;
       if (attacker==null) {
+        //if a Robot decides not to attack, he can select one country and move all armies
+        //from countries he owns around that country into that country. See BasicRobot.cs 
+        //for an example how this can be done
         move = Move.NoMove;
       } else {
         attackers.Clear();
