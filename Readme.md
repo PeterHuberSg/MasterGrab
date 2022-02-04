@@ -211,5 +211,5 @@ When you play MasterGrab yourself, you will discover also other strategies,
 which you can then teach your Robot.
 
 To my surprise, even BasicRobot has no strategy, it is actually difficult to 
-beat. Meaning it should not be that difficult for you to write an even better 
+beat. Meaning it should not be that hard for you to write an even better 
 Robot.

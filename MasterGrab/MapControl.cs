@@ -98,8 +98,8 @@ namespace MasterGrab {
       BorderBrush = Brushes.DarkGoldenrod;
 
       mapOverlayControl = new MapOverlayControl(this);
-      mapErrorOverlayControl = new MapErrorOverlayControl(this);
       AddChild(mapOverlayControl);
+      mapErrorOverlayControl = new MapErrorOverlayControl(this);
       mapInfoWindow = new MapInfoWindow(this);
       AddChild(mapInfoWindow);
       mapFinishedOverlayControl = new MapFinishedOverlayControl();
