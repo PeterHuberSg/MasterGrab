@@ -53,6 +53,18 @@ namespace MasterGrab {
     /// </summary>
     public IReadOnlyList<Country> Countries => countries;
     readonly Country[] countries;
+
+
+    /// <summary>
+    /// Number of pixels in smallest country, without mountains
+    /// </summary>
+    public int MinCountrySize { get; }
+
+
+    /// <summary>
+    /// Number of pixels in biggest country
+    /// </summary>
+    public int MaxCountrySize { get; }
     #endregion
 
 
@@ -69,6 +81,8 @@ namespace MasterGrab {
 
       //sort countries by size
       var sortedcountryFixArray = countryFixArray.OrderByDescending(c => c.Size).ToArray();
+      MaxCountrySize = sortedcountryFixArray[0].Size;
+      MinCountrySize = sortedcountryFixArray[sortedcountryFixArray.Length-game.MountainsCount - 1].Size;
 
       var totalCountrySizeByPlayer = new int[game.Players.Count];
       var ownerIdsbyCountry = new int[options.CountriesCount];
@@ -148,6 +162,8 @@ namespace MasterGrab {
     public Map(Game game, Map map) {
       Game = game;
 
+      MinCountrySize = map.MinCountrySize;
+      MaxCountrySize = map.MaxCountrySize;
       countries = new Country[map.countries.Length];
       for (var countryindex = 0; countryindex < countries.Length; countryindex++) {
         var countryOriginal = map[countryindex];

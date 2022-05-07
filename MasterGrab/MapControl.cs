@@ -39,6 +39,25 @@ namespace MasterGrab {
 
 
   /// <summary>
+  /// Indicates what the map should show
+  /// </summary>
+  public enum ShowOptionEnum {
+    /// <summary>
+    /// Paint countries in the colours of their owners and show how many armies are in it
+    /// </summary>
+    Armies,
+    /// <summary>
+    /// Paint countries in the colours of their owners and show the countries' ID
+    /// </summary>
+    CountryId,
+    /// <summary>
+    /// Paint countries in a gray shade according to their size
+    /// </summary>
+    CountrySize
+  }
+
+
+  /// <summary>
   /// MapControl displays a map with countries.
   /// </summary>
   public class MapControl: CustomControlBase {
@@ -46,18 +65,18 @@ namespace MasterGrab {
     #region Properties
     //      ----------
 
-    public bool IsShowArmySize {
-      get => isShowArmySize;
+    public ShowOptionEnum ShowOption {
+      get => showOption;
       set {
-        if (isShowArmySize!=value) {
-          isShowArmySize = value;
+        if (showOption!=value) {
+          showOption = value;
           isShowArmySizeChanged?.Invoke(value);
           InvalidateVisual();
         }
       }
     }
-    bool isShowArmySize = true;
-    readonly Action<bool> isShowArmySizeChanged;
+    ShowOptionEnum showOption = ShowOptionEnum.Armies;
+    readonly Action<ShowOptionEnum> isShowArmySizeChanged;
 
 
     public InfoWindowModeEnum InfoWindowMode {
@@ -84,12 +103,12 @@ namespace MasterGrab {
     /// constructor
     /// </summary>
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor: many fields get only a value when OnRenderContent is executed for the first time
-    public MapControl(Options options, int scale, Action<bool> isShowArmySizeChanged) {
+    public MapControl(Options options, int scale, Action<ShowOptionEnum> showOptionChanged) {
     #pragma warning restore CS8618
       this.options = options;
       initialisePlayerBrushes(options.Robots.Count + 1);
       this.scale = scale;
-      this.isShowArmySizeChanged = isShowArmySizeChanged;
+      this.isShowArmySizeChanged = showOptionChanged;
       autoPlayTimer = new(DispatcherPriority.Input);
       autoPlayTimer.Tick += AutoPlayTimer_Tick;
 
@@ -276,6 +295,7 @@ namespace MasterGrab {
 
 
     public Pen BorderPen { get; private set; } = new(new SolidColorBrush(Color.FromRgb(0x60, 0x60, 0x60)), 1);
+    public Pen BorderPen2 { get; private set; } = new(Brushes.Cyan, 1);
 
     readonly Pen movePen = new(Brushes.Gray, 2);
     readonly Pen attackSuccessPen = new(new SolidColorBrush(Color.FromArgb(0x80, 0, 0, 0)), 2);
@@ -310,37 +330,54 @@ namespace MasterGrab {
         //other thread has created a map
         //draw country colours and borders
         foreach (var country in Game.Map) {
-          if (country.IsMountain) {
-            drawingContext.DrawGeometry(BorderPen.Brush, BorderPen, GeometryByCountry[country.Id]);
+          if (showOption is ShowOptionEnum.Armies or ShowOptionEnum.CountryId) {
+            if (country.IsMountain) {
+              drawingContext.DrawGeometry(BorderPen.Brush, BorderPen, GeometryByCountry[country.Id]);
+            } else {
+              var shade = Math.Max(shadeCount - 1 - (int)(country.ArmySize / armyDelta), 0);
+              var countryBrush = PlayerBrushes2[country.OwnerId, shade];
+              drawingContext.DrawGeometry(countryBrush, BorderPen, GeometryByCountry[country.Id]);
+            }
+
           } else {
-            var shade = Math.Max(shadeCount - 1 - (int)(country.ArmySize / armyDelta), 0);
-            var countryBrush = PlayerBrushes2[country.OwnerId, shade];
-            drawingContext.DrawGeometry(countryBrush, BorderPen, GeometryByCountry[country.Id]);
+            var maxMinusMin = Game.Map.MaxCountrySize - Game.Map.MinCountrySize;
+
+            if (country.IsMountain) {
+              drawingContext.DrawGeometry(Brushes.DarkBlue, BorderPen, GeometryByCountry[country.Id]);
+            } else {
+              //shade = 0xff - 0xa0 * (max - size) / (max - min)
+              byte shade = (byte)(0xff - 0xb0 * (Game.Map.MaxCountrySize - country.Size) / maxMinusMin);
+              var countryBrush = new SolidColorBrush(Color.FromRgb(shade, shade, shade));
+              drawingContext.DrawGeometry(countryBrush, BorderPen2, GeometryByCountry[country.Id]);
+            }
           }
         }
 
         //draw arrows
-        foreach (var result in Game.Results) {
-          if (result.CountryIds!=null) {
-            var toCountry = Game.Map[result.CountryId];
-            var toCoordinate = countryFixArray[result.CountryId].Center;
-            var brush = PlayerBrushes[result.PlayerId];
-            var pen = 
-              result.MoveType==MoveTypeEnum.attack ? (result.IsSuccess ? attackSuccessPen : attackFailPen) : movePen;
-            foreach (var fromCountryId in result.CountryIds) {
-              var fromCoordinate = countryFixArray[fromCountryId].Center;
-              draw1or2Arrows(drawingContext, fromCoordinate, toCoordinate, brush, pen);
+        if (showOption is ShowOptionEnum.Armies or ShowOptionEnum.CountryId) {
+          foreach (var result in Game.Results) {
+            if (result.CountryIds!=null) {
+              var toCountry = Game.Map[result.CountryId];
+              var toCoordinate = countryFixArray[result.CountryId].Center;
+              var brush = PlayerBrushes[result.PlayerId];
+              var pen =
+                result.MoveType==MoveTypeEnum.attack ? (result.IsSuccess ? attackSuccessPen : attackFailPen) : movePen;
+              foreach (var fromCountryId in result.CountryIds) {
+                var fromCoordinate = countryFixArray[fromCountryId].Center;
+                draw1or2Arrows(drawingContext, fromCoordinate, toCoordinate, brush, pen);
+              }
             }
           }
         }
-        
+
         //draw country states and country infos
         foreach (var country in Game.Map) {
           var countryFix = countryFixArray[country.Id];
           if (country.IsMountain)
             continue;
 
-          if (isShowArmySize) {
+          switch (showOption) {
+          case ShowOptionEnum.Armies:
             switch (country.State) {
             case CountryStateEnum.normal:
               break;
@@ -359,18 +396,24 @@ namespace MasterGrab {
             default:
               throw new NotSupportedException();
             }
-          }
 
-          if (isShowArmySize) {
             var circleString = ((int)country.ArmySize).ToString();
             if (country.ArmySize>0.9*country.Capacity) {
               GlyphDrawerBold.WriteCentered(drawingContext, new Point(countryFix.Center.X*scale, countryFix.Center.Y*scale), circleString, 12, Brushes.Black);
             } else {
               GlyphDrawerNormal.WriteCentered(drawingContext, new Point(countryFix.Center.X*scale, countryFix.Center.Y*scale), circleString, 12, Brushes.Black);
             }
-          } else {
-            //show country ID
+            break;
+
+          case ShowOptionEnum.CountryId:
             GlyphDrawerItalic.WriteCentered(drawingContext, new Point(countryFix.Center.X*scale, countryFix.Center.Y*scale), country.Id.ToString(), 12, Brushes.Black);
+            break;
+
+          case ShowOptionEnum.CountrySize:
+            GlyphDrawerItalic.WriteCentered(drawingContext, new Point(countryFix.Center.X*scale, countryFix.Center.Y*scale), country.Size.ToString(), 12, Brushes.Black);
+            break;
+          default:
+            break;
           }
           #if ShowSomeDebuggingInfoInWindow
           drawingContext.DrawText(
@@ -396,7 +439,7 @@ namespace MasterGrab {
 
 
     int errorWindowsCount;
-    bool oldIsShowArmySize;
+    ShowOptionEnum oldShowOption;
 
 
     private void exceptionRaised(Exception exception) {
@@ -407,8 +450,8 @@ namespace MasterGrab {
       }
 
       if (errorWindowsCount<=0) {
-        oldIsShowArmySize = isShowArmySize;
-        IsShowArmySize = false;
+        oldShowOption = ShowOption;
+        ShowOption = ShowOptionEnum.CountryId;
         isHighlightCountries = true;
         AddChild(mapErrorOverlayControl);
       }
@@ -445,7 +488,7 @@ namespace MasterGrab {
     private void ErrorWindow_Closed(object? sender, EventArgs e) {
       errorWindowsCount--;
       if (errorWindowsCount<=0) {
-        IsShowArmySize = oldIsShowArmySize;
+        ShowOption = oldShowOption;
         isHighlightCountries = false;
         RemoveChild(mapErrorOverlayControl);
         mapErrorOverlayControl.RemoveAllCountries();

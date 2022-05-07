@@ -54,7 +54,7 @@ namespace MasterGrab {
       HelpButton.Click += HelpButton_Click;
 
       options = Options.Default;
-      mapControl = new MapControl(options, 1, isShowArmySizeChanged);
+      mapControl = new MapControl(options, 1, updateShowUption);
       MainDockPanel.Children.Add(mapControl);
     }
     #endregion
@@ -107,16 +107,15 @@ namespace MasterGrab {
 
 
     private void ShowComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      mapControl.IsShowArmySize = ShowComboBox.SelectedIndex switch {
-        0 => true,
-        1 => false,
-        _ => throw new NotSupportedException(),
-      };
+      var selectedIndex = ShowComboBox.SelectedIndex;
+      if (selectedIndex<0 || selectedIndex>(int)ShowOptionEnum.CountrySize) throw new NotSupportedException();
+
+      mapControl.ShowOption = (ShowOptionEnum)selectedIndex;
     }
 
 
-    private void isShowArmySizeChanged(bool isShowArmySize) {
-      ShowComboBox.SelectedIndex =isShowArmySize ? 0 : 1;
+    private void updateShowUption(ShowOptionEnum showOption) {
+      ShowComboBox.SelectedIndex = (int)showOption;
     }
 
 

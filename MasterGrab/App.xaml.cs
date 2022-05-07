@@ -35,6 +35,10 @@ namespace MasterGrab {
   public partial class App: Application {
 
     public App() {
+      var r1 = new System.Random(1);
+      var i1 = r1.Next();
+      var r2 = new System.Random(1);
+      var i2 = r2.Next();
       Startup += App_Startup;  
 
     }

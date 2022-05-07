@@ -201,6 +201,8 @@ his own armies neighbouring one of his countries into that country. This is
 rather important in the later phase of the game.
 
 However, BasicRobot is lacking any strategic planning, like:
+- Detect attacks and defend against them
+- Once reaching a certain size, also grow of armies in different countries instead of attacking as much as possible
 - Which attack improves the "shape" of his countries: 
   - When his countries bild a "circle", the countries inside the circle have no enemies.
   - When he manages to get all countries in a column on the screen, less defence is needed.
