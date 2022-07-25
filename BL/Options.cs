@@ -142,6 +142,16 @@ namespace MasterGrab {
 
 
     /// <summary>
+    /// Is human playing too or only robots ? 
+    /// </summary>
+    public readonly bool IsClusteredOwnership;
+    public static readonly OptionDef<bool> IsClusteredOwnershipDef = new("Countries clustered",
+      "At start, all countries of one owner are clustered together.",
+      defaultValue: true, minValue: false, maxValue: true, randomOffset: true, randomRange: true,
+      nullValue: /*not used*/ false);
+
+
+    /// <summary>
     /// Defines which robots will be in the game
     /// </summary>
     public IReadOnlyList<RobotInfo> Robots => robots;
@@ -243,6 +253,7 @@ namespace MasterGrab {
         attackBenefitFactor: 1.0,
         isRandomOptions: false,
         isHumanPlaying: true,
+        isClusteredOwnership: false,
         robots: robots);
       Default.SetColor(0, 0xFF, 0xFF, 0x60, 0x60);
       Default.SetColor(1, 0xFF, 0xFF, 0xFF, 0x30);
@@ -290,6 +301,7 @@ namespace MasterGrab {
       double attackBenefitFactor,
       bool isRandomOptions,
       bool isHumanPlaying,
+      bool isClusteredOwnership,
       RobotInfo[] robots) 
     {
       CountriesCount = countriesCount;
@@ -303,6 +315,7 @@ namespace MasterGrab {
       AttackBenefitFactor = attackBenefitFactor;
       IsRandomOptions = isRandomOptions;
       IsHumanPlaying = isHumanPlaying;
+      IsClusteredOwnership = isClusteredOwnership;
       this.robots = robots;
     }
 
@@ -323,6 +336,7 @@ namespace MasterGrab {
       AttackBenefitFactor = randomize(AttackBenefitFactorDef, 2);
       IsRandomOptions = true;
       IsHumanPlaying = options.IsHumanPlaying;
+      IsClusteredOwnership = random.Next()>int.MaxValue/2;
       var robotsCount = random.Next(5)+1;
       if (!IsHumanPlaying) {
         robotsCount++;

@@ -77,6 +77,7 @@ namespace MasterGrab {
     /// </summary>
     public Map(Options options, Game game, IReadOnlyList<CountryFix> countryFixArray) {
       Game = game;
+
       if (options.CountriesCount!=countryFixArray.Count) throw new Exception();
 
       //sort countries by size
@@ -90,50 +91,63 @@ namespace MasterGrab {
         ownerIdsbyCountry[ownerIdsbyCountryIndex] = int.MinValue;
       }
 
-      //assign countries starting with the biggest country to each player. The player with the smallest countries size (pixel) gets
-      //the next country. This ensures that every player has in the end about the same total countries size.
-      for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
-        var countryFix = sortedcountryFixArray[sortedCountryIndex];
-        var smallestPlayerIndex = 0;
-        if (countryFix.IsMountain) throw new Exception();
-
-        var smallestsize = int.MaxValue;
-        for (var playerIndex = 0; playerIndex < totalCountrySizeByPlayer.Length; playerIndex++) {
-          if (smallestsize>totalCountrySizeByPlayer[playerIndex]) {
-            smallestsize = totalCountrySizeByPlayer[playerIndex];
-            smallestPlayerIndex = playerIndex;
-          }
+      if (options.IsClusteredOwnership) {
+        //one owner's countries are clustered together at start
+        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
+          var playerIndex = getClusterOwner(options, game.Players.Count, sortedcountryFixArray[sortedCountryIndex]);
+          ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = playerIndex;
+          totalCountrySizeByPlayer[playerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
         }
-        ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = smallestPlayerIndex;
-        totalCountrySizeByPlayer[smallestPlayerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
-      }
 
-      if (options.IsHumanPlaying) {
-        //give GuiPlayer a small advantage, because he has to start and needs to compete against many computer players. Without a
-        //small advantage, it is rather difficult for the human player to start.
-        var maxSize = 0.0;
-        CountryFix? maxCountry = null;
-        var maxOwnerId = int.MinValue;
-        double minGuiSize = int.MaxValue;
-        CountryFix? guiCountry = null;
-        //find smallest gui country and biggest other country
-        foreach (var countryFix in countryFixArray) {
-          if (ownerIdsbyCountry[countryFix.Id]==game.GuiPlayerId) {
-            if (minGuiSize>countryFix.Size) {
-              minGuiSize = countryFix.Size;
-              guiCountry = countryFix;
-            }
-          } else {
-            if (maxSize<countryFix.Size) {
-              maxSize = countryFix.Size;
-              maxCountry = countryFix;
-              maxOwnerId = ownerIdsbyCountry[countryFix.Id];
+
+      } else {
+        //one owner's countries are distributed all over the map
+        //assign countries starting with the biggest country to each player. The player with the smallest countries size (pixel) gets
+        //the next country. This ensures that every player has in the end about the same total countries size.
+        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
+          var countryFix = sortedcountryFixArray[sortedCountryIndex];
+          var smallestPlayerIndex = 0;
+          if (countryFix.IsMountain) throw new Exception();
+
+          var smallestsize = int.MaxValue;
+          for (var playerIndex = 0; playerIndex < totalCountrySizeByPlayer.Length; playerIndex++) {
+            if (smallestsize>totalCountrySizeByPlayer[playerIndex]) {
+              smallestsize = totalCountrySizeByPlayer[playerIndex];
+              smallestPlayerIndex = playerIndex;
             }
           }
+          ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = smallestPlayerIndex;
+          totalCountrySizeByPlayer[smallestPlayerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
         }
-        //swap owners
-        ownerIdsbyCountry[maxCountry!.Id] = game.GuiPlayerId;
-        ownerIdsbyCountry[guiCountry!.Id] = maxOwnerId;
+
+        if (options.IsHumanPlaying) {
+          //give GuiPlayer a small advantage, because he has to start and needs to compete against many computer players. Without a
+          //small advantage, it is rather difficult for the human player to start.
+          var maxSize = 0.0;
+          CountryFix? maxCountry = null;
+          var maxOwnerId = int.MinValue;
+          double minGuiSize = int.MaxValue;
+          CountryFix? guiCountry = null;
+          //find smallest gui country and biggest other country
+          foreach (var countryFix in countryFixArray) {
+            if (ownerIdsbyCountry[countryFix.Id]==game.GuiPlayerId) {
+              if (minGuiSize>countryFix.Size) {
+                minGuiSize = countryFix.Size;
+                guiCountry = countryFix;
+              }
+            } else {
+              if (maxSize<countryFix.Size) {
+                maxSize = countryFix.Size;
+                maxCountry = countryFix;
+                maxOwnerId = ownerIdsbyCountry[countryFix.Id];
+              }
+            }
+          }
+          //swap owners
+          ownerIdsbyCountry[maxCountry!.Id] = game.GuiPlayerId;
+          ownerIdsbyCountry[guiCountry!.Id] = maxOwnerId;
+        }
+
       }
 
       //generate countries
@@ -153,6 +167,30 @@ namespace MasterGrab {
         var country = new Country(this, coutryFix, ownerId, armySize);
         countries[countryIndex] = country;
       }
+    }
+
+    private int getClusterOwner(Options options, int playersCount, CountryFix countryFix) {
+      if (countryFix.IsMountain) throw new Exception();
+      switch (playersCount) {
+      case 4:
+        if (countryFix.Center.X<options.XCount/2) {
+          if (countryFix.Center.Y<options.YCount/2) {
+            return 0;
+          } else {
+            return 1;
+          }
+        } else {
+          if (countryFix.Center.Y<options.YCount/2) {
+            return 2;
+          } else {
+            return 3;
+          }
+        }
+
+      default:
+        throw new NotSupportedException("options.IsClusteredOwnership does not support {playersCount} players.");
+      }
+
     }
 
 

@@ -197,7 +197,9 @@ namespace MasterGrab {
       var xCount = 100;
       var yCount = 100;
       return new Options(countriesCount, mountainsPercentage, xCount, yCount, armiesInBiggestCountry, armyGrowthFactor, 
-        protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions: false, isHumanPlaying: true, robots);
+        protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions: false, isHumanPlaying: true,
+        //todo: add isClusteredOwnership to options window 
+        isClusteredOwnership: true, robots);
     }
 
 

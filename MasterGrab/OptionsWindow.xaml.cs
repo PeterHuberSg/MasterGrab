@@ -75,6 +75,8 @@ namespace MasterGrab {
 
       OriginalOptions = options;
       NumberOfCountriesNumberTextBox.Set(Options.CountriesCountDef, options.CountriesCount);
+      ClusteredCheckBox.IsChecked = options.IsClusteredOwnership;
+      ClusteredCheckBox.ToolTip = Options.IsClusteredOwnershipDef.ToolTip;
 
       AdvancedOptionsButton.Click += AdvancedOptionsButton_Click;
       DefaultButton.Click += DefaultButton_Click;
@@ -261,27 +263,6 @@ namespace MasterGrab {
         robots[robotsIndex] = Options.RobotInfos[comboBoxes[robotsIndex].SelectedIndex];
       }
 
-      //if (isRandomOptions) {
-      //  NewOptions = new Options(
-      //    xCount: OriginalOptions.XCount, 
-      //    yCount: OriginalOptions.YCount, 
-      //    isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false); 
-      //} else {
-      //  NewOptions = new Options(
-      //    countriesCount: (int)NumberOfCountriesNumberTextBox.Value,
-      //    xCount: OriginalOptions.XCount,
-      //    yCount: OriginalOptions.YCount,
-      //    mountainsPercentage: mountainsPercentage,
-      //    armiesInBiggestCountry: armiesInBiggestCountry,
-      //    armyGrowthFactor: armyGrowthFactor,
-      //    protectionFactor: protectionFactor,
-      //    attackFactor: attackFactor,
-      //    attackBenefitFactor: attackBenefitFactor,
-      //    isRandomOptions: isRandomOptions,
-      //    isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
-      //    robots: robots);
-      //}
-
       //these options get overwritten when isRandomOptions is true
       NewOptions = new Options(
         countriesCount: (int)NumberOfCountriesNumberTextBox.Value,
@@ -295,6 +276,7 @@ namespace MasterGrab {
         attackBenefitFactor: attackBenefitFactor,
         isRandomOptions: isRandomOptions,
         isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
+        isClusteredOwnership: ClusteredCheckBox.IsChecked!.Value,
         robots: robots);
 
       var playerColor = PlayerColorBox.Color;
