@@ -9,22 +9,23 @@ namespace MasterGrab {
   /*
   ClusterConfigurations specifies where exctly on the screen clusters have to be placed for 2..15 players.
 
-  Cluster: all the countries of a player are neighbour to each other, as opposed to randomly scattered over themap
+  Cluster: all the countries of a player are neighbours to each other, as opposed to randomly scattered over the map
 
   If a game has 2 players, there are 2 clusters, with 3 players 3 clusters, etc.
 
   The centers of the clusters decide the shape of the clusters:
 
-  Squarish:
-  The easiest cluster shape for a player to dfend is a circle, but circles would leave holes. The next best solution 
+  Compact:
+  The easiest cluster shape for a player to defend is a circle, but circles would leave holes. The next best solution 
   would be hexagon, which cover all pixels of a screen, but if there are only 4 players, the resulting cluster shape
   looks more like a rectangel.
-  +---------------+
-  |0,0            |
-  |    1,1        |
-  |        2,2    |
-  |            3,3|
-  +---------------+
+  +------+--------+
+  | 0,0   | 2,0   |
+  |       |       |
+  +-------+-------+
+  | 0,2   | 2.2   |
+  |       |       |
+  +-------+-------+
 
   Diagonal:
   +---------------+
@@ -53,7 +54,7 @@ namespace MasterGrab {
   |   |   |   |   |
   +---+---+---+---+
 
-  The calculation of the squarish cluster distribution is difficult when there are many clusters, because each cluster
+  The calculation of the compact cluster distribution is difficult when there are many clusters, because each cluster
   should have the same size. The console program CalcOptimalPointsConsole enumerates through all possible cluster center 
   positions and returns the best of them. The WPF program ClusterCenters shows the various cluster shapes.
 
@@ -62,7 +63,7 @@ namespace MasterGrab {
      has to be at 0.5, 0.5
   2) The centers have to be placed in a way that for a very wide, a squarish or a very long screen still every cluster 
      has the equal size. Obviously, for vertical, horizontal and diagonal distributions this means the coordinates 
-     have to be multiples of 1/x, where x is the number of clusters. The same is true for squarish distribution.
+     have to be multiples of 1/x, where x is the number of clusters. The same is true for compact distribution.
 
   To cluster of the first player (normally human) should be in the center of the screen, i.e. at 0.5. In order to allow 
   for integer calculation and to avoid rounding problems, the height and the width of the screen is taken as 2 * number 
@@ -82,7 +83,7 @@ namespace MasterGrab {
 
   public enum ClusteringEnum {
     random,
-    squarish,
+    compact,
     diagonal,
     vertical,
     horizontal,
@@ -106,7 +107,7 @@ namespace MasterGrab {
     static readonly (int, int)[,][] clusterConfigurations =
       {
         {//2 clusters
-          //squarish, same as vertical
+          //compact, same as vertical
           new (int, int)[]{(2, 2), (0, 2)},
           //diagonal
           new (int, int)[]{(2, 2), (0, 0)},
@@ -117,7 +118,7 @@ namespace MasterGrab {
         },
 
         {//3 clusters
-          //squarish, result looks like vertical
+          //compact, result looks like vertical
           new (int, int)[]{(3, 3), (5, 3), (1, 3)},
           //diagonal
           new (int, int)[]{(3, 3), (1, 1), (5, 5)},
@@ -128,7 +129,7 @@ namespace MasterGrab {
         },
 
         {//4 clusters
-          //squarish
+          //compact
           new (int, int)[] {(4, 4), (0, 6), (4, 0), (0, 2)},
           //new (int, int)[]{(4, 4), (6, 2), (0, 6), (2, 0)},
           //new (int, int)[]{(4, 4), (0, 4), (4, 0), (0, 0)},
@@ -141,7 +142,7 @@ namespace MasterGrab {
         },
 
         {//5 clusters
-          //squarish
+          //compact
           new (int, int)[]{(5, 5), (7, 9), (9, 3), (1, 7), (3, 1)},
           //diagonal
           new (int, int)[]{(5, 5), (7, 7), (9, 9), (1, 1), (3, 3)},
@@ -152,7 +153,7 @@ namespace MasterGrab {
         },
 
         {//6 clusters
-          //squarish
+          //compact
           new (int, int)[] {(6, 6), (8, 0), (10, 6), (0, 0), (2, 6), (4, 0)},
           //diagonal
           new (int, int)[]{(6, 6), (8, 8), (10, 10), (0, 0), (2, 2), (4, 4)},
@@ -163,7 +164,7 @@ namespace MasterGrab {
         },
 
         {//7 clusters
-          //squarish
+          //compact
           new (int, int)[]{(7, 7), (9, 13), (11, 5), (13, 11), (1, 3), (3, 9), (5, 1)},
           //diagonal
           new (int, int)[]{(7, 7), (9, 9), (11, 11), (13, 13), (1, 1), (3, 3), (5, 5)},
@@ -174,7 +175,7 @@ namespace MasterGrab {
         },
 
         {//8 clusters
-          //squarish
+          //compact
           new (int, int)[]{(8, 8), (10, 14), (12, 4), (14, 10), (0, 0), (2, 6), (4, 12), (6, 2)},
           //diagonal
           new (int, int)[]{(8, 8), (10, 10), (12, 12), (14, 14), (0, 0), (2, 2), (4, 4), (6, 6)},
@@ -185,7 +186,7 @@ namespace MasterGrab {
         },
 
         {//9 clusters
-          //squarish
+          //compact
           //config[9].Add(("9,9 9,15 15,5 15,11 15,17 3,7 3,13 3,1 9,3", new (int, int)[] {(9, 9), (9, 15), (15, 5), (15, 11), (15, 17), (3, 7), (3, 13), (3, 1), (9, 3)}));
           //new (int, int)[]{(9, 9), (11, 17), (13, 7), (15, 15), (17, 5), (1, 13), (3, 3), (5, 11), (7, 1)},
           new (int, int)[] {(9, 9), (9, 15), (15, 5), (15, 11), (15, 17), (3, 7), (3, 13), (3, 1), (9, 3)},
@@ -209,7 +210,7 @@ namespace MasterGrab {
           //new PercentPoint(7/10.0, 9/10.0),
           //new PercentPoint(8/10.0, 4/10.0),
           //new PercentPoint(9/10.0, 5/10.0)}),
-          //squarish
+          //compact
           new (int, int)[]{(10, 10), (12, 12), (14, 2), (16, 4), (18, 14), (0, 16), (2, 6), (4, 8), (6, 18), (8, 0)},
           //diagonal (!)
           new (int, int)[]{(10, 10), (12, 12), (14, 14), (16, 16), (18, 18), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8)},
@@ -220,7 +221,7 @@ namespace MasterGrab {
         },
 
         {//11 clusters
-          //squarish
+          //compact
           new (int, int)[]{(11, 11), (13, 13), (15, 15), (17, 17), (19, 19), (21, 21), (1, 1), (3, 3), (5, 5), (7, 7), (9, 9)},
           //diagonal (!)
           new (int, int)[]{(11, 11), (13, 13), (15, 15), (17, 17), (19, 19), (21, 21), (1, 1), (3, 3), (5, 5), (7, 7), (9, 9)},
@@ -231,7 +232,7 @@ namespace MasterGrab {
         },
 
         {//12 clusters
-          //squarish
+          //compact
           new (int, int)[]{(12, 12), (14, 14), (16, 16), (18, 18), (20, 20), (22, 22), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8), (10, 10)},
           //diagonal (!)
           new (int, int)[]{(12, 12), (14, 14), (16, 16), (18, 18), (20, 20), (22, 22), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8), (10, 10)},
@@ -242,7 +243,7 @@ namespace MasterGrab {
         },
 
         {//13 clusters
-          //squarish
+          //compact
           new (int, int)[]{(13, 13), (15, 15), (17, 17), (19, 19), (21, 21), (23, 23), (25, 25), (1, 1), (3, 3), (5, 5), (7, 7), (9, 9), (11, 11)},
           //diagonal (!)
           new (int, int)[]{(13, 13), (15, 15), (17, 17), (19, 19), (21, 21), (23, 23), (25, 25), (1, 1), (3, 3), (5, 5), (7, 7), (9, 9), (11, 11)},
@@ -253,7 +254,7 @@ namespace MasterGrab {
         },
 
         {//14 clusters
-          //squarish
+          //compact
           new (int, int)[]{(14, 14), (16, 16), (18, 18), (20, 20), (22, 22), (24, 24), (26, 26), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8), (10, 10), (12, 12)},
           //diagonal (!)
           new (int, int)[]{(14, 14), (16, 16), (18, 18), (20, 20), (22, 22), (24, 24), (26, 26), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8), (10, 10), (12, 12)},
@@ -264,7 +265,7 @@ namespace MasterGrab {
         },
 
         {//15 clusters
-          //squarish
+          //compact
           new (int, int)[]{(15, 15), (17, 17), (19, 19), (21, 21), (23, 23), (25, 25), (27, 27), (29, 29), (1, 1), (3, 3), (5, 5), (7, 7), (9, 9), (11, 11), (13, 13)},
           //diagonal (!)
           new (int, int)[]{(15, 15), (17, 17), (19, 19), (21, 21), (23, 23), (25, 25), (27, 27), (29, 29), (1, 1), (3, 3), (5, 5), (7, 7), (9, 9), (11, 11), (13, 13)},

@@ -32,7 +32,7 @@ namespace ClusterCenters {
       new PercentPoint(1/2.0, 1/2.0),
       new PercentPoint(0/2.0, 1/2.0)}),
 
-      ("2 clusters squarish, same as vertical", new []{
+      ("2 clusters compact, same as vertical", new []{
       new PercentPoint(1.0/2, 1/2.0),
       new PercentPoint(0/2.0, 1/2.0)}),
 
@@ -71,7 +71,7 @@ namespace ClusterCenters {
       new PercentPoint(0/4.0, 0/4.0),
       new PercentPoint(1/4.0, 1/4.0)}),
 
-     ("4 clusters squarish", new []{
+     ("4 clusters compact", new []{
       new PercentPoint(2/4.0, 2/4.0),
       new PercentPoint(0/4.0, 3/4.0),
       new PercentPoint(1/4.0, 0/4.0),
@@ -99,7 +99,7 @@ namespace ClusterCenters {
       new PercentPoint(1/10.0, 1/10.0),
       new PercentPoint(3/10.0, 3/10.0)}),
 
-      ("5 clusters squarish", new []{
+      ("5 clusters compact", new []{
       new PercentPoint(5/10.0, 5/10.0),
       new PercentPoint(7/10.0, 9/10.0),
       new PercentPoint(9/10.0, 3/10.0),
@@ -139,7 +139,7 @@ namespace ClusterCenters {
       new PercentPoint(1/6.0, 5/6.0),
       new PercentPoint(2/6.0, 1/6.0)}),
 
-       ("6 clusters squarish", new []{
+       ("6 clusters compact", new []{
       new PercentPoint(3/6.0, 3/6.0),
       new PercentPoint(4/6.0, 4/6.0),
       new PercentPoint(5/6.0, 1/6.0),
@@ -175,7 +175,7 @@ namespace ClusterCenters {
       new PercentPoint(03/14.0, 03/14.0),
       new PercentPoint(05/14.0, 05/14.0)}),
 
-     ("7 clusters squarish", new []{
+     ("7 clusters compact", new []{
       new PercentPoint(07/14.0, 07/14.0),
       new PercentPoint(09/14.0, 13/14.0),
       new PercentPoint(11/14.0, 05/14.0),
@@ -215,7 +215,7 @@ namespace ClusterCenters {
       new PercentPoint(2/8.0, 2/8.0),
       new PercentPoint(3/8.0, 3/8.0)}),
 
-      ("8 clusters squarish", new []{
+      ("8 clusters compact", new []{
       new PercentPoint(4/8.0, 4/8.0),
       new PercentPoint(5/8.0, 7/8.0),
       new PercentPoint(6/8.0, 2/8.0),
@@ -270,7 +270,7 @@ namespace ClusterCenters {
       new PercentPoint(05/18.0, 01/18.0),
       new PercentPoint(07/18.0, 05/18.0)}),
 
-      ("9 clusters squarish", new []{
+      ("9 clusters compact", new []{
       new PercentPoint(09/18.0, 09/18.0),
       new PercentPoint(11/18.0, 17/18.0),
       new PercentPoint(13/18.0, 07/18.0),

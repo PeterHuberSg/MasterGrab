@@ -135,7 +135,8 @@ namespace MasterGrab {
       RandomRange =randomRange;
       NullValue = nullValue;
 
-      if (typeof(T)==typeof(int)) {
+      var type = typeof(T);
+      if (type==typeof(int)) {
         var min = (int)(object)MinValue;
         var max = (int)(object)MaxValue;
         if (min>max) throw new ArgumentException($"MinValue {MinValue} should be smaller/equal MaxValue {MaxValue}.");
@@ -146,7 +147,7 @@ namespace MasterGrab {
         var rRange = (int)(object)RandomRange;
         if (rOffset+rRange>max) throw new ArgumentException($"rOffset+rRange {rOffset+rRange} should be smaller/equal MaxValue {MaxValue}.");
 
-      } else if (typeof(T)==typeof(double)) {
+      } else if (type==typeof(double)) {
         var min = (double)(object)MinValue;
         var max = (double)(object)MaxValue;
         if (min>max) throw new ArgumentException($"MinValue {MinValue} should be smaller/equal MaxValue {MaxValue}.");
@@ -156,6 +157,8 @@ namespace MasterGrab {
 
         var rRange = (double)(object)RandomRange;
         if (rOffset+rRange>max) throw new ArgumentException($"rOffset+rRange {rOffset+rRange} should be smaller/equal MaxValue {MaxValue}.");
+      } else {
+        throw new NotSupportedException(type.ToString());
       }
     }
     #endregion

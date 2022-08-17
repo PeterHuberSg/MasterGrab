@@ -61,7 +61,7 @@ namespace ClusterCenters {
         var configList = new List<(string, (int, int)[])>();
         config[configIndex] = configList;
 
-        for (ClusteringEnum clusteringIndex = ClusteringEnum.squarish; clusteringIndex<=ClusteringEnum.horizontal; clusteringIndex++) {
+        for (ClusteringEnum clusteringIndex = ClusteringEnum.compact; clusteringIndex<=ClusteringEnum.horizontal; clusteringIndex++) {
           var clusterConfiguration = ClusterConfigurations.Get(configIndex, clusteringIndex);
           configList.Add((clusteringIndex.ToString(), clusterConfiguration));
         }

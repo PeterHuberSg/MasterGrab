@@ -142,13 +142,13 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Is human playing too or only robots ? 
+    /// How are the contries of one player distributed, i.e. randomly over the map or clustered together ? 
     /// </summary>
-    public readonly bool IsClusteredOwnership;
-    public static readonly OptionDef<bool> IsClusteredOwnershipDef = new("Countries clustered",
-      "At start, all countries of one owner are clustered together.",
-      defaultValue: true, minValue: false, maxValue: true, randomOffset: true, randomRange: true,
-      nullValue: /*not used*/ false);
+    public readonly ClusteringEnum Clustering;
+    public static readonly OptionDef<int> ClusteringDef = new("Countries distribution",
+      "At start, all countries of one owner are randomly distributed over the map.",
+      defaultValue: 0, minValue: 0, maxValue: (int)ClusteringEnum.horizontal, randomOffset: 0, randomRange: (int)ClusteringEnum.horizontal,
+      nullValue: /*not used*/ -1);
 
 
     /// <summary>
@@ -253,7 +253,7 @@ namespace MasterGrab {
         attackBenefitFactor: 1.0,
         isRandomOptions: false,
         isHumanPlaying: true,
-        isClusteredOwnership: false,
+        clustering: ClusteringEnum.random,
         robots: robots);
       Default.SetColor(0, 0xFF, 0xFF, 0x60, 0x60);
       Default.SetColor(1, 0xFF, 0xFF, 0xFF, 0x30);
@@ -301,7 +301,7 @@ namespace MasterGrab {
       double attackBenefitFactor,
       bool isRandomOptions,
       bool isHumanPlaying,
-      bool isClusteredOwnership,
+      ClusteringEnum clustering,
       RobotInfo[] robots) 
     {
       CountriesCount = countriesCount;
@@ -315,13 +315,13 @@ namespace MasterGrab {
       AttackBenefitFactor = attackBenefitFactor;
       IsRandomOptions = isRandomOptions;
       IsHumanPlaying = isHumanPlaying;
-      IsClusteredOwnership = isClusteredOwnership;
+      Clustering = clustering;
       this.robots = robots;
     }
 
 
     /// <summary>
-    /// returns random options, keeps screen size, if human palying and Colors from options
+    /// returns random options, keeps screen size, IsHumanPlaying and Colors from options
     /// </summary>
     public Options(Options options) {
 
@@ -336,7 +336,7 @@ namespace MasterGrab {
       AttackBenefitFactor = randomize(AttackBenefitFactorDef, 2);
       IsRandomOptions = true;
       IsHumanPlaying = options.IsHumanPlaying;
-      IsClusteredOwnership = random.Next()>int.MaxValue/2;
+      Clustering = randomizeClustering();
       var robotsCount = random.Next(5)+1;
       if (!IsHumanPlaying) {
         robotsCount++;
@@ -366,16 +366,32 @@ namespace MasterGrab {
     private static double randomize(OptionDef<double> optionDef, int digits) {
         return Math.Round(optionDef.RandomOffset + (optionDef.RandomRange-optionDef.RandomOffset)*random.NextDouble(), digits);
     }
-    #endregion
 
 
-    #region Methods
-    //       -------
+    private ClusteringEnum randomizeClustering() {
+      const int chanceForDiagHorVertDistribution = 3;
+      const int chanceCompactDistribution = 2 * chanceForDiagHorVertDistribution;
+      const int chanceRandomeDistribution = chanceCompactDistribution;
+      const int allChancesCount = chanceForDiagHorVertDistribution + chanceCompactDistribution + chanceRandomeDistribution;
+      var randomResult = random.Next(0, allChancesCount);
+      if (randomResult<chanceRandomeDistribution) return ClusteringEnum.random;
+      if (randomResult<chanceRandomeDistribution + chanceCompactDistribution) return ClusteringEnum.compact;
+      var clustering = ClusteringEnum.diagonal + randomResult - chanceRandomeDistribution - chanceCompactDistribution;
+      if (clustering<ClusteringEnum.diagonal || clustering>ClusteringEnum.horizontal)
+        throw new ArgumentOutOfRangeException(((int)clustering).ToString());
 
-    /// <summary>
-    /// Sets one of the predefined colors.
-    /// </summary>
-    public void SetColor(int ColorIndex, int A, int R, int G, int B) {
+      return clustering;
+    }
+      #endregion
+
+
+      #region Methods
+      //       -------
+
+      /// <summary>
+      /// Sets one of the predefined colors.
+      /// </summary>
+      public void SetColor(int ColorIndex, int A, int R, int G, int B) {
       Colors[ColorIndex, 0] = (byte)A;
       Colors[ColorIndex, 1] = (byte)R;
       Colors[ColorIndex, 2] = (byte)G;
