@@ -75,8 +75,13 @@ namespace MasterGrab {
 
       OriginalOptions = options;
       NumberOfCountriesNumberTextBox.Set(Options.CountriesCountDef, options.CountriesCount);
-      ClusteredCheckBox.IsChecked = options.IsClusteredOwnership;
-      ClusteredCheckBox.ToolTip = Options.IsClusteredOwnershipDef.ToolTip;
+      DistributionComboBox.ToolTip = "The countries belonging to one player can be randomly distributed over the map or clustered " + 
+        "together.";
+      DistributionComboBox.Items.Add(new ComboBoxItem {FontWeight=FontWeights.Bold, Content="Random"});
+      DistributionComboBox.Items.Add(new ComboBoxItem {Content="Compact"});
+      DistributionComboBox.Items.Add(new ComboBoxItem {FontStyle=FontStyles.Italic, Content="Diagonal"});
+      DistributionComboBox.Items.Add(new ComboBoxItem {FontStyle=FontStyles.Italic, Content="Vertical"});
+      DistributionComboBox.Items.Add(new ComboBoxItem {FontStyle=FontStyles.Italic, Content="Horizontal"});
 
       AdvancedOptionsButton.Click += AdvancedOptionsButton_Click;
       DefaultButton.Click += DefaultButton_Click;
@@ -122,6 +127,7 @@ namespace MasterGrab {
       PlayerEnabledCheckBox.IsChecked = options.IsHumanPlaying;
       PlayerColorBox.Visibility = PlayerEnabledCheckBox.IsChecked.Value ? Visibility.Visible : Visibility.Hidden;
       PlayerColorBox.Color = Color.FromArgb(options.Colors[0, 0], options.Colors[0, 1], options.Colors[0, 2], options.Colors[0, 3]);
+      DistributionComboBox.SelectedIndex = (int)options.Clustering;
       for (var robotIndex = 0; robotIndex < options.Robots.Count; robotIndex++) {
         addRobotRow(options, robotIndex);
       }
@@ -205,10 +211,12 @@ namespace MasterGrab {
 
 
     private void updateButtonState() {
-      AddButton.IsEnabled = RobotsGrid.RowDefinitions.Count<robotsCount;
-      RemoveButton.IsEnabled = PlayerEnabledCheckBox.IsChecked!.Value ? 
-        RobotsGrid.RowDefinitions.Count>0 : RobotsGrid.RowDefinitions.Count>1;
-      ApplyButton.IsEnabled = RemoveButton.IsEnabled;
+      if (PlayerEnabledCheckBox.IsChecked!.Value) {
+        PlayerEnabledCheckBox.IsEnabled = RemoveButton.IsEnabled = RobotsGrid.RowDefinitions.Count>1;
+      } else {
+        PlayerEnabledCheckBox.IsEnabled = true;
+        RemoveButton.IsEnabled = RobotsGrid.RowDefinitions.Count>2;
+      }
     }
 
 
@@ -251,11 +259,22 @@ namespace MasterGrab {
         removeRobot();
       }
       copyOptionsToScreen(Options.Default);
+      NumberOfCountriesNumberTextBox.Value = Options.Default.CountriesCount;
       updateButtonState();
     }
 
 
     private void ApplyButton_Click(object sender, RoutedEventArgs e) {
+      var numberOfPlayers = 
+        PlayerEnabledCheckBox.IsChecked??false ? 1 + RobotsGrid.RowDefinitions.Count : RobotsGrid.RowDefinitions.Count;
+      var minimumNumberOfCountries = numberOfPlayers * 5;
+      if ((int)NumberOfCountriesNumberTextBox.Value<minimumNumberOfCountries) {
+        MessageBox.Show($"With {numberOfPlayers} players at least {minimumNumberOfCountries} countries are needed.",
+          $"{NumberOfCountriesNumberTextBox.Value} countries are not enough for {numberOfPlayers} players",
+          MessageBoxButton.OK, MessageBoxImage.Error);
+        return;
+      }
+
       DialogResult = true;
 
       RobotInfo[] robots = new RobotInfo[RobotsGrid.RowDefinitions.Count];
@@ -276,7 +295,7 @@ namespace MasterGrab {
         attackBenefitFactor: attackBenefitFactor,
         isRandomOptions: isRandomOptions,
         isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
-        isClusteredOwnership: ClusteredCheckBox.IsChecked!.Value,
+        clustering: (ClusteringEnum)DistributionComboBox.SelectedIndex,
         robots: robots);
 
       var playerColor = PlayerColorBox.Color;

@@ -458,7 +458,6 @@ namespace ClusterCenters {
       }
       if (total!=pixels.Length) System.Diagnostics.Debugger.Break();
 
-      System.Diagnostics.Debug.WriteLine("");
       var deviationTotal = 0;
       total /= 1000;
       for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {

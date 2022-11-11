@@ -173,7 +173,6 @@ namespace MasterGrab {
             return;
 
           if (isReplay) {
-            System.Diagnostics.Debug.WriteLine($"{DateTime.Now:mm.ss.fff} controllerMethod: Replay");
             isReplay = false;
             executeReplay();
             var gameCloned = gameFix.GetClonedGame();
@@ -181,13 +180,11 @@ namespace MasterGrab {
             gameChanged(gameCloned, guiPlayer);
 
           } else if (startNewGameOptions!=null) {
-            System.Diagnostics.Debug.WriteLine($"{DateTime.Now:mm.ss.fff} controllerMethod: NewGame");
             options = startNewGameOptions;
             startNewGameOptions = null;
             startNewGame();
 
           } else {
-            System.Diagnostics.Debug.WriteLine($"{DateTime.Now:mm.ss.fff} controllerMethod: Move");
             int humanPlayerOffset;
             if (options.IsHumanPlaying) {
               if (moveGui==null) throw new Exception();

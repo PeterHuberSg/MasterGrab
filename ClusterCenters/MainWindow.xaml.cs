@@ -881,7 +881,6 @@ namespace ClusterCenters {
       sb2.Clear();
       sb3.Clear();
       const int w = 20;
-      System.Diagnostics.Debug.WriteLine("");
       total /= 1000;
       for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
         sb0.Append(clusterIndex.ToString().PadRight(w));

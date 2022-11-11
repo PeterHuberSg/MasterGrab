@@ -91,17 +91,8 @@ namespace MasterGrab {
         ownerIdsbyCountry[ownerIdsbyCountryIndex] = int.MinValue;
       }
 
-      if (options.IsClusteredOwnership) {
-        //one owner's countries are clustered together at start
-        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
-          var playerIndex = getClusterOwner(options, game.Players.Count, sortedcountryFixArray[sortedCountryIndex]);
-          ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = playerIndex;
-          totalCountrySizeByPlayer[playerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
-        }
-
-
-      } else {
-        //one owner's countries are distributed all over the map
+      if (options.Clustering==ClusteringEnum.random) {
+        //one owner's countries are scattered randomly all over the map
         //assign countries starting with the biggest country to each player. The player with the smallest countries size (pixel) gets
         //the next country. This ensures that every player has in the end about the same total countries size.
         for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
@@ -148,6 +139,22 @@ namespace MasterGrab {
           ownerIdsbyCountry[guiCountry!.Id] = maxOwnerId;
         }
 
+      } else {
+        //one owner's countries are clustered together at start
+        var clusterConfiguration = ClusterConfigurations.Get(game.Players.Count, options.Clustering);
+        var clusterCoordinates = new (int x, int y)[clusterConfiguration.Length];
+        var multiplier = game.Players.Count * 2;
+        var maxX = options.XCount-1;
+        var maxY = options.YCount-1;
+        for (int clusterIndex = 0; clusterIndex<clusterConfiguration.Length; clusterIndex++) {
+          var (x, y)= clusterConfiguration[clusterIndex];
+          clusterCoordinates[clusterIndex] = (x*maxX/multiplier, y*maxY/multiplier);
+        }
+        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
+          var playerIndex = getClusterOwner(options, clusterCoordinates, sortedcountryFixArray[sortedCountryIndex]);
+          ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = playerIndex;
+          totalCountrySizeByPlayer[playerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
+        }
       }
 
       //generate countries
@@ -169,29 +176,51 @@ namespace MasterGrab {
       }
     }
 
-    private int getClusterOwner(Options options, int playersCount, CountryFix countryFix) {
-      if (countryFix.IsMountain) throw new Exception();
-      switch (playersCount) {
-      case 4:
-        if (countryFix.Center.X<options.XCount/2) {
-          if (countryFix.Center.Y<options.YCount/2) {
-            return 0;
-          } else {
-            return 1;
-          }
-        } else {
-          if (countryFix.Center.Y<options.YCount/2) {
-            return 2;
-          } else {
-            return 3;
-          }
+    private int getClusterOwner(Options options, (int x, int y)[] clusterCoordinates, CountryFix countryFix) {
+      var minDistance = int.MaxValue;
+      var owner = 0;
+      for (int clusterIndex = 0; clusterIndex < clusterCoordinates.Length; clusterIndex++) {
+        var (x, y) = clusterCoordinates[clusterIndex];
+        var xDistance = Math.Abs(x - countryFix.Center.X);
+        if (xDistance>options.XCount/2) {
+          xDistance = options.XCount - xDistance;
         }
-
-      default:
-        throw new NotSupportedException("options.IsClusteredOwnership does not support {playersCount} players.");
+        var yDistance = Math.Abs(y - countryFix.Center.Y);
+        if (yDistance>options.YCount/2) {
+          yDistance = options.YCount - yDistance;
+        }
+        var distance = xDistance*xDistance + yDistance*yDistance;
+        if (minDistance>distance) {
+          minDistance = distance;
+          owner = clusterIndex;
+        }
       }
-
+      return owner;
     }
+
+
+    //private int getClusterOwner(Options options, int playersCount, CountryFix countryFix) {
+    //  if (countryFix.IsMountain) throw new Exception();
+    //  switch (playersCount) {
+    //  case 4:
+    //    if (countryFix.Center.X<options.XCount/2) {
+    //      if (countryFix.Center.Y<options.YCount/2) {
+    //        return 0;
+    //      } else {
+    //        return 1;
+    //      }
+    //    } else {
+    //      if (countryFix.Center.Y<options.YCount/2) {
+    //        return 2;
+    //      } else {
+    //        return 3;
+    //      }
+    //    }
+
+    //  default:
+    //    throw new NotSupportedException("options.IsClusteredOwnership does not support {playersCount} players.");
+    //  }
+    //}
 
 
     /// <summary>

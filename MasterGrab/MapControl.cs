@@ -240,7 +240,6 @@ namespace MasterGrab {
       var nowMilliseconds = (int)now.TimeOfDay.TotalMilliseconds;
       var timerInterval = autoPlayTimerIntervalMilliSec - nowMilliseconds%autoPlayTimerIntervalMilliSec + 5;//5: sometimes the tick comes few millisecs early
       autoPlayTimer.Interval = TimeSpan.FromMilliseconds(timerInterval);
-      System.Diagnostics.Debug.WriteLine($"{now:mm.ss.fff} nowMilliseconds: {nowMilliseconds} timerInterval: {timerInterval}");
       if (isGuiMoveAwaited) {
         ControllerMove(Move.NoMove);
       } else {

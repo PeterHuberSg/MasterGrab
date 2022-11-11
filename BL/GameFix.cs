@@ -165,7 +165,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Calculates options based on existing countries
+    /// Calculates options based on existing countries, used for testing
     /// </summary>
     private static Options getOptions(Country[] countries) {
       var countriesCount = countries.Length;
@@ -199,7 +199,7 @@ namespace MasterGrab {
       return new Options(countriesCount, mountainsPercentage, xCount, yCount, armiesInBiggestCountry, armyGrowthFactor, 
         protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions: false, isHumanPlaying: true,
         //todo: add isClusteredOwnership to options window 
-        isClusteredOwnership: true, robots);
+        ClusteringEnum.random, robots);
     }
 
 

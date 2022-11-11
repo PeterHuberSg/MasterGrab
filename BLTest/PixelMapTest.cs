@@ -238,7 +238,7 @@ namespace MasterGrab {
         attackBenefitFactor: double.MinValue,
         isRandomOptions: false,
         isHumanPlaying: true,
-        isClusteredOwnership: false,
+        ClusteringEnum.random,
         robots: robotInfos);
         _ = new PixelMap(options, 0, out var countryFixArray, out _);
 

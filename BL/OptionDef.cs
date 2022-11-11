@@ -157,6 +157,10 @@ namespace MasterGrab {
 
         var rRange = (double)(object)RandomRange;
         if (rOffset+rRange>max) throw new ArgumentException($"rOffset+rRange {rOffset+rRange} should be smaller/equal MaxValue {MaxValue}.");
+     
+      } else if (type==typeof(bool)) {
+        //nothing to do
+     
       } else {
         throw new NotSupportedException(type.ToString());
       }
