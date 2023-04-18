@@ -151,6 +151,8 @@ namespace MasterGrab {
       isGuiMoveAwaited = false;
       Visibility = Visibility.Hidden;
       mapFinishedOverlayControl.Hide();
+      newOptions.XCount = (int)RenderSize.Width + 1; //it seems that with width 1, actually 2 pixels are invoved, pixel 0 and 1
+      newOptions.YCount = (int)RenderSize.Height + 1;
       options = controllerStartNewGame(newOptions);
       var playersCount = options.IsHumanPlaying ? options.Robots.Count + 1 : options.Robots.Count;
       initialisePlayerBrushes(playersCount);
