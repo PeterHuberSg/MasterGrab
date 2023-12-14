@@ -6,34 +6,5 @@
         xmlns:local="clr-namespace:ClusterCenters"
         mc:Ignorable="d"
         Title="MainWindow" Height="700" Width="1400" WindowStartupLocation="CenterScreen" WindowState="Maximized">
-  <Grid x:Name="MainGrid" Background="Gainsboro">
-    <Grid.RowDefinitions>
-      <RowDefinition/>
-      <RowDefinition Height="8*"/>
-      <RowDefinition/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition/>
-      <ColumnDefinition Width="8*"/>
-      <ColumnDefinition/>
-    </Grid.ColumnDefinitions>
-    <DockPanel Grid.Row="0" Grid.Column="1" >
-      <TextBlock DockPanel.Dock="Right" x:Name="AverageTextBlock" VerticalAlignment="Center" />
-      <Label DockPanel.Dock="Right" Content="Average ‰:" VerticalAlignment="Center" />
-      <Button DockPanel.Dock="Right" x:Name="NextButton" Content="_Next" Margin=" 5"  VerticalAlignment="Center"/>
-      <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ConfigCombobox" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-    </DockPanel>
-    <Image Grid.Row="1" Grid.Column="1" x:Name="MainImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-    <Canvas Grid.Row="1" Grid.Column="1" x:Name="MainCanvas" Background="Transparent"/>
-    <Grid Grid.Row="2" Grid.Column="1" x:Name="ClusterGrid">
-      <Grid.RowDefinitions>
-        <RowDefinition/>
-        <RowDefinition/>
-        <RowDefinition/>
-        <RowDefinition/>
-      </Grid.RowDefinitions>
-    </Grid>
-    <TextBox Grid.Row="2" Grid.Column="1" x:Name="CoordinatesTextBox" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             IsReadOnly="True" FontFamily="Courier New" Visibility="Hidden"/>
-  </Grid>
+  <Grid x:Name="MainGrid"/>
 </Window>

@@ -35,7 +35,7 @@ namespace ClusterCenters {
     private bool isSquare;
 
 
-    readonly MainWindow2 mainWindow2;
+    readonly MainWindow mainWindow;
     readonly TextBlock labelClusterIdTextBlock;
     readonly TextBlock labelXTextBlock;
     readonly TextBlock labelYTextBlock;
@@ -50,12 +50,12 @@ namespace ClusterCenters {
     readonly Button incrementPreviousButton;
 
 
-    readonly Cluster2[] clusters = new Cluster2[MainWindow2.MaxNumberOfClusters];
+    readonly Cluster[] clusters = new Cluster[MainWindow.MaxNumberOfClusters];
 
 
-    public ClustersUserControl(MainWindow2 mainWindow2) {
+    public ClustersUserControl(MainWindow mainWindow) {
       InitializeComponent();
-      this.mainWindow2 = mainWindow2;
+      this.mainWindow = mainWindow;
       labelClusterIdTextBlock = new TextBlock { Text="Cluster Id:", FontWeight=FontWeights.Bold };
       Grid.SetRow(labelClusterIdTextBlock, 0);
       labelXTextBlock = new TextBlock { Text="X:", FontWeight=FontWeights.Bold };
@@ -109,10 +109,10 @@ namespace ClusterCenters {
       KeyUp += ClustersUserControl_KeyUp;
 
       var gridColumn = 2;
-      for (int clusterIndex = 0; clusterIndex<MainWindow2.MaxNumberOfClusters; clusterIndex++) {
+      for (int clusterIndex = 0; clusterIndex<MainWindow.MaxNumberOfClusters; clusterIndex++) {
 
         //TextBlock within Canvas
-        var canvasClusterTextBlock = new TextBlock { FontSize=22, Background=mainWindow2.TextBlockBackground, Tag = clusterIndex };
+        var canvasClusterTextBlock = new TextBlock { FontSize=22, Background=mainWindow.TextBlockBackground, Tag = clusterIndex };
         //canvasClusterTextBlock.PreviewMouseDown += CanvasClusterTextBlock_MouseDown;
         //canvasClusterTextBlock.MouseMove += CanvasClusterTextBlock_MouseMove;
         //canvasClusterTextBlock.MouseUp += CanvasClusterTextBlock_MouseUp;
@@ -147,9 +147,9 @@ namespace ClusterCenters {
         Grid.SetRow(deviationTextBlock, 4);
         Grid.SetColumn(deviationTextBlock, gridColumn);
 
-        clusters[clusterIndex] = new Cluster2(
+        clusters[clusterIndex] = new Cluster(
           clusterIndex,
-          mainWindow2.ClusterColours[clusterIndex],
+          mainWindow.ClusterColours[clusterIndex],
           canvasClusterTextBlock,
           clusterIdTextBlock,
           xClusterTextBox,
@@ -184,13 +184,13 @@ namespace ClusterCenters {
       if (clustersUsedCount==numberOfClusters) return;
 
       if (numberOfClusters<2) throw new ArgumentException("");
-      if (numberOfClusters>MainWindow2.MaxNumberOfClusters) throw new ArgumentException("");
+      if (numberOfClusters>MainWindow.MaxNumberOfClusters) throw new ArgumentException("");
 
       clustersUsedCount = numberOfClusters;
 
       isSetupClusters = true;
       ConfigCombobox.Items.Clear();
-      var configList = mainWindow2.LocalClusterConfigurations[clustersUsedCount];
+      var configList = mainWindow.LocalClusterConfigurations[clustersUsedCount];
       for (int configurationsIndex = 0; configurationsIndex<configList.Count; configurationsIndex++) {
         ConfigCombobox.Items.Add(new ComboBoxItem() { Content = configList[configurationsIndex].Description });
       }
@@ -258,7 +258,7 @@ namespace ClusterCenters {
 
 
     private void changeClusterConfiguration(int configurationIndex) {
-      var (_, Clusters)= mainWindow2.LocalClusterConfigurations[clustersUsedCount][configurationIndex];
+      var (_, Clusters)= mainWindow.LocalClusterConfigurations[clustersUsedCount][configurationIndex];
       for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
         clusters[clusterIndex].XCluster = Clusters[clusterIndex].X;
         clusters[clusterIndex].YCluster = Clusters[clusterIndex].Y;
@@ -349,7 +349,7 @@ namespace ClusterCenters {
         sb.Append($"{xCluster},{yCluster} ");
       }
       var description = sb.ToString();
-      mainWindow2.LocalClusterConfigurations[clustersUsedCount].Add((description, coordinates));
+      mainWindow.LocalClusterConfigurations[clustersUsedCount].Add((description, coordinates));
       ConfigCombobox.Items.Add(new ComboBoxItem() { Content = description });
       ConfigCombobox.SelectedIndex = ConfigCombobox.Items.Count - 1;
       //copyConfigToClipboard();
@@ -371,7 +371,7 @@ namespace ClusterCenters {
         return;
       }
 
-      var configList = mainWindow2.LocalClusterConfigurations[clustersUsedCount];
+      var configList = mainWindow.LocalClusterConfigurations[clustersUsedCount];
       configList.RemoveAt(ConfigCombobox.SelectedIndex);
       isRemove = true;
       ConfigCombobox.Items.RemoveAt(ConfigCombobox.SelectedIndex);
@@ -385,7 +385,7 @@ namespace ClusterCenters {
       var descriptionSB = new StringBuilder();
       var coordinatesSB = new StringBuilder();
       var clusterSB = new StringBuilder();
-      var configList = mainWindow2.LocalClusterConfigurations[clustersUsedCount];
+      var configList = mainWindow.LocalClusterConfigurations[clustersUsedCount];
       for (int clusterConfigIndex = (int)ClusteringEnum.horizontal; clusterConfigIndex<configList.Count; clusterConfigIndex++) {
         var (_, Clusters)= configList[clusterConfigIndex];
         for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
