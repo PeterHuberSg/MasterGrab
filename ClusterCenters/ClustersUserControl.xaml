@@ -19,7 +19,7 @@
     </Grid.ColumnDefinitions>-->
     <DockPanel Grid.Row="0" Grid.Column="0" >
       <Label DockPanel.Dock="Left" Content="Number of clusters:" VerticalAlignment="Center" />
-      <ComboBox DockPanel.Dock="Left" x:Name="NumberOfCCombobox" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+      <ComboBox DockPanel.Dock="Left" x:Name="NumberOfComboBox" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
       <Label DockPanel.Dock="Left" Content="Configuration:" VerticalAlignment="Center" />
       <TextBlock DockPanel.Dock="Right" x:Name="AverageTextBlock" VerticalAlignment="Center" />
       <Label DockPanel.Dock="Right" Content="Average ‰:" VerticalAlignment="Center" />

@@ -79,6 +79,11 @@ namespace MasterGrab {
     readonly Action<ShowOptionEnum> isShowArmySizeChanged;
 
 
+    /// <summary>
+    /// Should the ClusterCenter be shown for debugging reasons ?
+    /// </summary>
+    public const bool IsShowClusterCenter = true;
+
     public InfoWindowModeEnum InfoWindowMode {
       get => mapInfoWindow.InfoWindowMode;
       set => mapInfoWindow.InfoWindowMode = value;
@@ -151,7 +156,7 @@ namespace MasterGrab {
       isGuiMoveAwaited = false;
       Visibility = Visibility.Hidden;
       mapFinishedOverlayControl.Hide();
-      newOptions.XCount = (int)RenderSize.Width + 1; //it seems that with width 1, actually 2 pixels are invoved, pixel 0 and 1
+      newOptions.XCount = (int)RenderSize.Width + 1; //it seems that with width 1, actually 2 pixels are involved, pixel 0 and 1
       newOptions.YCount = (int)RenderSize.Height + 1;
       options = controllerStartNewGame(newOptions);
       var playersCount = options.IsHumanPlaying ? options.Robots.Count + 1 : options.Robots.Count;
@@ -226,16 +231,12 @@ namespace MasterGrab {
     #region Eventhandlers
     //      -------------
 
-    private void ParentWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+    private void ParentWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e) {
       autoPlayTimer.Stop();
       isGuiMoveAwaited = false;
       controllerStop();
     }
-    #endregion
 
-
-    #region Events
-    //      ------
 
     private void AutoPlayTimer_Tick(object? sender, EventArgs e) {
       var now = DateTime.Now;
@@ -301,7 +302,7 @@ namespace MasterGrab {
     readonly Pen movePen = new(Brushes.Gray, 2);
     readonly Pen attackSuccessPen = new(new SolidColorBrush(Color.FromArgb(0x80, 0, 0, 0)), 2);
     readonly Pen attackFailPen = new(new SolidColorBrush(Color.FromArgb(0x80, 0xff, 0xff, 0xff)), 2);
-
+    readonly Pen clusterCenterPen = new(new SolidColorBrush(Color.FromArgb(0x80, 0, 0, 0)), 8);
     internal Geometry[] GeometryByCountry { get; private set; }
     internal GlyphDrawer GlyphDrawerNormal { get; private set; }
     internal GlyphDrawer GlyphDrawerBold { get; private set; }
@@ -311,7 +312,7 @@ namespace MasterGrab {
     protected override void OnRenderContent(DrawingContext drawingContext, Size renderContentSize) {
       if (controller==null) {
         //initialise map once window size is known
-        options.XCount = (int)renderContentSize.Width + 1; //it seems that with width 1, actually 2 pixels are invoved, pixel 0 and 1
+        options.XCount = (int)renderContentSize.Width + 1; //it seems that with width 1, actually 2 pixels are involved, pixel 0 and 1
         options.YCount = (int)renderContentSize.Height + 1;
         controller = new GameController(options,
           mapChanged, gameChanged, exceptionRaised,
@@ -351,6 +352,14 @@ namespace MasterGrab {
               var countryBrush = new SolidColorBrush(Color.FromRgb(shade, shade, shade));
               drawingContext.DrawGeometry(countryBrush, BorderPen2, GeometryByCountry[country.Id]);
             }
+          }
+        }
+
+        if (IsShowClusterCenter && options.Clustering>0 && Game.Map.ClusterCoordinates is not null) {
+          //draw cluster centers
+          foreach (var (x, y) in Game.Map.ClusterCoordinates) {
+            drawingContext.DrawLine(clusterCenterPen, new Point(x-24, y), new Point(x+24, y));
+            drawingContext.DrawLine(clusterCenterPen, new Point(x, y-24), new Point(x, y+24));
           }
         }
 
@@ -462,15 +471,15 @@ namespace MasterGrab {
 
       if (exception is GameException gameException) {
         var messageParts = exception.Message.Split(new string[] { "Country (", ")" }, StringSplitOptions.RemoveEmptyEntries);
-        var isfoundCountry = false;
+        var isFoundCountry = false;
         foreach (var messagePart in messageParts) {
-          if (isfoundCountry) {
-            isfoundCountry = false;
+          if (isFoundCountry) {
+            isFoundCountry = false;
             var commaPos = messagePart.IndexOf(',');
             if (commaPos<0) {
               break;
             }
-            var countryIdString = messagePart.Substring(0, commaPos);
+            var countryIdString = messagePart[..commaPos];
             if (!int.TryParse(countryIdString, out var countryId)) {
               break;
             }
@@ -479,7 +488,7 @@ namespace MasterGrab {
 
 
           } else {
-            isfoundCountry = true;
+            isFoundCountry = true;
           }
         }
       }
@@ -593,7 +602,7 @@ namespace MasterGrab {
               pathFigureSegmentsAdd(pathFigure, toPoint(lastCoordinate));
             }
           }else {
-            //lastCoordinates is empty, the last coodinate was at a different window border than the very 
+            //lastCoordinates is empty, the last coordinate was at a different window border than the very 
             //first one. Presently the pathFigure of the first coordinates gets completed, but nothing needs
             //to be added
             addCornerIfNeeded(oldCoordinate, countryFix.BorderCoordinates[0], pathFigure);
@@ -733,10 +742,10 @@ namespace MasterGrab {
         //add top right corner
         pathFigureSegmentsAdd(pathFigure, new Point(PixelMap.XMax*scale, 0));
       } else if ((isX1Zero && isY2Max) || (isX2Zero && isY1Max)) {
-        //add botom left corner
+        //add bottom left corner
         pathFigureSegmentsAdd(pathFigure, new Point(0, PixelMap.YMax*scale));
       } else if ((isX1Max && isY2Max) || (isX2Max && isY1Max)) {
-        //add botom right corner
+        //add bottom right corner
         pathFigureSegmentsAdd(pathFigure, new Point(PixelMap.XMax*scale, PixelMap.YMax*scale));
       }
     }

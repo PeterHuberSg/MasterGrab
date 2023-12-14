@@ -24,6 +24,7 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Text;
 
 
@@ -174,7 +175,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Cloning constructor, creates deep copy of game, i.e. the clone and the original do not share any objects with data which 
-    /// can change aftera Move.
+    /// can change after a Move.
     /// </summary>
     public Game(Game game) {
       ArmyGrowthFactor = game.ArmyGrowthFactor;
@@ -215,43 +216,48 @@ namespace MasterGrab {
 
       //loop through all countries to add up countries and armies per Player
       var pointsPerCountry = 1.0 / (Map.Count - Map.Game.MountainsCount);
+      var sizeOfAllOwnedCountries = 0.0;
       foreach (var country in Map) {
         if (country.OwnerId!=int.MinValue) {
           statistics[country.OwnerId].Countries++;
           statistics[country.OwnerId].CountriesPercent += pointsPerCountry;
           statistics[country.OwnerId].Armies += (int)country.ArmySize;
           statistics[country.OwnerId].Size += country.Size;
+          sizeOfAllOwnedCountries += country.Size;
         }
       }
+      foreach (var statistic in statistics) {
+        statistic.SizePercent = statistic.Size / sizeOfAllOwnedCountries;
+      }
 
-      //calculate ranking based on number of countries owned by Player. If 2 Players have the same number of countries, they
-      //have also the same rank
+      //calculate ranking based on sum of the size of all the countries owned by Player. If 2 Players have the same
+      //size, they have also the same rank
       var searchBelow = int.MaxValue;
       var equalRank = 0;
-      var ranksCount = 0;
+      //var ranksCount = 0;
       for (var rankIndex = 0; rankIndex < statistics.Length; rankIndex++) {
-        var maxCountries = int.MinValue;
+        var maxCountrySize = int.MinValue;
         var rankStatisticsIndex = int.MinValue;
-        for (var statisticsIndex = 0; statisticsIndex < statistics.Length; statisticsIndex++) {
-          var countriesCount = statistics[statisticsIndex].Countries;
-          if (countriesCount==searchBelow && statistics[statisticsIndex].Rank==0) {
+        for (var statisticsIndex = 0; statisticsIndex<statistics.Length; statisticsIndex++) {
+          var countriesSize = statistics[statisticsIndex].Size;
+          if (countriesSize==searchBelow && statistics[statisticsIndex].Rank==0) {
             rankStatisticsIndex = statisticsIndex;
             break;
           }
-          if (countriesCount<searchBelow && maxCountries<countriesCount) {
-            maxCountries = countriesCount;
+          if (countriesSize<searchBelow && maxCountrySize<countriesSize) {
+            maxCountrySize = countriesSize;
             rankStatisticsIndex = statisticsIndex;
           }
         }
-        if (statistics[rankStatisticsIndex].Countries==searchBelow) {
+        if (statistics[rankStatisticsIndex].Size==searchBelow) {
           statistics[rankStatisticsIndex].Rank = equalRank;
         } else {
           statistics[rankStatisticsIndex].Rank = rankIndex + 1;
           equalRank = rankIndex + 1; ;
-          searchBelow = maxCountries;
+          searchBelow = maxCountrySize;
         }
-        ranksCount++;
-        if (ranksCount>=statistics.Length) break;
+        //ranksCount++;
+        //if (ranksCount>=statistics.Length) break;
       }
 
 

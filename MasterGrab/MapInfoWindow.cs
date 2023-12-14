@@ -32,7 +32,7 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// MapInfoWindow: a "Window" consiting of a border with content. It gets displayed in the opposite corner of the mouse position
+  /// MapInfoWindow: a "Window" consisting of a border with content. It gets displayed in the opposite corner of the mouse position
   /// </summary>
   class MapInfoWindow: CustomControlBase {
 
@@ -40,7 +40,7 @@ namespace MasterGrab {
     //      ----------
 
     /// <summary>
-    /// Does the info window display ranking, tracing or no indormation ?
+    /// Does the info window display ranking, tracing or no information ?
     /// </summary>
     public InfoWindowModeEnum InfoWindowMode {
       get => infoWindowMode;
@@ -82,10 +82,11 @@ namespace MasterGrab {
 
     const int rankingPlayersIndex = 0;
     const int rankingRankIndex = rankingPlayersIndex + 1;
-    const int rankingCCountIndex = rankingRankIndex + 1;
-    const int rankingCPercentIndex = rankingCCountIndex + 1; //CountriesCount
-    const int rankingSizeIndex = rankingCPercentIndex + 1;   //CountriesPercent
-    const int rankingArmiesIndex = rankingSizeIndex + 1;
+    const int rankingSizeIndex = rankingRankIndex  + 1;
+    const int rankingSizePercentIndex = rankingSizeIndex  + 1;
+    const int rankingCCountIndex = rankingSizePercentIndex + 1; //CountriesCount
+    const int rankingCPercentIndex = rankingCCountIndex + 1; //CountriesPercent
+    const int rankingArmiesIndex = rankingCPercentIndex + 1;
     const int rankingColumnCount = rankingArmiesIndex + 1;
 
     const int tracePlayerIndex = 0;
@@ -134,7 +135,7 @@ namespace MasterGrab {
       for (var columnIndex = 0; columnIndex < rankingColumnCount; columnIndex++) {
         var columnDefinition = new ColumnDefinition {Width = GridLength.Auto};
         rankingGrid.ColumnDefinitions.Add(columnDefinition);
-        if (columnIndex is 1 or 4) {
+        if (columnIndex is rankingRankIndex or rankingCCountIndex or rankingCPercentIndex) {
           var rectangle = new Rectangle();
           rankingGrid.Children.Add(rectangle);
           Grid.SetRow(rectangle, 0);
@@ -150,22 +151,22 @@ namespace MasterGrab {
           if (columnIndex == 0 || rowIndex == 0) {
             textBlock.FontWeight = FontWeights.Bold;
           }
-          if (columnIndex > 0) {
+          if (rowIndex>0 && columnIndex>0) {
             textBlock.TextAlignment = TextAlignment.Right;
           }
           rankingGrid.Children.Add(textBlock);
           Grid.SetRow(textBlock, rowIndex);
           Grid.SetColumn(textBlock, columnIndex);
           rankingTextBlocks[rowIndex, columnIndex] = textBlock;
-          textBlock.Text = rowIndex + ", " + columnIndex;
+          //textBlock.Text = rowIndex + ", " + columnIndex;
         }
       }
-      rankingTextBlocks[0, rankingPlayersIndex].Text = "Players";
       rankingTextBlocks[0, rankingPlayersIndex].Text = "Rank";
+      rankingTextBlocks[0, rankingSizeIndex].Text = "Size";
+      Grid.SetColumnSpan(rankingTextBlocks[0, rankingSizeIndex], 2);
       rankingTextBlocks[0, rankingCCountIndex].Text = "Countries";
       Grid.SetColumnSpan(rankingTextBlocks[0, rankingCCountIndex], 2);
       rankingTextBlocks[0, rankingCPercentIndex].Text = "";
-      rankingTextBlocks[0, rankingSizeIndex].Text = "Size";
       rankingTextBlocks[0, rankingArmiesIndex].Text = "Armies";
 
       //trace
@@ -343,9 +344,10 @@ namespace MasterGrab {
             nameTextBlock.Text = mapControl.Game.Players[playerIdIndex].Name;
             nameTextBlock.Background = mapControl.PlayerBrushes[playerIdIndex];
             rankingTextBlocks[rowIndex, rankingRankIndex].Text = playerStatistics[playerIdIndex].Rank.ToString();
+            rankingTextBlocks[rowIndex, rankingSizeIndex].Text = playerStatistics[playerIdIndex].Size.ToString();
+            rankingTextBlocks[rowIndex, rankingSizePercentIndex].Text = playerStatistics[playerIdIndex].SizePercent.ToString("#0.0%");
             rankingTextBlocks[rowIndex, rankingCCountIndex].Text = playerStatistics[playerIdIndex].Countries.ToString();
             rankingTextBlocks[rowIndex, rankingCPercentIndex].Text = playerStatistics[playerIdIndex].CountriesPercent.ToString("#0.0%");
-            rankingTextBlocks[rowIndex, rankingSizeIndex].Text = playerStatistics[playerIdIndex].Size.ToString();
             rankingTextBlocks[rowIndex, rankingArmiesIndex].Text = playerStatistics[playerIdIndex].Armies.ToString();
             rowIndex++;
           }

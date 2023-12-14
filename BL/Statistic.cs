@@ -34,6 +34,7 @@ namespace MasterGrab {
     public int Armies { get; internal set; }
     public int Size { get; internal set; }
 
+    public double SizePercent { get; internal set; }
 
     public override string ToString() {
       return
@@ -41,7 +42,8 @@ namespace MasterGrab {
         "; Countries: " + Countries +
         "; CountriesPercent: " + CountriesPercent.ToString("#.00") +
         "; Armies: " + Armies +
-        "; Size: " + Size;
+        "; Size: " + Size +
+        "; SizePercent: " + SizePercent.ToString("#.00");
     }
   }
 }

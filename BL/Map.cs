@@ -65,6 +65,11 @@ namespace MasterGrab {
     /// Number of pixels in biggest country
     /// </summary>
     public int MaxCountrySize { get; }
+
+    /// <summary>
+    /// x and y coordinates of cluster centers.
+    /// </summary>
+    public (int x, int y)[]? ClusterCoordinates { get; }//Not readonly because it is used for debugging, changing its values has no influence
     #endregion
 
 
@@ -81,34 +86,34 @@ namespace MasterGrab {
       if (options.CountriesCount!=countryFixArray.Count) throw new Exception();
 
       //sort countries by size
-      var sortedcountryFixArray = countryFixArray.OrderByDescending(c => c.Size).ToArray();
-      MaxCountrySize = sortedcountryFixArray[0].Size;
-      MinCountrySize = sortedcountryFixArray[sortedcountryFixArray.Length-game.MountainsCount - 1].Size;
+      var sortedCountryFixArray = countryFixArray.OrderByDescending(c => c.Size).ToArray();
+      MaxCountrySize = sortedCountryFixArray[0].Size;
+      MinCountrySize = sortedCountryFixArray[sortedCountryFixArray.Length-game.MountainsCount - 1].Size;
 
       var totalCountrySizeByPlayer = new int[game.Players.Count];
-      var ownerIdsbyCountry = new int[options.CountriesCount];
-      for (var ownerIdsbyCountryIndex = 0; ownerIdsbyCountryIndex < ownerIdsbyCountry.Length; ownerIdsbyCountryIndex++) {
-        ownerIdsbyCountry[ownerIdsbyCountryIndex] = int.MinValue;
+      var ownerIdsByCountry = new int[options.CountriesCount];
+      for (var ownerIdsByCountryIndex = 0; ownerIdsByCountryIndex < ownerIdsByCountry.Length; ownerIdsByCountryIndex++) {
+        ownerIdsByCountry[ownerIdsByCountryIndex] = int.MinValue;
       }
 
       if (options.Clustering==ClusteringEnum.random) {
         //one owner's countries are scattered randomly all over the map
         //assign countries starting with the biggest country to each player. The player with the smallest countries size (pixel) gets
         //the next country. This ensures that every player has in the end about the same total countries size.
-        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
-          var countryFix = sortedcountryFixArray[sortedCountryIndex];
+        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedCountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
+          var countryFix = sortedCountryFixArray[sortedCountryIndex];
           var smallestPlayerIndex = 0;
           if (countryFix.IsMountain) throw new Exception();
 
-          var smallestsize = int.MaxValue;
+          var smallestSize = int.MaxValue;
           for (var playerIndex = 0; playerIndex < totalCountrySizeByPlayer.Length; playerIndex++) {
-            if (smallestsize>totalCountrySizeByPlayer[playerIndex]) {
-              smallestsize = totalCountrySizeByPlayer[playerIndex];
+            if (smallestSize>totalCountrySizeByPlayer[playerIndex]) {
+              smallestSize = totalCountrySizeByPlayer[playerIndex];
               smallestPlayerIndex = playerIndex;
             }
           }
-          ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = smallestPlayerIndex;
-          totalCountrySizeByPlayer[smallestPlayerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
+          ownerIdsByCountry[sortedCountryFixArray[sortedCountryIndex].Id] = smallestPlayerIndex;
+          totalCountrySizeByPlayer[smallestPlayerIndex] += sortedCountryFixArray[sortedCountryIndex].Size;
         }
 
         if (options.IsHumanPlaying) {
@@ -121,7 +126,7 @@ namespace MasterGrab {
           CountryFix? guiCountry = null;
           //find smallest gui country and biggest other country
           foreach (var countryFix in countryFixArray) {
-            if (ownerIdsbyCountry[countryFix.Id]==game.GuiPlayerId) {
+            if (ownerIdsByCountry[countryFix.Id]==game.GuiPlayerId) {
               if (minGuiSize>countryFix.Size) {
                 minGuiSize = countryFix.Size;
                 guiCountry = countryFix;
@@ -130,30 +135,30 @@ namespace MasterGrab {
               if (maxSize<countryFix.Size) {
                 maxSize = countryFix.Size;
                 maxCountry = countryFix;
-                maxOwnerId = ownerIdsbyCountry[countryFix.Id];
+                maxOwnerId = ownerIdsByCountry[countryFix.Id];
               }
             }
           }
           //swap owners
-          ownerIdsbyCountry[maxCountry!.Id] = game.GuiPlayerId;
-          ownerIdsbyCountry[guiCountry!.Id] = maxOwnerId;
+          ownerIdsByCountry[maxCountry!.Id] = game.GuiPlayerId;
+          ownerIdsByCountry[guiCountry!.Id] = maxOwnerId;
         }
 
       } else {
         //one owner's countries are clustered together at start
         var clusterConfiguration = ClusterConfigurations.Get(game.Players.Count, options.Clustering);
-        var clusterCoordinates = new (int x, int y)[clusterConfiguration.Length];
+        ClusterCoordinates = new (int x, int y)[clusterConfiguration.Length];
         var multiplier = game.Players.Count * 2;
         var maxX = options.XCount-1;
         var maxY = options.YCount-1;
         for (int clusterIndex = 0; clusterIndex<clusterConfiguration.Length; clusterIndex++) {
           var (x, y)= clusterConfiguration[clusterIndex];
-          clusterCoordinates[clusterIndex] = (x*maxX/multiplier, y*maxY/multiplier);
+          ClusterCoordinates[clusterIndex] = (x*maxX/multiplier, y*maxY/multiplier);
         }
-        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
-          var playerIndex = getClusterOwner(options, clusterCoordinates, sortedcountryFixArray[sortedCountryIndex]);
-          ownerIdsbyCountry[sortedcountryFixArray[sortedCountryIndex].Id] = playerIndex;
-          totalCountrySizeByPlayer[playerIndex] += sortedcountryFixArray[sortedCountryIndex].Size;
+        for (var sortedCountryIndex = 0; sortedCountryIndex < sortedCountryFixArray.Length-game.MountainsCount; sortedCountryIndex++) {
+          var playerIndex = getClusterOwner(options, ClusterCoordinates, sortedCountryFixArray[sortedCountryIndex]);
+          ownerIdsByCountry[sortedCountryFixArray[sortedCountryIndex].Id] = playerIndex;
+          totalCountrySizeByPlayer[playerIndex] += sortedCountryFixArray[sortedCountryIndex].Size;
         }
       }
 
@@ -161,22 +166,22 @@ namespace MasterGrab {
       countries = new Country[options.CountriesCount];
       var random = new Random();
       for (var countryIndex = 0; countryIndex < countries.Length; countryIndex++) {
-        var coutryFix = countryFixArray[countryIndex];
-        var ownerId = ownerIdsbyCountry[countryIndex];
+        var countryFix = countryFixArray[countryIndex];
+        var ownerId = ownerIdsByCountry[countryIndex];
         var armySize = double.MinValue;
-        if (coutryFix.IsMountain) {
+        if (countryFix.IsMountain) {
           if (ownerId!=int.MinValue) {
             throw new Exception();
           }
         } else {
-          armySize = coutryFix.Capacity * (1 + random.NextDouble()) / 2;
+          armySize = countryFix.Capacity * (1 + random.NextDouble()) / 2;
         }
-        var country = new Country(this, coutryFix, ownerId, armySize);
+        var country = new Country(this, countryFix, ownerId, armySize);
         countries[countryIndex] = country;
       }
     }
 
-    private int getClusterOwner(Options options, (int x, int y)[] clusterCoordinates, CountryFix countryFix) {
+    private static int getClusterOwner(Options options, (int x, int y)[] clusterCoordinates, CountryFix countryFix) {
       var minDistance = int.MaxValue;
       var owner = 0;
       for (int clusterIndex = 0; clusterIndex < clusterCoordinates.Length; clusterIndex++) {
@@ -232,16 +237,18 @@ namespace MasterGrab {
       MinCountrySize = map.MinCountrySize;
       MaxCountrySize = map.MaxCountrySize;
       countries = new Country[map.countries.Length];
-      for (var countryindex = 0; countryindex < countries.Length; countryindex++) {
-        var countryOriginal = map[countryindex];
+      for (var countryIndex = 0; countryIndex < countries.Length; countryIndex++) {
+        var countryOriginal = map[countryIndex];
         var countryCloned = new Country(this, countryOriginal);
         //if (!countryOriginal.IsMountain) {
-        //  //OwnerId wird zweimal gesetzt
+        //  //OwnerId gets set twice
         //  countryCloned.OwnerId =  countryOriginal.OwnerId;//this adds also the country to Owner.Countries
         //  countryCloned.PreviousOwnerId = countryOriginal.PreviousOwnerId==int.MinValue ? int.MinValue : countryOriginal.PreviousOwnerId;
         //}
-        countries[countryindex] = countryCloned;
+        countries[countryIndex] = countryCloned;
       }
+      //Todo: make ClusterCoordinates private once they are no longer needed for debugging in 
+      //ClusterCoordinates = map.ClusterCoordinates;//there is not need to give a copy, changing its values has no influence
     }
 
 
@@ -302,7 +309,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// It's not possible to remove all countrie once the Map is constructed
+    /// It's not possible to remove all countries once the Map is constructed
     /// </summary>
     public void Clear() {
         throw new NotSupportedException();
@@ -310,7 +317,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// checks if country item is in countries. it uses object comparision to determine equality.
+    /// checks if country item is in countries. it uses object comparison to determine equality.
     /// </summary>
     /// <param name="item"></param>
     public bool Contains(Country item) {
@@ -338,7 +345,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Finds index ofcountry within countries. </para>
+    /// Finds index of country within countries. </para>
     /// Remark: the index should be equal to country.Id
     /// </summary>
     public int IndexOf(Country item) {
@@ -375,7 +382,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Returns an enumerator thourgh all countries of the Map.
+    /// Returns an enumerator through all countries of the Map.
     /// </summary>
     /// <returns></returns>
     IEnumerator IEnumerable.GetEnumerator() {

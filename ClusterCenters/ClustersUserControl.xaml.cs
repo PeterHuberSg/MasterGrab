@@ -1,19 +1,13 @@
 ﻿using MasterGrab;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
+
 
 namespace ClusterCenters {
 
@@ -47,6 +41,14 @@ namespace ClusterCenters {
     readonly TextBlock labelYTextBlock;
     readonly TextBlock labelPercentTextBlock;
     readonly TextBlock labelDeviationTextBlock;
+    readonly TextBlock labelIncrementTextBlock;
+    readonly TextBox incrementXTextBox;
+    readonly TextBox incrementYTextBox;
+    readonly Button incrementApplyButton;
+    readonly Button incrementStartButton;
+    readonly Button incrementNextButton;
+    readonly Button incrementPreviousButton;
+
 
     readonly Cluster2[] clusters = new Cluster2[MainWindow2.MaxNumberOfClusters];
 
@@ -64,6 +66,47 @@ namespace ClusterCenters {
       Grid.SetRow(labelPercentTextBlock, 3);
       labelDeviationTextBlock = new TextBlock { Text="Deviation:", FontWeight=FontWeights.Bold };
       Grid.SetRow(labelDeviationTextBlock, 4);
+      labelIncrementTextBlock = new TextBlock { Text="Incr.", FontWeight=FontWeights.Bold };
+      Grid.SetRow(labelIncrementTextBlock, 0);
+      incrementXTextBox = new TextBox ();
+      incrementXTextBox.GotFocus += clusterTextBox_GotFocus;
+      Grid.SetRow(incrementXTextBox, 1);
+      incrementYTextBox = new TextBox();
+      incrementYTextBox.GotFocus += clusterTextBox_GotFocus;
+      Grid.SetRow(incrementYTextBox, 2);
+
+      incrementApplyButton = new Button {
+        Content = "_Apply",
+        VerticalAlignment = VerticalAlignment.Center,
+        ToolTip = "Calculates new X and Y values using increments."
+      };
+      Grid.SetRow(incrementApplyButton, 3);
+      incrementApplyButton.Click += incrementApplyButton_Click;
+
+      incrementStartButton = new Button {
+        Content = "_Start",
+        VerticalAlignment = VerticalAlignment.Center,
+        ToolTip = "Set increments X and Y to start values."
+      };
+      Grid.SetRow(incrementStartButton, 3);
+      incrementStartButton.Click += incrementStartButton_Click;
+
+      incrementNextButton = new Button {
+        Content = "_Next",
+        VerticalAlignment = VerticalAlignment.Center,
+        ToolTip = "Increase increments by 1"
+      };
+      Grid.SetRow(incrementNextButton, 1);
+      incrementNextButton.Click += incrementNextButton_Click;
+
+      incrementPreviousButton = new Button {
+        Content = "_Prev",
+        VerticalAlignment = VerticalAlignment.Center,
+        ToolTip = "Decrease increments by 1"
+      };
+      Grid.SetRow(incrementPreviousButton, 2);
+      incrementPreviousButton.Click += incrementPreviousButton_Click;
+      KeyUp += ClustersUserControl_KeyUp;
 
       var gridColumn = 2;
       for (int clusterIndex = 0; clusterIndex<MainWindow2.MaxNumberOfClusters; clusterIndex++) {
@@ -117,11 +160,11 @@ namespace ClusterCenters {
       }
 
       for (int numberOfClusters = 2; numberOfClusters<16; numberOfClusters++) {
-        NumberOfCCombobox.Items.Add(new ComboBoxItem() { Content = numberOfClusters.ToString() });
+        NumberOfComboBox.Items.Add(new ComboBoxItem() { Content = numberOfClusters.ToString() });
       }
-      NumberOfCCombobox.SelectionChanged += NumberOfCCombobox_SelectionChanged;
-      ConfigCombobox.SelectionChanged += ConfigCombobox_SelectionChanged;
-      NumberOfCCombobox.SelectedIndex = 6 - 2;
+      NumberOfComboBox.SelectionChanged += NumberOfComboBox_SelectionChanged;
+      ConfigCombobox.SelectionChanged += ConfigComboBox_SelectionChanged;
+      NumberOfComboBox.SelectedIndex = 6 - 2;
 
       MainCanvas.SizeChanged += MainCanvas_SizeChanged;
       NextButton.Click += NextButton_Click;
@@ -165,7 +208,8 @@ namespace ClusterCenters {
       ClusterGrid.Children.Add(labelPercentTextBlock);
       ClusterGrid.Children.Add(labelDeviationTextBlock);
 
-      for (int clusterIndex = 0; clusterIndex<clustersUsedCount; clusterIndex++) {
+      var clusterIndex = 0;
+      for (; clusterIndex<clustersUsedCount; clusterIndex++) {
         var cluster = clusters[clusterIndex];
         MainCanvas.Children.Add(cluster.CanvasClusterTextBlock);
 
@@ -173,7 +217,7 @@ namespace ClusterCenters {
         ClusterGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         if (clusterIndex%2==1) {
-          var rectangle = new Rectangle { Fill=Brushes.DarkGray };
+          var rectangle = new System.Windows.Shapes.Rectangle { Fill=Brushes.DarkGray };
           Grid.SetColumn(rectangle, 2 + clusterIndex*2);
           Grid.SetRowSpan(rectangle, 4);
           ClusterGrid.Children.Add(rectangle);
@@ -186,17 +230,41 @@ namespace ClusterCenters {
         ClusterGrid.Children.Add(cluster.DeviationTextBlock);
       }
 
+      var columnIndex = 2 + clusterIndex*2;
+      ClusterGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
+      ClusterGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+      Grid.SetColumn(labelIncrementTextBlock, columnIndex);
+      ClusterGrid.Children.Add(labelIncrementTextBlock);
+      Grid.SetColumn(incrementXTextBox, columnIndex);
+      ClusterGrid.Children.Add(incrementXTextBox);
+      Grid.SetColumn(incrementYTextBox, columnIndex);
+      ClusterGrid.Children.Add(incrementYTextBox);
+      Grid.SetColumn(incrementApplyButton, columnIndex);
+      ClusterGrid.Children.Add(incrementApplyButton);
+
+      columnIndex +=2;
+      ClusterGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
+      ClusterGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+      Grid.SetColumn(incrementNextButton, columnIndex);
+      ClusterGrid.Children.Add(incrementNextButton);
+      Grid.SetColumn(incrementPreviousButton, columnIndex);
+      ClusterGrid.Children.Add(incrementPreviousButton);
+      Grid.SetColumn(incrementStartButton, columnIndex);
+      ClusterGrid.Children.Add(incrementStartButton);
+
       averagePercentage = (1000 / clustersUsedCount);
       AverageTextBlock.Text = averagePercentage.ToString();
     }
 
 
     private void changeClusterConfiguration(int configurationIndex) {
-      var clusterConfiguration = mainWindow2.LocalClusterConfigurations[clustersUsedCount][configurationIndex];
+      var (_, Clusters)= mainWindow2.LocalClusterConfigurations[clustersUsedCount][configurationIndex];
       for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
-        clusters[clusterIndex].XCluster = clusterConfiguration.Clusters[clusterIndex].X;
-        clusters[clusterIndex].YCluster = clusterConfiguration.Clusters[clusterIndex].Y;
+        clusters[clusterIndex].XCluster = Clusters[clusterIndex].X;
+        clusters[clusterIndex].YCluster = Clusters[clusterIndex].Y;
       }
+      incrementXTextBox.Text = null;
+      incrementYTextBox.Text = null;
       reDraw();
     }
 
@@ -218,14 +286,14 @@ namespace ClusterCenters {
 
 
     private void MainCanvas_SizeChanged(object sender, SizeChangedEventArgs e) {
-      if (pixelsWidth==0) {
-        //very first time this event is raised
-        var xMargin = ActualWidth - e.NewSize.Width;
-        var yMargin = ActualHeight - e.NewSize.Height;
-        var newCanvasSize = Math.Min(e.NewSize.Height, e.NewSize.Width) * 0.9;
-        //Width = xMargin + newCanvasSize;
-        //Height = yMargin + newCanvasSize;
-      }
+      //if (pixelsWidth==0) {
+      //  //very first time this event is raised
+      //  var xMargin = ActualWidth - e.NewSize.Width;
+      //  var yMargin = ActualHeight - e.NewSize.Height;
+      //  var newCanvasSize = Math.Min(e.NewSize.Height, e.NewSize.Width) * 0.9;
+      //  //Width = xMargin + newCanvasSize;
+      //  //Height = yMargin + newCanvasSize;
+      //}
 
       //use MainCanvas to detect size change. MainCanvas has the same size like MainImage, which can be empty and then
       //has size 0.
@@ -240,11 +308,11 @@ namespace ClusterCenters {
     }
 
 
-    private void NumberOfCCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      setupClusters(NumberOfCCombobox.SelectedIndex + 2);
+    private void NumberOfComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      setupClusters(NumberOfComboBox.SelectedIndex + 2);
     }
 
-    private void ConfigCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+    private void ConfigComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       if (isSetupClusters || isRemove) return;
 
       changeClusterConfiguration(ConfigCombobox.SelectedIndex);
@@ -252,7 +320,7 @@ namespace ClusterCenters {
 
 
     private void NextButton_Click(object sender, RoutedEventArgs e) {
-      //nothing happens when ConfigCombobox.SelectedIndex++ and SelectedIndex has reached the last available item
+      //nothing happens when ConfigComboBox.SelectedIndex++ and SelectedIndex has reached the last available item
       if (ConfigCombobox.SelectedIndex==ConfigCombobox.Items.Count-1) {
         ConfigCombobox.SelectedIndex = 0;
       } else {
@@ -319,11 +387,9 @@ namespace ClusterCenters {
       var clusterSB = new StringBuilder();
       var configList = mainWindow2.LocalClusterConfigurations[clustersUsedCount];
       for (int clusterConfigIndex = (int)ClusteringEnum.horizontal; clusterConfigIndex<configList.Count; clusterConfigIndex++) {
-        var clusterConfig = configList[clusterConfigIndex];
+        var (_, Clusters)= configList[clusterConfigIndex];
         for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
-          var cluster = clusterConfig.Clusters[clusterIndex];
-          var xCluster = cluster.X;
-          var yCluster = cluster.Y;
+          var (xCluster, yCluster) = Clusters[clusterIndex];
           descriptionSB.Append($"{xCluster},{yCluster} ");
           coordinatesSB.Append($"({xCluster}, {yCluster}), ");
         }
@@ -344,6 +410,8 @@ namespace ClusterCenters {
 
 
     private void xClusterTextBox_PreviewLostKeyboardFocus(object sender, RoutedEventArgs e) {
+      if (isApplyIncrements) return;
+
       var textBox = (TextBox)sender;
       var number = getIntNumber(textBox, 2*clustersUsedCount-1);
       if (number<0) {
@@ -360,6 +428,8 @@ namespace ClusterCenters {
 
 
     private void yClusterTextBox_PreviewLostKeyboardFocus(object sender, RoutedEventArgs e) {
+      if (isApplyIncrements) return;
+
       var textBox = (TextBox)sender;
       var number = getIntNumber(textBox, 2*clustersUsedCount-1);
       if (number<0) {
@@ -375,7 +445,7 @@ namespace ClusterCenters {
     }
 
 
-    private int getIntNumber(TextBox textBox, int max) {
+    private static int getIntNumber(TextBox textBox, int max) {
       try {
         var number = int.Parse(textBox.Text);
         if (number<0) {
@@ -392,6 +462,93 @@ namespace ClusterCenters {
         MessageBox.Show($"'{textBox.Text}' is not a number.");
         return -1;
       }
+    }
+
+
+    private void incrementApplyButton_Click(object sender, RoutedEventArgs e) {
+      applyIncrements(int.Parse(incrementXTextBox.Text), int.Parse(incrementYTextBox.Text));
+    }
+
+
+    private void incrementStartButton_Click(object sender, RoutedEventArgs e) {
+      applyIncrements(2, 2);
+    }
+
+
+    private void incrementNextButton_Click(object sender, RoutedEventArgs e) {
+      incrementNext();
+    }
+
+
+    private void incrementNext() {
+      var incrementX = int.Parse(incrementXTextBox.Text);
+      var incrementY = int.Parse(incrementYTextBox.Text) + 1;
+      if (incrementY>clustersUsedCount) {
+        incrementX++;
+        if (incrementX>clustersUsedCount) {
+          incrementX = 2;
+        }
+        incrementY = incrementX;
+      }
+      applyIncrements(incrementX, incrementY);
+    }
+
+
+    private void incrementPreviousButton_Click(object sender, RoutedEventArgs e) {
+      incrementPrevious();
+    }
+
+
+    private void incrementPrevious() {
+      var incrementX = int.Parse(incrementXTextBox.Text);
+      var incrementY = int.Parse(incrementYTextBox.Text) - 1;
+      if (incrementY<incrementX) {
+        incrementX--;
+        if (incrementX<2) {
+          incrementX = clustersUsedCount;
+        }
+        incrementY = clustersUsedCount;
+      }
+      applyIncrements(incrementX, incrementY);
+    }
+
+
+    private void ClustersUserControl_KeyUp(object sender, KeyEventArgs e) {
+      if (e.Key == Key.PageUp) {
+        incrementNext();
+      } else if (e.Key == Key.PageDown) {
+        incrementPrevious();
+      }
+    }
+
+
+    bool isApplyIncrements;
+
+
+    private void applyIncrements(int incrementX, int incrementY) {
+      isApplyIncrements = true;
+      var cluster = clusters[0];
+      var xCluster = cluster.XCluster = clustersUsedCount;
+      cluster.XClusterTextBox.Text = xCluster.ToString();
+      var yCluster = cluster.YCluster = clustersUsedCount;
+      cluster.YClusterTextBox.Text = yCluster.ToString();
+      var maxXY = clustersUsedCount * 2;
+      var xIncrement = (incrementX + maxXY) % maxXY;
+      incrementXTextBox.Text = xIncrement.ToString();
+      var yIncrement = (incrementY + maxXY) % maxXY;
+      incrementYTextBox.Text = yIncrement.ToString();
+      for (int clusterIndex = 1; clusterIndex < clustersUsedCount; clusterIndex++) {
+        cluster = clusters[clusterIndex];
+        xCluster = (xCluster + xIncrement) % maxXY;
+        cluster.XCluster = xCluster;
+        cluster.XClusterTextBox.Text = xCluster.ToString();
+        yCluster = (yCluster + yIncrement) % maxXY;
+        cluster.YCluster = yCluster;
+        cluster.YClusterTextBox.Text = yCluster.ToString();
+      }
+      isApplyIncrements = false;
+
+      reDraw();
     }
     #endregion
 
@@ -501,15 +658,15 @@ namespace ClusterCenters {
       int xRight = pixelsWidth - 3;
       int yBottom = pixelsHeight - 7;
       IntPoint[] points = {
-        new IntPoint(xLeft, yTop),         //top left corner
-        new IntPoint(xLeft, yBottom),      //bottom left corner 
-        new IntPoint(xLeft, yMid),         //middle left border
-        new IntPoint(xRight, yTop),        //top right corner
-        new IntPoint(xRight, yBottom),     //bottom right corner
-        new IntPoint(xRight, yMid),        //middle right border
-        new IntPoint(xMid, yTop),          //middle top border
-        new IntPoint(xMid, yBottom),       //middle bottom border
-        new IntPoint(xMid, yMid)};         //center
+        new(xLeft, yTop),         //top left corner
+        new (xLeft, yBottom),      //bottom left corner 
+        new (xLeft, yMid),         //middle left border
+        new (xRight, yTop),        //top right corner
+        new (xRight, yBottom),     //bottom right corner
+        new (xRight, yMid),        //middle right border
+        new (xMid, yTop),          //middle top border
+        new (xMid, yBottom),       //middle bottom border
+        new (xMid, yMid)};         //center
 
       foreach (var point in points) {
         drawCross(point);
@@ -529,10 +686,11 @@ namespace ClusterCenters {
 
     /// <summary>
     /// Draws a rectangle which might cross a border. If it does, the original rectangle will be drawn as
-    /// 2 recttangles at the opposite sides of the border (wrap around)'
+    /// 2 rectangles at the opposite sides of the border (wrap around)'
     /// </summary>
     private void drawRectangle(IntPoint minPoint, IntPoint maxPoint) {
-      if (minPoint.X>maxPoint.X || minPoint.Y>maxPoint.Y) throw new ArgumentException();
+      if (minPoint.X>maxPoint.X) throw new ArgumentException($"minPoint.X {minPoint.X} is greater than maxPoint.X {maxPoint.X}.");
+      if (minPoint.Y>maxPoint.Y) throw new ArgumentException($"minPoint.Y {minPoint.Y} is greater than maxPoint.Y {maxPoint.Y}.");
 
       if (minPoint.X<0) {
         if (minPoint.Y<0) {

@@ -66,7 +66,7 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// Defines for every options its meta data, like Name, Type, value range, etc.
+  /// Defines for every options its meta data, like Name, Type, value range, etc. T can be int, double or bool.
   /// </summary>
   public class OptionDef<T>: OptionDef where T: IComparable<T> {
 
