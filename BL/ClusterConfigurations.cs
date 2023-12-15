@@ -117,7 +117,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Returns an array of x,y coordinates for the number of clusters and the cluster distribution provided. The array 
-    /// contains the same number of x,y tuples as the number of clusters. The coordinates are specified for a 1 x 1 scren.
+    /// contains the same number of x,y tuples as the number of clusters. The coordinates are specified for a 1 x 1 screen.
     /// To get the actual x and y values for a Width x Height window, the calculation is:
     /// pixel x = x / (2 *  number of clusters) * Width
     /// pixel y = y / (2 *  number of clusters) * Height
@@ -289,7 +289,7 @@ namespace MasterGrab {
 
         {//14: 16 clusters
           //compact
-          new (int, int)[]{(16, 16), (18, 18), (20, 20), (22, 22), (24, 24), (26, 26), (28, 28), (30, 30), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8), (10, 10), (12, 12), (14, 14)},
+          new (int, int)[]{(16, 16), (24, 16), (4, 24), (12, 24), (20, 24), (28, 24), (0, 0), (8, 0), (16, 0), (24, 0), (4, 8), (12, 8), (20, 8), (28, 8), (0, 16), (8, 16)},
           //diagonal (!)
           new (int, int)[]{(16, 16), (18, 18), (20, 20), (22, 22), (24, 24), (26, 26), (28, 28), (30, 30), (0, 0), (2, 2), (4, 4), (6, 6), (8, 8), (10, 10), (12, 12), (14, 14)},
           //vertical

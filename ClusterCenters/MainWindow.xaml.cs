@@ -55,7 +55,8 @@ namespace ClusterCenters {
     TextBox XClusterTextBox,
     TextBox YClusterTextBox,
     TextBlock PercentTextBlock,
-    TextBlock DeviationTextBlock) {
+    TextBlock DeviationTextBlock) 
+  {
     public int XCluster;
     public int YCluster;
     public int XPixel;
@@ -69,22 +70,23 @@ namespace ClusterCenters {
   /// </summary>
   public partial class MainWindow: Window {
 
-    public const int MaxNumberOfClusters = 15;
+    public const int MaxNumberOfClusters = 16;
 
 
     /// <summary>
     /// Contains cluster configurations from:
     /// 1) ClusterConfigurations.cs
-    /// 2) createLocalClusterConfigurations()
+    /// 2) createExtendedClusterConfigurations()
     /// 3) added by user while ClusterCenter is running
+    /// The entries for no and only 1 cluster are null i.e. ExtendedClusterConfigurations[0] and ExtendedClusterConfigurations[1]
     /// </summary>
-    public readonly List<(string Description, (int X, int Y)[] Clusters)>[] LocalClusterConfigurations = 
-      createLocalClusterConfigurations();
+    public readonly List<(string Description, (int X, int Y)[] Clusters)>[] ExtendedClusterConfigurations = 
+      createExtendedClusterConfigurations();
 
 
-    private static List<(string, (int, int)[])>[] createLocalClusterConfigurations() {
+    private static List<(string, (int, int)[])>[] createExtendedClusterConfigurations() {
       var config = new List<(string, (int, int)[])>[MaxNumberOfClusters+1];
-      for (int configIndex=2; configIndex<config.Length; configIndex++) {
+      for (int configIndex = 2; configIndex<config.Length; configIndex++) {
         var configList = new List<(string, (int, int)[])>();
         config[configIndex] = configList;
 

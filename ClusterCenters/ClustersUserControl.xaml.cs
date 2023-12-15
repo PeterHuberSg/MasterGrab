@@ -156,10 +156,10 @@ namespace ClusterCenters {
           yClusterTextBox,
           percentTextBlock,
           deviationTextBlock);
-        gridColumn += 2;
+        gridColumn += 2;//leave empty gap between 2 columns
       }
 
-      for (int numberOfClusters = 2; numberOfClusters<16; numberOfClusters++) {
+      for (int numberOfClusters = 2; numberOfClusters<17; numberOfClusters++) {
         NumberOfComboBox.Items.Add(new ComboBoxItem() { Content = numberOfClusters.ToString() });
       }
       NumberOfComboBox.SelectionChanged += NumberOfComboBox_SelectionChanged;
@@ -190,7 +190,7 @@ namespace ClusterCenters {
 
       isSetupClusters = true;
       ConfigCombobox.Items.Clear();
-      var configList = mainWindow.LocalClusterConfigurations[clustersUsedCount];
+      var configList = mainWindow.ExtendedClusterConfigurations[clustersUsedCount];
       for (int configurationsIndex = 0; configurationsIndex<configList.Count; configurationsIndex++) {
         ConfigCombobox.Items.Add(new ComboBoxItem() { Content = configList[configurationsIndex].Description });
       }
@@ -258,7 +258,7 @@ namespace ClusterCenters {
 
 
     private void changeClusterConfiguration(int configurationIndex) {
-      var (_, Clusters)= mainWindow.LocalClusterConfigurations[clustersUsedCount][configurationIndex];
+      var (_, Clusters)= mainWindow.ExtendedClusterConfigurations[clustersUsedCount][configurationIndex];
       for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
         clusters[clusterIndex].XCluster = Clusters[clusterIndex].X;
         clusters[clusterIndex].YCluster = Clusters[clusterIndex].Y;
@@ -349,7 +349,7 @@ namespace ClusterCenters {
         sb.Append($"{xCluster},{yCluster} ");
       }
       var description = sb.ToString();
-      mainWindow.LocalClusterConfigurations[clustersUsedCount].Add((description, coordinates));
+      mainWindow.ExtendedClusterConfigurations[clustersUsedCount].Add((description, coordinates));
       ConfigCombobox.Items.Add(new ComboBoxItem() { Content = description });
       ConfigCombobox.SelectedIndex = ConfigCombobox.Items.Count - 1;
       //copyConfigToClipboard();
@@ -371,7 +371,7 @@ namespace ClusterCenters {
         return;
       }
 
-      var configList = mainWindow.LocalClusterConfigurations[clustersUsedCount];
+      var configList = mainWindow.ExtendedClusterConfigurations[clustersUsedCount];
       configList.RemoveAt(ConfigCombobox.SelectedIndex);
       isRemove = true;
       ConfigCombobox.Items.RemoveAt(ConfigCombobox.SelectedIndex);
@@ -385,7 +385,7 @@ namespace ClusterCenters {
       var descriptionSB = new StringBuilder();
       var coordinatesSB = new StringBuilder();
       var clusterSB = new StringBuilder();
-      var configList = mainWindow.LocalClusterConfigurations[clustersUsedCount];
+      var configList = mainWindow.ExtendedClusterConfigurations[clustersUsedCount];
       for (int clusterConfigIndex = (int)ClusteringEnum.horizontal; clusterConfigIndex<configList.Count; clusterConfigIndex++) {
         var (_, Clusters)= configList[clusterConfigIndex];
         for (int clusterIndex = 0; clusterIndex < clustersUsedCount; clusterIndex++) {
