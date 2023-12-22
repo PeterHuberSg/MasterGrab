@@ -24,7 +24,6 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 
 namespace MasterGrab {
 
@@ -54,7 +53,7 @@ namespace MasterGrab {
       HelpButton.Click += HelpButton_Click;
 
       options = Options.Default;
-      mapControl = new MapControl(options, 1, updateShowUption);
+      mapControl = new MapControl(options, 1, updateShowOption);
       MainDockPanel.Children.Add(mapControl);
     }
     #endregion
@@ -114,7 +113,7 @@ namespace MasterGrab {
     }
 
 
-    private void updateShowUption(ShowOptionEnum showOption) {
+    private void updateShowOption(ShowOptionEnum showOption) {
       ShowComboBox.SelectedIndex = (int)showOption;
     }
 

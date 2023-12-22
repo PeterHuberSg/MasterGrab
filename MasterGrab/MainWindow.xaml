@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MasterGrab"
         mc:Ignorable="d"
-        Title="MasterGrab Game" Height="350" Width="888" WindowState="Maximized">
+        Title="MasterGrab Game" Height="300" Width="400" WindowState="Maximized">
   <DockPanel x:Name="MainDockPanel">
     <DockPanel DockPanel.Dock="Bottom" Background="Silver">
       <Button Name="StartButton" Content="_New Game" DockPanel.Dock="Left" Margin="3,2,3,2" VerticalAlignment="Center"/>
       <Button Name="OptionsButton" Content="_Options" DockPanel.Dock="Left" Margin="3,2,3,2" VerticalAlignment="Center"/>
       <Button Name="ReplayButton" Content="_Replay" DockPanel.Dock="Left" Margin="3,2,3,2" VerticalAlignment="Center"/>
-      <Label Content="Info:" DockPanel.Dock="Left" Margin="3,2,0,2"/>
+      <Label Content="Info:" DockPanel.Dock="Left" Margin="3,2,0,2" VerticalAlignment="Center"/>
       <ComboBox Name="InfoWindowComboBox" DockPanel.Dock="Left" Margin="0,2,3,2" VerticalAlignment="Center">
         <ComboBoxItem IsSelected="True">None</ComboBoxItem>
         <ComboBoxItem >Ranking</ComboBoxItem>

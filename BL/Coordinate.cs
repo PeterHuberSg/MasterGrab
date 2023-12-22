@@ -4,7 +4,7 @@ MasterGrab.BL.Coordinate
 ========================
 
 Stores the X and Y address of a Pixel within the area available for display (PixelMap), which defines the
-bigest valid values for X and Y. The map bends around at the borders, i.e. the left most pixels are the 
+biggest valid values for X and Y. The map bends around at the borders, i.e. the left most pixels are the 
 neighbours of the right most pixels and the top most pixels are the neighbours of the bottom most pixels.
 
 License
@@ -29,10 +29,10 @@ namespace MasterGrab {
 
   /// <summary>
   /// Stores the X and Y address of a Pixel within the area available for display (PixelMap), which defines the
-  /// bigest valid values for X and Y. The map bends around at the borders, i.e. the left most pixels are the neighbours 
+  /// biggest valid values for X and Y. The map bends around at the borders, i.e. the left most pixels are the neighbours 
   /// of the right most pixels and the top most pixels are the neighbours of the bottom most pixels.
   /// </summary>
-  public struct Coordinate: IEquatable<Coordinate> {
+  public readonly struct Coordinate: IEquatable<Coordinate> {
 
     #region Properties
     //      ----------
@@ -50,7 +50,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// A coordinate belongs to a PixelMap (display area), which defines the bigest valid values for X and Y.
+    /// A coordinate belongs to a PixelMap (display area), which defines the biggest valid values for X and Y.
     /// </summary>
     public readonly PixelMap? PixelMap;
 
@@ -58,7 +58,7 @@ namespace MasterGrab {
     /// <summary>
     /// Coordinate.Null can be used in the same way as Null is used for objects
     /// </summary>
-    public static Coordinate Null = new(null);
+    public static readonly Coordinate Null = new(null);
     #endregion
 
 
@@ -84,7 +84,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Contructor used to create illegal coordinates
+    /// Constructor used to create illegal coordinates
     /// </summary>
     private Coordinate(PixelMap? pixelMap) {
       PixelMap = pixelMap;
@@ -163,7 +163,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Returns the coordinate of the pixel left of this coordinate pixel. If the coordinate is at the left border, the right most
-    /// pixel gets returnd.
+    /// pixel gets returned.
     /// </summary>
     public Coordinate Left() {
       var newX = X<1 ? PixelMap!.XMax : X - 1;
@@ -173,7 +173,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Returns the coordinate of the pixel right of this coordinate pixel. If the coordinate is at the right border, the left most
-    /// pixel gets returnd.
+    /// pixel gets returned.
     /// </summary>
     public Coordinate Right() {
       var newX = X + 1;
@@ -186,7 +186,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Returns the coordinate of the pixel above of this coordinate pixel. If the coordinate is at the top border, the bottom most
-    /// pixel gets returnd.
+    /// pixel gets returned.
     /// </summary>
     public Coordinate Up() {
       var newY = Y<1 ? PixelMap!.YCount-1 : Y - 1;
@@ -196,7 +196,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Returns the coordinate of the pixel below of this coordinate pixel. If the coordinate is at the bottom border, the top most
-    /// pixel gets returnd.
+    /// pixel gets returned.
     /// </summary>
     public Coordinate Down() {
       var newY = Y + 1;

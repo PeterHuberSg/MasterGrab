@@ -20,6 +20,9 @@
         The map itself has no borders, like earth, which has also no edge. The countries at the left border of the window wrap around to the right window border.
       </Paragraph>
       <Paragraph>
+        <Image Source="TheMap.png" Stretch="None"></Image>
+      </Paragraph>
+      <Paragraph>
         The user makes the first move by clicking on the country he wants to attack. The computer evaluates if the attack succeeded, updates the 
         ownership of the countries on the map. Then each player simultated by the computer (=Robot) makes immediately 
         its own move. The program then waits for the user to make his next move. The game is won once the user owns all countries or
@@ -180,6 +183,19 @@
         </ListItem>
         <ListItem>
           <Paragraph>
+            If your neighbour is stronger than you, he might be tempted to attack you. If you amass some troops at his border, 
+            he might attack another robot instead which is not that well defended. As long as you have half as many armies in your
+            defending country as he has in his attacking countries he will not attack you.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
+            If your neighbour is much stronger than you, it might be better to let him attack you. He might continue the attack until
+            he is rather weak and you can attack him back. In order to do that, collect armies while he is attacking you.
+          </Paragraph>
+        </ListItem>
+        <ListItem>
+          <Paragraph>
             You can further minimise your enemies facing border by owning all countries from the top of the screen to the bottom.
           </Paragraph>
         </ListItem>
@@ -205,7 +221,7 @@
         Now have fun playing the game !
       </Paragraph>
       <Paragraph>
-        Jürgpeter Huber, 2016 - 2022, Horgen &amp; Singapore
+        Jürgpeter Huber, 2016 - 2023, Horgen &amp; Singapore
       </Paragraph>
 
     </FlowDocument>

@@ -27,12 +27,12 @@ namespace MasterGrab {
   [TestClass]
   public class CountryTest {
     [TestMethod]
-    public void TestCountryGetNeigbourToNearestEnemy() {
+    public void TestCountryGetNeighbourToNearestEnemy() {
       var testPlayer = new Player(0, "testPlayer", null!);
       var opponent = new Player(1, "opponent",null!);
       GameFix gameFix;
 
-      gameFix = TestGame.Create(testPlayer, opponent, out var updates,
+      gameFix = TestGame.Create(testPlayer, opponent, out var _,
         //0  1  2  3  4  5  6
         "o1 o1 o1 o1 o1 o1 o1|" + //0
         "o1 t1 t1 t1 t1 t1 o1|" + //1
@@ -60,7 +60,7 @@ namespace MasterGrab {
 
     private static void assert(GameFix gameFix, int x1, int y1, int x2, int y2, int countriesPerRow) {
       var country = gameFix.GetClonedGame().Map[x1 + countriesPerRow*y1];
-      var neighbour = country.GetNeigbourToNearestEnemy();
+      var neighbour = country.GetNeighbourToNearestEnemy();
       if (x2>=0 && y2>=0) {
         var neighbourId = x2 + countriesPerRow*y2;
         Assert.AreEqual(neighbourId, neighbour.Id);

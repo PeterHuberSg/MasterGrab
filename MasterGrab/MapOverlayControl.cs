@@ -150,7 +150,7 @@ namespace MasterGrab {
           selectedCountries.Remove(country);
           if (selectedCountries.Count==0) {
             //no country is selected. Move the armies from all neighbour countries owned by the player to the
-            //doubleclicked country
+            //double clicked country
             foreach (var neighbourId in country.NeighbourIds) {
               var neighbour = mapControl.Game.Map[neighbourId];
               if (neighbour.OwnerId==mapControl.GuiPlayer.Id) {
@@ -175,7 +175,7 @@ namespace MasterGrab {
             }
             if (selectedCountries.Count>0) {
               try {
-                mapControl.ControllerMove(new Move(MoveTypeEnum.attack, mapControl.GuiPlayer, country, selectedCountries));
+                mapControl.ControllerMove(new Move(MoveTypeEnum.attack, mapControl.GuiPlayer!, country, selectedCountries));
               } catch (GameException ex) {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
               }
@@ -257,13 +257,13 @@ namespace MasterGrab {
     readonly Pen ownerPen = new(new SolidColorBrush(Color.FromArgb(0xA0, 0x50, 0x50, 0x50)), 5);
     readonly Pen opponentPen = new(new SolidColorBrush(Color.FromArgb(0xA0, 0x70, 0x70, 0x70)), 5);
     readonly Pen hoverOwnerPen = new(new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF)), 3);
-    readonly Pen howerOpponentPen = new(Brushes.Yellow, 3);
+    readonly Pen hoverOpponentPen = new(Brushes.Yellow, 3);
     readonly Pen selectedPen = new(new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0)), 4);
 
 
     protected override void OnRenderContent(DrawingContext drawingContext, Size renderContentSize) {
       if (mapControl.PixelMap!=null) {
-        //a map has benn created
+        //a map has been created
 
         //highlight first not selected borders
         foreach (var country in mapControl.Game.Map) {
@@ -305,7 +305,7 @@ namespace MasterGrab {
               drawingContext.DrawGeometry(countryBrush, hoverOwnerPen, mapControl.GeometryByCountry[country.Id]);
               break;
             case countryStateEnum.mouseHoverOpponent:
-              drawingContext.DrawGeometry(countryBrush, howerOpponentPen, mapControl.GeometryByCountry[country.Id]);
+              drawingContext.DrawGeometry(countryBrush, hoverOpponentPen, mapControl.GeometryByCountry[country.Id]);
               break;
             case countryStateEnum.selected:
               drawingContext.DrawGeometry(countryBrush, selectedPen, mapControl.GeometryByCountry[country.Id]);

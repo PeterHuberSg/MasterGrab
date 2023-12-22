@@ -30,10 +30,10 @@ namespace MasterGrab {
 
   /// <summary>
   /// The PixelMap stores for every pixel in the display area to which country it belongs. The Owner defines the color of
-  /// a pixel, although for displaying the country a vetor graphic is used. The PixelMap is mainly used for the creation of
+  /// a pixel, although for displaying the country a vector graphic is used. The PixelMap is mainly used for the creation of
   /// the countries and to find out over which country the mouse is.<para />
   /// The PixelMap is bent around, the pixels on the left border sit next to the pixels of the right border and the pixels
-  /// of the top border sit next to the pixelson the bottom border.
+  /// of the top border sit next to the pixels on the bottom border.
   /// </summary>
   public class PixelMap {
 
@@ -88,14 +88,14 @@ namespace MasterGrab {
 
     readonly Random random; //random generator used during creation of PixelMap
     const int padding = 15; //minimal distance from the border of a country's coordinate
-    readonly Coordinate[] coordinatesbyCountry; //coordinate of every country, which is the starting point 
+    readonly Coordinate[] coordinatesByCountry; //coordinate of every country, which is the starting point 
                                        //for the algorithm assigning pixels to a country
 
 
     /// <summary>
     /// Constructor using options to randomly create the PixelMap
     /// </summary>
-    /// <param name="options">parameters used to define how many countrues, etc. should be generated</param>
+    /// <param name="options">parameters used to define how many countries, etc. should be generated</param>
     /// <param name="mountainCount">how many mountains should be generated</param>
     /// <param name="countryFixArray">Array holding for every country a CountryFix. The CountryFix stores data which cannot be changed
     /// during the game.</param>
@@ -108,7 +108,7 @@ namespace MasterGrab {
       random = new Random();
 
       //place for each country a random starting point on the map
-      coordinatesbyCountry = new Coordinate[options.CountriesCount];
+      coordinatesByCountry = new Coordinate[options.CountriesCount];
       for (var countryIndex = 0; countryIndex<options.CountriesCount; countryIndex++) {
         var isCountryTooClose = false;
         var loopCounter = 0;
@@ -117,7 +117,7 @@ namespace MasterGrab {
           coordinate1 = new Coordinate(this, random.Next(padding, XMax-padding), random.Next(padding, YMax-padding));
           isCountryTooClose = false;
           for (var countryIndex2 = 0; countryIndex2<countryIndex; countryIndex2++) {
-            var coordinate2 = coordinatesbyCountry[countryIndex2];
+            var coordinate2 = coordinatesByCountry[countryIndex2];
             if (coordinate1.GetSquareDistance(coordinate2)<200) {
               //closer than 20 pixels
               isCountryTooClose = true;
@@ -129,17 +129,17 @@ namespace MasterGrab {
             throw new Exception("100 failed tries to place countries.");
           }
         } while (isCountryTooClose);
-        coordinatesbyCountry[countryIndex] = coordinate1;
+        coordinatesByCountry[countryIndex] = coordinate1;
       }
 
       //use the country coordinates as start pixel for map filling
       var fillCoordinatesByCountry = new List<Coordinate>[options.CountriesCount];
       var borderPixelsByCountry = new HashSet<Coordinate>[options.CountriesCount];
-      //createa list of fillCoordinates for every country, with the country's coordinate as start for every country
+      //create a list of fillCoordinates for every country, with the country's coordinate as start for every country
       for (var countryIndex = 0; countryIndex<options.CountriesCount; countryIndex++) {
         #pragma warning disable IDE0028 // Simplify collection initialization
         var countryCoordinates = new List<Coordinate>();
-        countryCoordinates.Add(coordinatesbyCountry[countryIndex]);
+        countryCoordinates.Add(coordinatesByCountry[countryIndex]);
         #pragma warning restore IDE0028
         fillCoordinatesByCountry[countryIndex] = countryCoordinates;
         borderPixelsByCountry[countryIndex] = new HashSet<Coordinate>();
@@ -169,7 +169,7 @@ namespace MasterGrab {
         }
       } while (isIncomplete);
 
-      processMap(options.CountriesCount, mountainCount, options.ArmiesInBiggestCountry, coordinatesbyCountry, out countryFixArray, out armiesPerSize);
+      processMap(options.CountriesCount, mountainCount, options.ArmiesInBiggestCountry, coordinatesByCountry, out countryFixArray, out armiesPerSize);
     }
 
 
@@ -228,7 +228,7 @@ namespace MasterGrab {
             }
             if (this[countryCoordinate.Up()]!=countryCode) {
               //the pixels top and left from countryCoordinate belong to different countries
-              throw new Exception("Country coordinates must be surrounded by pixels with the same countrycode.");
+              throw new Exception("Country coordinates must be surrounded by pixels with the same country code.");
             }
             coordinatesByCountryDictionary.Add(countryCode, countryCoordinate);
           } else {
@@ -244,18 +244,18 @@ namespace MasterGrab {
       }
       var countryCodesCount = countryCodes.Count;
       if (countryCodesCount==0)
-        throw new Exception("No country found. Each country needs a blank ' ' chracter marking the start position.");
+        throw new Exception("No country found. Each country needs a blank ' ' character marking the start position.");
       if (countryCodesCount<1)
         throw new Exception("Only 1 country is not enough.");
       if (countryCodesCount!=coordinatesByCountryDictionary.Count)
         throw new Exception("There should be the same number of country coordinates " + coordinatesByCountryDictionary.Count + " as countries " + countryCodesCount + ".");
 
-      coordinatesbyCountry = new Coordinate[countryCodesCount];
+      coordinatesByCountry = new Coordinate[countryCodesCount];
       foreach (var countryCoordinate in coordinatesByCountryDictionary) {
-        coordinatesbyCountry[countryCoordinate.Key] = countryCoordinate.Value;
+        coordinatesByCountry[countryCoordinate.Key] = countryCoordinate.Value;
       }
 
-      processMap(countryCodesCount, mountainCount, armiesInBiggestCountry, coordinatesbyCountry, out countryFixArray, out armiesPerSize);
+      processMap(countryCodesCount, mountainCount, armiesInBiggestCountry, coordinatesByCountry, out countryFixArray, out armiesPerSize);
     }
 
 
@@ -277,7 +277,7 @@ namespace MasterGrab {
       int countriesCount, 
       int mountainCount, 
       double armiesInBiggestCountry, 
-      Coordinate[] coordinatesbyCountry,
+      Coordinate[] coordinatesByCountry,
       out CountryFix[] countryFixArray, 
       out double armiesPerSize) 
     {
@@ -354,27 +354,27 @@ namespace MasterGrab {
           centerByCountry[countryIndex] = new Coordinate(this, x, y);
         }
         borderCoordinatesByCountry = new List<Coordinate>[countriesCount];
-      } while (!findBorderLines(coordinatesbyCountry, borderCoordinatesByCountry));
+      } while (!findBorderLines(coordinatesByCountry, borderCoordinatesByCountry));
 
       //sort countries by size
       var countrySizeByIds = new List<Tuple<int, int>>(countriesCount);
       for (var countryIndex = 0; countryIndex < countriesCount; countryIndex++) {
         countrySizeByIds.Add(new Tuple<int, int>(countryIndex, sizeByCountry[countryIndex]));
       }
-      var sortedcountrySizeByIds = countrySizeByIds.OrderByDescending(c => c.Item2).ToArray();
-      BiggestCountrySize = sortedcountrySizeByIds[0].Item2;
+      var sortedCountrySizeByIds = countrySizeByIds.OrderByDescending(c => c.Item2).ToArray();
+      BiggestCountrySize = sortedCountrySizeByIds[0].Item2;
       armiesPerSize = armiesInBiggestCountry / BiggestCountrySize;
 
       //mark the smallest countries as mountains
       var isMountainByCountry = new bool[countriesCount];
-      for (var sortedCountryIndex = sortedcountrySizeByIds.Length-mountainCount; sortedCountryIndex < sortedcountrySizeByIds.Length; sortedCountryIndex++) {
-        var countryIndex = sortedcountrySizeByIds[sortedCountryIndex].Item1;
+      for (var sortedCountryIndex = sortedCountrySizeByIds.Length-mountainCount; sortedCountryIndex < sortedCountrySizeByIds.Length; sortedCountryIndex++) {
+        var countryIndex = sortedCountrySizeByIds[sortedCountryIndex].Item1;
         isMountainByCountry[countryIndex] = true;
       }
 
       //mark a country as mountain if it is surrounded by mountains only
-      for (var sortedCountryIndex = 0; sortedCountryIndex < sortedcountrySizeByIds.Length-mountainCount; sortedCountryIndex++) {
-        var countryIndex = sortedcountrySizeByIds[sortedCountryIndex].Item1;
+      for (var sortedCountryIndex = 0; sortedCountryIndex < sortedCountrySizeByIds.Length-mountainCount; sortedCountryIndex++) {
+        var countryIndex = sortedCountrySizeByIds[sortedCountryIndex].Item1;
         var allNeighboursAreMountains = true;
         for (var neighbourIndex = 0; neighbourIndex < countriesCount; neighbourIndex++) {
           if (neighbourIndex!=countryIndex && neighboursByCountry[countryIndex, neighbourIndex]) {
@@ -392,7 +392,7 @@ namespace MasterGrab {
       //create CountryFix
       countryFixArray = new CountryFix[countriesCount];
       for (var countryIndex = 0; countryIndex < countriesCount; countryIndex++) {
-        var countryFix = new CountryFix(countryIndex, coordinatesbyCountry[countryIndex], centerByCountry[countryIndex],
+        var countryFix = new CountryFix(countryIndex, coordinatesByCountry[countryIndex], centerByCountry[countryIndex],
           isMountainByCountry[countryIndex], sizeByCountry[countryIndex], (int)(sizeByCountry[countryIndex] * armiesPerSize),
           borderCoordinatesByCountry[countryIndex]);
         countryFixArray[countryIndex] = countryFix;
@@ -416,19 +416,19 @@ namespace MasterGrab {
       }
     }
 
-    private void checkNeighbour(int countrId, Coordinate neighbourCoordinate, bool[,] neighboursByCountry) {
+    private void checkNeighbour(int countryId, Coordinate neighbourCoordinate, bool[,] neighboursByCountry) {
       var neighbourId = this[neighbourCoordinate];
-      if (countrId!=neighbourId) {
+      if (countryId!=neighbourId) {
         //border found
-        neighboursByCountry[neighbourId, countrId] = true;
-        neighboursByCountry[countrId, neighbourId] = true;
+        neighboursByCountry[neighbourId, countryId] = true;
+        neighboursByCountry[countryId, neighbourId] = true;
       }
     }
 
 
 
     private void remove1PixelAreas() {
-      //remove 1 pixel wide areas. They cause broblems when tracing borders and look ugly
+      //remove 1 pixel wide areas. They cause problems when tracing borders and look ugly
       for (var y = 0; y < YCount; y++) {
         for (var x = 0; x < XCount; x++) {
           int countryId = countryIdsPerPixel[x, y];
@@ -541,11 +541,11 @@ namespace MasterGrab {
     #pragma warning restore IDE0044
 
 
-    private bool findBorderLines(Coordinate[] coordinatesbyCountry, List<Coordinate>[] borderCoordinatesByCountry) {
+    private bool findBorderLines(Coordinate[] coordinatesByCountry, List<Coordinate>[] borderCoordinatesByCountry) {
       var hasFound = true;
       //find border line 
-      for (var countryIndex = 0; countryIndex<coordinatesbyCountry.Length; countryIndex++) {
-        var startPixel = coordinatesbyCountry[countryIndex];
+      for (var countryIndex = 0; countryIndex<coordinatesByCountry.Length; countryIndex++) {
+        var startPixel = coordinatesByCountry[countryIndex];
         Coordinate lastStartPixel;
         var isSearchUp = true;
         var stepCount = 0;
@@ -660,13 +660,13 @@ namespace MasterGrab {
 
     enum positionEnum {
       top,
-      topright,
+      topRight,
       right,
-      bottomright,
+      bottomRight,
       bottom,
-      bottomleft,
+      bottomLeft,
       left,
-      topleft
+      topLeft
     }
 
 
@@ -683,34 +683,34 @@ namespace MasterGrab {
         //turn clockwise
         switch (position) {
         case positionEnum.top:
-          position = positionEnum.topright;
+          position = positionEnum.topRight;
           pixel = pixel.Right();
           break;
-        case positionEnum.topright:
+        case positionEnum.topRight:
           position = positionEnum.right;
           pixel = pixel.Down();
           break;
         case positionEnum.right:
-          position = positionEnum.bottomright;
+          position = positionEnum.bottomRight;
           pixel = pixel.Down();
           break;
-        case positionEnum.bottomright:
+        case positionEnum.bottomRight:
           position = positionEnum.bottom;
           pixel = pixel.Left();
           break;
         case positionEnum.bottom:
-          position = positionEnum.bottomleft;
+          position = positionEnum.bottomLeft;
           pixel = pixel.Left();
           break;
-        case positionEnum.bottomleft:
+        case positionEnum.bottomLeft:
           position = positionEnum.left;
           pixel = pixel.Up();
           break;
         case positionEnum.left:
-          position = positionEnum.topleft;
+          position = positionEnum.topLeft;
           pixel = pixel.Up();
           break;
-        case positionEnum.topleft:
+        case positionEnum.topLeft:
           throw new Exception("all neighbouring pixels have the country countryId: " + countryId + ".");
         default:
           throw new NotSupportedException();
@@ -723,38 +723,38 @@ namespace MasterGrab {
       //search counter clock wise from Top for pixel different from countryId
       //use second last pixel, which still has the countryId
       var position = positionEnum.top;
-      Coordinate lastpixel;
+      Coordinate lastPixel;
       do {
         //turn counter clockwise
-        lastpixel = pixel;
+        lastPixel = pixel;
         switch (position) {
         case positionEnum.top:
-          position = positionEnum.topleft;
+          position = positionEnum.topLeft;
           pixel = pixel.Left();
           break;
-        case positionEnum.topright:
+        case positionEnum.topRight:
           throw new Exception("none of the neighbouring pixels have the country Id: " + countryId + ".");
         case positionEnum.right:
-          position = positionEnum.topright;
+          position = positionEnum.topRight;
           pixel = pixel.Up();
           break;
-        case positionEnum.bottomright:
+        case positionEnum.bottomRight:
           position = positionEnum.right;
           pixel = pixel.Up();
           break;
         case positionEnum.bottom:
-          position = positionEnum.bottomright;
+          position = positionEnum.bottomRight;
           pixel = pixel.Right();
           break;
-        case positionEnum.bottomleft:
+        case positionEnum.bottomLeft:
           position = positionEnum.bottom;
           pixel = pixel.Right();
           break;
         case positionEnum.left:
-          position = positionEnum.bottomleft;
+          position = positionEnum.bottomLeft;
           pixel = pixel.Down();
           break;
-        case positionEnum.topleft:
+        case positionEnum.topLeft:
           position = positionEnum.left;
           pixel = pixel.Down();
           break;
@@ -762,7 +762,7 @@ namespace MasterGrab {
           throw new NotSupportedException();
         }
       } while (countryIdsPerPixel[pixel.X, pixel.Y]==countryId);
-      pixel = lastpixel;//lastpixel has still countryId
+      pixel = lastPixel;//lastPixel has still countryId
     }
 
 
@@ -837,7 +837,7 @@ namespace MasterGrab {
         stringBuilder.Append("@\"");
         for (var x = startX; x < endX; x++) {
           int countryId = map[x, y];
-          var coordinate = coordinatesbyCountry[countryId];
+          var coordinate = coordinatesByCountry[countryId];
           if (coordinate.X==x && coordinate.Y==y) {
             stringBuilder.Append(' ');
           } else {
@@ -854,7 +854,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Writes map content to a string using tab character to seperate pixels and endofLine to separate lines. This
+    /// Writes map content to a string using tab character to separate pixels and endOfLine to separate lines. This
     /// can be easily pasted into Excel to visualise the map. The borderCoordinates will be displayed as '*'.
     /// </summary>
     public string ToTabbedString(List<Coordinate>? borderCoordinates) {

@@ -38,7 +38,7 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// Base class for custom controls. Since it inherits from Control, it provids standard properties like Font and 
+  /// Base class for custom controls. Since it inherits from Control, it provides standard properties like Font and 
   /// Background. However, those properties are not doing anything. CustomControlBase adds the code for Padding, Border 
   /// and Background. Inheritors should not override MeasureOverride, ArrangeOverride and OnRender but override 
   /// MeasureContentOverride, ArrangeContentOverride and OnRenderContent.
@@ -49,7 +49,7 @@ namespace MasterGrab {
     //      ----------
     #if DEBUG
     /// <summary>
-    /// Should for debugging the layout data like Margin, Padding, mesurement size, arrange size, render size and actual size get
+    /// Should for debugging the layout data like Margin, Padding, measurement size, arrange size, render size and actual size get
     /// displayed over actual content ?
     /// Default: false
     /// </summary>
@@ -107,22 +107,18 @@ namespace MasterGrab {
     /// </summary>
     protected void AddChild(Visual child) {
       //add child to logical tree
-      if (children==null) {
-        children = new List<Visual>();
-      }
+      children ??= new List<Visual>();
       children.Add(child);
       //tell child who is its parent
       AddLogicalChild(child); //equivalent to Child.Parent = this;
       //add child to visual tree
-      if (visualCollection==null) {
-        visualCollection = new VisualCollection(this);//this line ensures that all children are part of visual tree
-      }
+      visualCollection ??= new VisualCollection(this);//this line ensures that all children are part of visual tree
       visualCollection.Add(child);
     }
 
 
     /// <summary>
-    /// Removes the child from the visul tree
+    /// Removes the child from the visual tree
     /// </summary>
     protected void RemoveChild(Visual child) {
       children!.Remove(child);
@@ -187,14 +183,14 @@ namespace MasterGrab {
     private Size doMeasureOverride(Size constraint) {
       /*
       MeasureOverride() gets called by FrameworkElement.MeasurementCore() which gets called by UIElement.Measure() 
-      UIElement.Measure(avialableSize) does the following before calling MeasurementCore():
-      + throw exception isNan(avialableSize), both for width and height
+      UIElement.Measure(availableSize) does the following before calling MeasurementCore():
+      + throw exception isNan(availableSize), both for width and height
       + if UIElement is collapsed, MeasurementCore() will not get called
       + if the availableSize has not changed, MeasurementCore() will not get called, unless InvalidateMeasure() was called before
       + before calling MeasurementCore() , InvalidateArrange() gets called
       FrameworkElement.MeasurementCore(availableSize) does the following before calling MeasureOverride():
       + removing Margin from availableSize
-      + taking care of height, minHeight and maxHeight and the same witdh properties
+      + taking care of height, minHeight and maxHeight and the same width properties
       after calling MeasureOverride(), MeasurementCore() adjusts the value returned by MeasureOverride() to calculate DesiredSize:
       + DesiredSize must be within MinWidth and MaxWidth
       + add margin to DesiredSize
@@ -205,7 +201,7 @@ namespace MasterGrab {
 
       #if DEBUG
       measureConstraintSize = constraint;
-      //curious if the following ever occures ?
+      //curious if the following ever occurs ?
       if (!double.IsNaN(Width)) {
         if (constraint.Width!=Width)
           throw new ArgumentException("MeasurementOverride should set constraint.Width = FrameworkElement.Width if Width is a number.");
@@ -237,7 +233,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Inheritors: Override MeasureContentOverride instead of MeasureOverride. MeasureContentOverride provides the size left
-    /// after applying Border and Padding. Can be between 0 and infinte, but not negative.
+    /// after applying Border and Padding. Can be between 0 and infinite, but not negative.
     /// </summary>
     protected abstract Size MeasureContentOverride(Size constraint);
 
@@ -268,8 +264,6 @@ namespace MasterGrab {
     #endif
 
 
-
-
     private Size doArrangeOverride(Size arrangeBounds) {
       /*
       ArrangeOverride() gets called by FrameworkElement.ArrangeCore() which gets called by UIElement.Arrange() 
@@ -286,7 +280,7 @@ namespace MasterGrab {
       + if (arrangeSize<DesiredSize){
       +   arrangeSize = DesiredSize; NeedsClipBounds = true
       + }
-      + if (not strechted){
+      + if (not stretched){
       +   arrangeSize = DesiredSize; //NeedsClipBounds doesn't change
       + }
       + Size MaxSize = new Size(MaxWidth, MaxHeight)
@@ -303,17 +297,17 @@ namespace MasterGrab {
 
       after calling FrameworkElement.ArrangeCore(), UIElement.Arrange() executes:
       + clips FrameworkElement to finalRect from UIElement.Arrange()
-      + call OnRender(drawingContect) if size has changed or RenderValid is invalidated
+      + call OnRender(drawingContext) if size has changed or RenderValid is invalidated
       */
 
-      #if DEBUG
+#if DEBUG
       arrangeConstraintSize = arrangeBounds;
       #else
       Size arrangeContentSize;
       Size arrangeRequestedSize;
       #endif
 
-      //the sourcecode of FrameworkElement states that arrangeBounds should always be bigger or equal than DesiredSize. If the available
+      //the source code of FrameworkElement states that arrangeBounds should always be bigger or equal than DesiredSize. If the available
       //space is smaller, DesiredSize is given, but later only the part of CustomControlBase shown that fits into the available space.
       if (arrangeBounds.Width<DesiredSize.Width-Margin.Left - Margin.Right || arrangeBounds.Height<DesiredSize.Height - Margin.Top - Margin.Bottom) {
         throw new ArgumentException("doArrangeOverride(): arrangeBounds " + arrangeBounds + " should be equal or bigger than DesiredSize " +
@@ -335,7 +329,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Inheritors: Override ArrangeContentOverride instead of ArrangeOverride. ArrangeContentOverride provides the remaining size 
-    /// after applying Border and Padding. Can between infinte and 0, but not negative.<para/>
+    /// after applying Border and Padding. Can between infinite and 0, but not negative.<para/>
     /// Note that the parameter is a rectangle, not a size, because there might be an offset when ContentAlignment is not stretched. Use
     /// ContentArrange() instead of Arrange().
     /// </summary>
@@ -464,11 +458,9 @@ namespace MasterGrab {
         #if DEBUG
         if (IsShowLayoutData) {
           //write layout data over content
-          if (layoutDataBrush==null) {
-            layoutDataBrush = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
-          }
+          layoutDataBrush ??= new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
           var layoutDataString =
-            "Allignment H:" + HorizontalAlignment + ", V: " + VerticalAlignment + Environment.NewLine +
+            "Alignment H: " + HorizontalAlignment + ", V: " + VerticalAlignment + Environment.NewLine +
             "Margin        L:" + format5(Margin.Left) + ", T: " + format5(Margin.Top) + ", R: " + format5(Margin.Right) + ", B: " + format5(Margin.Bottom) + Environment.NewLine +
             "Border        L:" + format5(BorderThickness.Left) + ", T: " + format5(BorderThickness.Top) + ", R: " + format5(BorderThickness.Right) + ", B: " + format5(BorderThickness.Bottom) + Environment.NewLine +
             "Padding       L:" + format5(Padding.Left) + ", T: " + format5(Padding.Top) + ", R: " + format5(Padding.Right) + ", B: " + format5(Padding.Bottom) + Environment.NewLine +
@@ -532,13 +524,13 @@ namespace MasterGrab {
         #if DEBUG
         System.Diagnostics.Debugger.Break();
         #endif
-        throw new ArgumentException($"Custom Control ArrangeContentOverride(): Offest X {x} cannot be NAN (not a number).");
+        throw new ArgumentException($"Custom Control ArrangeContentOverride(): Offset X {x} cannot be NAN (not a number).");
       }
       if (double.IsNaN(y)) {
         #if DEBUG
         System.Diagnostics.Debugger.Break();
         #endif
-        throw new ArgumentException($"Custom Control ArrangeContentOverride(): Offest Y {y} cannot be NAN (not a number).");
+        throw new ArgumentException($"Custom Control ArrangeContentOverride(): Offset Y {y} cannot be NAN (not a number).");
       }
       //new Rect() will throw an exception if width or height is negative, infinitive or NAN
       #if DEBUG

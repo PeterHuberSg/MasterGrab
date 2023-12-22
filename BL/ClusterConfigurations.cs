@@ -22,11 +22,6 @@ Written 2016-2022 in Switzerland & Singapore by Jürgpeter Huber
 Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MasterGrab {
 

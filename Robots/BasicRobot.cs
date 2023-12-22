@@ -27,7 +27,7 @@ using System.Collections.Generic;
 namespace MasterGrab {
 
   /// <summary>
-  /// Robot used in first version of game.It firstchecks which countires he is strong enough to attack and attacks then
+  /// Robot used in first version of game.It first checks which countries he is strong enough to attack and attacks then
   /// the biggest country with the smallest loss. Country size is more important than army loss. </para>
   /// 
   /// If he is too weak to attack another player, he tries to find an own Country, to which he can move as many armies 
@@ -134,13 +134,13 @@ namespace MasterGrab {
         //nothing to attack. Can armies be moved ?
         if (maxMoverCountryId>=0) {
           //some armies have been moved to one country. Move them now closer to the enemy
-          Country movefromCountry = Map[maxMoverCountryId];
-          if (movefromCountry.OwnerId!=Player.Id) {
+          Country moveFromCountry = Map[maxMoverCountryId];
+          if (moveFromCountry.OwnerId!=Player.Id) {
             //owner has changed since the last move
             maxMoverCountryId = int.MinValue;
             isContinuePlanning = true;
           } else {
-            Country moveToCountry = movefromCountry.GetNeigbourToNearestEnemy();
+            Country moveToCountry = moveFromCountry.GetNeighbourToNearestEnemy();
             if (moveToCountry==null) {
               // maxMoverCountryId is no longer inland, maybe it got just recently an enemy
               maxMoverCountryId = int.MinValue;

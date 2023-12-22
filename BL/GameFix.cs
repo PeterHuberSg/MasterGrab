@@ -62,7 +62,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Pixel representation of Game Map. This is mainly used for drawing the COuntry borders and deciding over which Country
+    /// Pixel representation of Game Map. This is mainly used for drawing the Country borders and deciding over which Country
     /// the mouse hovers.
     /// </summary>
     public readonly PixelMap PixelMap;
@@ -140,7 +140,7 @@ namespace MasterGrab {
 
       //don't generate PixelMap, it's not needed for testing
 
-      //proccess the country data which are not changing during a game
+      //process the country data which are not changing during a game
       MountainsCount = 0;
       foreach (var countryFix in countryFixArray) {
         if (countryFix.IsMountain) {
@@ -171,7 +171,7 @@ namespace MasterGrab {
       var countriesCount = countries.Length;
       var mountainsCount = 0;
       var armiesInBiggestCountry = double.MinValue;
-      var maxPlayerid = 0;
+      var maxPlayerId = 0;
       foreach (var country in countries) {
         if (country.IsMountain) {
           mountainsCount++;
@@ -179,8 +179,8 @@ namespace MasterGrab {
           if (armiesInBiggestCountry<country.ArmySize) {
             armiesInBiggestCountry = country.ArmySize;
           }
-          if (maxPlayerid<country.OwnerId) {
-            maxPlayerid = country.OwnerId;
+          if (maxPlayerId<country.OwnerId) {
+            maxPlayerId = country.OwnerId;
           }
         }
       }
@@ -189,7 +189,7 @@ namespace MasterGrab {
       var protectionFactor = 1.0;
       var attackFactor = 0.5;
       var attackBenefitFactor = 1.0;
-      var robots = new RobotInfo[maxPlayerid];//there is one robot less than players, since player 0 is the guiPlayer
+      var robots = new RobotInfo[maxPlayerId];//there is one robot less than players, since player 0 is the guiPlayer
       for (var robotsIndex = 0; robotsIndex < robots.Length; robotsIndex++) {
         robots[robotsIndex] = Options.RobotInfos[0]; //which robot class is actually used doesn't matter here,
                                                      //getOptions() is only used for testing
@@ -257,7 +257,7 @@ namespace MasterGrab {
       }
 
       //after every move of any Player, the armies in every country grow a little
-      growArmysizes();
+      growArmySizes();
 
       if (playerId==Options.Robots.Count) { //note that playerId = robotId + 1 if human plays
         //before the GUI makes its move, mark the countries with only few armies, only if human plays 
@@ -277,7 +277,7 @@ namespace MasterGrab {
 
     const bool isError = true;
     const bool isOk = false;
-    const bool isSucces = true;
+    const bool isSuccess = true;
     const bool isFailure = false;
 
 
@@ -300,10 +300,10 @@ namespace MasterGrab {
 
       //remember how many armies where in the countries before the move and ensure the move is legal
       beforeArmies[0] = (int)destinationCountry.ArmySize;
-      for (var selectedCountryIdsindex = 0; selectedCountryIdsindex < selectedCountryIds.Length; selectedCountryIdsindex++) {
-        var selectedCountryId = selectedCountryIds[selectedCountryIdsindex];
+      for (var selectedCountryIdIndex = 0; selectedCountryIdIndex < selectedCountryIds.Length; selectedCountryIdIndex++) {
+        var selectedCountryId = selectedCountryIds[selectedCountryIdIndex];
         var selectedCountry = masterGame.Map[selectedCountryId];
-        beforeArmies[selectedCountryIdsindex + 1] = (int)selectedCountry.ArmySize;
+        beforeArmies[selectedCountryIdIndex + 1] = (int)selectedCountry.ArmySize;
 
         //verify that the source countries are owned by Player
         if (selectedCountry.OwnerId!=player.Id) {
@@ -330,7 +330,7 @@ namespace MasterGrab {
       }
       afterArmies[0] = (int)destinationCountry.ArmySize;
       destinationCountry.State = CountryStateEnum.moved;
-      report(new Result(MoveTypeEnum.move, isOk, player.Id, player.Id, destinationCountryId, selectedCountryIds, isSucces, beforeArmies, afterArmies, 1));
+      report(new Result(MoveTypeEnum.move, isOk, player.Id, player.Id, destinationCountryId, selectedCountryIds, isSuccess, beforeArmies, afterArmies, 1));
     }
 
 
@@ -416,7 +416,7 @@ namespace MasterGrab {
           //distribute remaining attacking countries and the won armies in selected countries and attacked country
           double distributionFactor;
           if (neededArmies==0) {
-            //no enemy left as neighbour. Just distrubte armies evenly under attackers
+            //no enemy left as neighbour. Just distribute armies evenly under attackers
             availableArmies /= selectedCountryIds.Length;
             attackedCountry.ArmySize = 0;
             foreach (var attackCountryId in selectedCountryIds) {
@@ -465,7 +465,7 @@ namespace MasterGrab {
     /// <summary>
     /// grows the armySize of every country a bit
     /// </summary>
-    private void growArmysizes() {
+    private void growArmySizes() {
       var factor = ArmiesPerSize * Options.ArmyGrowthFactor
         * 2 //random produces a number between 0 and 1, in average .5 
         / masterGame.Players.Count; //to be fair to the player and the robots, countries need to grow after each move, not just 
@@ -486,14 +486,14 @@ namespace MasterGrab {
     /// </summary>
     void markCheapCountries() {
       var cheapCountriesCount = masterGame.Map.Count / 15;
-      var countryesbyArmySizeQuery =
+      var countriesByArmySizeQuery =
         from Country country in masterGame.Map
           //        where !country.IsMountain && country.State==CountryStateEnum.normal && !country.IsInland()
         where !country.IsMountain && !country.IsInland()
         orderby country.ArmySize
         select country;
       var countryCount = 0;
-      foreach (var country in countryesbyArmySizeQuery) {
+      foreach (var country in countriesByArmySizeQuery) {
         if (country.State==CountryStateEnum.normal) {
           country.State = CountryStateEnum.cheap;
         }

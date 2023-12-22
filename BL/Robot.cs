@@ -60,7 +60,7 @@ namespace MasterGrab {
     protected Map Map { get; private set; }
 
     /// <summary>
-    /// ContryIds of all Countries owned by the Robot. The country itself can be accessed through Map[countryId]
+    /// CountryIds of all Countries owned by the Robot. The country itself can be accessed through Map[countryId]
     /// </summary>
     protected IReadOnlyList<int> RobotCountryIds { get; private set; }
 
@@ -102,7 +102,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// For inheritors to overrite. Use the information provided in the Robot variables to plan the next move. Notice that
+    /// For inheritors to overwrite. Use the information provided in the Robot variables to plan the next move. Notice that
     /// for each call of DoPlanMove(), a complete new set of objects are provided. Objects like Country from a previous
     /// call cannot be used in the new call. But Country.Id and CountryFix can be reused, they do not change between calls.
     /// </summary>

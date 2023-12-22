@@ -29,7 +29,7 @@ namespace MasterGrab {
 
   /// <summary>
   /// Draws glyphs to a DrawingContext. From the font information in the constructor, GlyphDrawer creates and stores the 
-  /// GlyphTypeface, which is used everytime for the drawing of the string.
+  /// GlyphTypeface, which is used every time for the drawing of the string.
   /// </summary>
   public class GlyphDrawer {
 
@@ -65,7 +65,7 @@ namespace MasterGrab {
     {
       typeface = new Typeface(fontFamily, fontStyle, fontWeight, fontStretch);
       if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
-        throw new InvalidOperationException("No glyphtypeface found");
+        throw new InvalidOperationException("No glyph typeface found");
 
       PixelsPerDpi = pixelsPerDpi;
     }
@@ -109,7 +109,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Writes a string to a DrawingContext, using the GlyphTypeface stored in the GlyphDrawer. The text will be right alligned. The
+    /// Writes a string to a DrawingContext, using the GlyphTypeface stored in the GlyphDrawer. The text will be right aligned. The
     /// last character will be at Origin, all other characters in front.
     /// </summary>
     /// <param name="drawingContext"></param>

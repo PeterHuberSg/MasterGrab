@@ -36,7 +36,7 @@ namespace MasterGrab {
   /// 
   /// GameController maps GuiPlayer and Robots to Players. GuiPlayer is player 0, the robots use 1 and higher.</para>
   /// 
-  /// GameContoller -> GameFix -> Game -> Map -> Country
+  /// GameController -> GameFix -> Game -> Map -> Country
   /// </summary>
   public class GameController {
 
@@ -44,7 +44,7 @@ namespace MasterGrab {
     #region Constructor
     //      -----------
 
-    readonly Thread controlllerThread;
+    readonly Thread controllerThread;
 
     Options options;
     readonly Action<PixelMap, IReadOnlyList<CountryFix>, Game, Player?> mapChanged;
@@ -56,8 +56,8 @@ namespace MasterGrab {
 
     /// <summary>
     /// Constructor. The options define all parameters like how many players and countries. mapChanged, gameChanged, and
-    /// exceptionRaised get called when those events occure, while move and close allow to control the game.
-    /// The constructor returns quickly, since the Game gets constructed on a new controlllerThread.
+    /// exceptionRaised get called when those events occur, while move and close allow to control the game.
+    /// The constructor returns quickly, since the Game gets constructed on a new controllerThread.
     /// </summary>
     //gameFix, executeReplay, executeMove, robots will be set in startNewGame()
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. 
@@ -85,8 +85,8 @@ namespace MasterGrab {
 
       isReplay = false;
       isClosed = false;
-      controlllerThread = new Thread(controllerMethod) {Name = "GameController"};
-      controlllerThread.Start();
+      controllerThread = new Thread(controllerMethod) {Name = "GameController"};
+      controllerThread.Start();
     }
     #endregion
 
@@ -119,7 +119,7 @@ namespace MasterGrab {
       //on WPF thread
 #pragma warning disable IDE0045 // Convert to conditional expression
       //keep a local options copy, because startNewGameOptions might get set to null immediately because of autoResetEvent.Set()
-      //when singelstepping in debugger
+      //when single stepping in debugger
       Options newOptions;
       if (options.IsRandomOptions) {
         newOptions = new Options(options);
@@ -155,7 +155,7 @@ namespace MasterGrab {
     /// <summary>
     /// Main method executing on the controller thread. It creates a new game, then waits until the Gui sets an autoResetEvent 
     /// to then execute a Gui-Move, followed by one move for every robot and finally gameChanged() gets called. 
-    /// The Gui can also command to restart a new game or to stop the thread. If an exception occures, exceptionRaised() 
+    /// The Gui can also command to restart a new game or to stop the thread. If an exception occurs, exceptionRaised() 
     /// gets called.
     /// </summary>
     private void controllerMethod() {
@@ -238,9 +238,9 @@ namespace MasterGrab {
 
       } catch (Exception ex) {
         if (ex.Message.Contains("too many border points")) {
-          //just create a new map. This is the easiest solution, since this exception occures very seldom
+          //just create a new map. This is the easiest solution, since this exception occurs very seldom
           //Todo: Solve problem with too many border points
-          //Tracer.TraceWarning("Exception occured: " + ex.ToDetailString());
+          //Tracer.TraceWarning("Exception occurred: " + ex.ToDetailString());
           startNewGameOptions = options;
           isSkipWaiting = true;
         } else {

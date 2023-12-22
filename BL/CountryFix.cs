@@ -3,7 +3,7 @@
 MasterGrab.BL.CountryFix
 ========================
 
-CountryFix holds all information of one country which do not change during a game, like the CounryId, its 
+CountryFix holds all information of one country which do not change during a game, like the CountryId, its 
 border, neighbours, etc.
 
 License
@@ -23,7 +23,6 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Text;
 
 
@@ -31,7 +30,8 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// CountryFix holds all information which do not change during a game, like the CounryId, its border, neighbours, etc.
+  /// CountryFix holds all information which do not change during a game, like the CountryId, its border, 
+  /// neighbours, etc.
   /// </summary>
   public class CountryFix: IComparable<CountryFix> {
 
@@ -83,7 +83,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Every pixel on the border of the country. This is used to draw the country as vertor graph.
+    /// Every pixel on the border of the country. This is used to draw the country as vector graph.
     /// </summary>
     public IReadOnlyList<Coordinate> BorderCoordinates => borderCoordinates;
     readonly List<Coordinate> borderCoordinates;
@@ -115,7 +115,7 @@ namespace MasterGrab {
     //      -------
 
     /// <summary>
-    /// Used by PixelMap to add neghbours, since it is not possible to add the neighbours in the constructor, because
+    /// Used by PixelMap to add neighbours, since it is not possible to add the neighbours in the constructor, because
     /// the neighbour might not be constructed yet.
     /// </summary>
     internal void AddNeighbour(CountryFix neighbour) {
@@ -158,7 +158,7 @@ namespace MasterGrab {
     //      =======
 
     /// <summary>
-    /// Test constructor, where the neigbours can be assigned during construction
+    /// Test constructor, where the neighbours can be assigned during construction
     /// </summary>
     public CountryFix(int id, bool isMountain, int size, int capacity, List<int> neighbours) : 
       this(id, Coordinate.Null, Coordinate.Null, isMountain, size, capacity, createEmptyList()) {
@@ -176,7 +176,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Retunrs the border pixel coordinates as string, which is useful for debugging display problems.
+    /// Returns the border pixel coordinates as string, which is useful for debugging display problems.
     /// </summary>
     public string GetCondensedBorder() {
       var stringBuilder = new StringBuilder();

@@ -171,13 +171,13 @@ namespace MasterGrab {
 
       var countryIdsString = "";
       var isFirst = true;
-      foreach (var countryid in CountryIds) {
+      foreach (var countryId in CountryIds) {
         if (isFirst) {
           isFirst = false;
         } else {
           countryIdsString += ", ";
         }
-        countryIdsString += countryid.ToString();
+        countryIdsString += countryId.ToString();
       }
       return
         "MoveType: " + MoveType +

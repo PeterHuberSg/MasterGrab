@@ -273,19 +273,10 @@ namespace MasterGrab {
       //}
 
 
-      bool shouldPositionLeftChange;
-      if (rankingPositionLeft) {
-        shouldPositionLeftChange = mousePoint.X<mapControl.PixelMap.XMax/3;
-      } else {
-        shouldPositionLeftChange = mousePoint.X>mapControl.PixelMap.XMax*2/3;
-      }
-      bool shouldPositionTopChange;
-      if (rankingPositionTop) {
-        shouldPositionTopChange = mousePoint.Y<mapControl.PixelMap.YMax*3/7;
-      } else {
-        shouldPositionTopChange = mousePoint.Y>mapControl.PixelMap.YMax*4/7;
-      }
-
+      bool shouldPositionLeftChange = 
+        rankingPositionLeft ? mousePoint.X<mapControl.PixelMap.XMax/3 : mousePoint.X>mapControl.PixelMap.XMax*2/3;
+      bool shouldPositionTopChange = 
+        rankingPositionTop ? mousePoint.Y<mapControl.PixelMap.YMax*3/7 : mousePoint.Y>mapControl.PixelMap.YMax*4/7;
       if (shouldPositionLeftChange && shouldPositionTopChange) {
         rankingPositionLeft = !rankingPositionLeft;
         rankingPositionTop = !rankingPositionTop;
@@ -407,9 +398,7 @@ namespace MasterGrab {
     //      -----------------
 
     protected override Size MeasureContentOverride(Size constraint) {
-      if (border!=null) {
-        border.Measure(new Size(constraint.Width, constraint.Height));
-      }
+      border?.Measure(new Size(constraint.Width, constraint.Height));
       return constraint;
     }
 

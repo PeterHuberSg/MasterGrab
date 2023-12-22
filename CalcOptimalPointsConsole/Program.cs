@@ -1,4 +1,29 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿/********************************************************************************************************
+
+MasterGrab.CalcOptimalPointsConsole.Program
+===========================================
+
+Tries to calculate the optimal distribution of cluster centers on the game map. Optimal means that each 
+center has the same distance from all other neighbouring centers.
+
+I never managed to get this code function properly, so I gave up on it.
+
+License
+-------
+
+To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring 
+rights to this software to the public domain worldwide under the Creative Commons 0 license (legal text 
+see License CC0.html file, also <http://creativecommons.org/publicdomain/zero/1.0/>). 
+
+The author gives no warranty of any kind that the code is free of defects, merchantable, fit for a 
+particular purpose or non-infringing. Use it at your own risk :-)
+
+Written 2016-2022 in Switzerland & Singapore by Jürgpeter Huber 
+
+Contact: https://github.com/PeterHuberSg/MasterGrab
+********************************************************************************************************/
+
+// See https://aka.ms/new-console-template for more information
 using ClusterCenters;
 using System.Text;
 #pragma warning disable CS0162 // Unreachable code detected

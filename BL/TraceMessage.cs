@@ -39,8 +39,8 @@ namespace MasterGrab {
     private string? asString;
 
 
-    public TraceMessage(TraceTypeEnum tracrType, string? message, string? filterText = null) {
-      TraceType = tracrType;
+    public TraceMessage(TraceTypeEnum tracerType, string? message, string? filterText = null) {
+      TraceType = tracerType;
       Created = DateTime.Now;
       Message = message;
       FilterText = filterText;

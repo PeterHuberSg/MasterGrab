@@ -70,12 +70,12 @@ namespace MasterGrab {
       var cellsPerLine = cells[0].Length;
       var countriesCount = lines.Length * cellsPerLine;
       Country[]? newCountries = null;
-      CountryFix[]? newCountrFixArray = null;
+      CountryFix[]? newCountryFixArray = null;
       updates = null;
       //Action<Country[]>[] setNeighbours = null;
       if (isCreate) {
         newCountries = new Country[countriesCount];
-        newCountrFixArray = new CountryFix[countriesCount];
+        newCountryFixArray = new CountryFix[countriesCount];
         updates = new Action<double, CountryStateEnum, int>[countriesCount];
         //setNeighbours = new Action<Country[]>[countriesCount];
       }
@@ -103,8 +103,8 @@ namespace MasterGrab {
         }
 
         var lineIndex = countryIndex / cellsPerLine;
-        var cellindex = countryIndex % cellsPerLine;
-        var cellString = cells[lineIndex][cellindex];
+        var cellIndex = countryIndex % cellsPerLine;
+        var cellString = cells[lineIndex][cellIndex];
         var owner = cellString[0] switch {
           't' => testPlayer,
           'o' => opponent,
@@ -116,7 +116,7 @@ namespace MasterGrab {
           const int capacity = 100;
           const int size = 1;
           var countryFix = new CountryFix(countryIndex, noMountain, size, capacity, new List<int> { left, right, top, bottom });
-          newCountrFixArray![countryIndex] = countryFix;
+          newCountryFixArray![countryIndex] = countryFix;
           newCountries![countryIndex] = 
             new Country(countryFix, armySize, CountryStateEnum.normal, owner.Id, out updates![countryIndex]);
         
@@ -133,7 +133,7 @@ namespace MasterGrab {
 
       if (!isCreate) return null; //successfully verified
 
-      return new GameFix(null, newCountrFixArray!, newCountries!, out var execReplay, out var execMove);
+      return new GameFix(null, newCountryFixArray!, newCountries!, out var execReplay, out var execMove);
     }
 
 

@@ -101,7 +101,7 @@ namespace MasterGrab {
 Any namespace can be used. Important is that `SimpleRobot` inherits from 
 `Robot`. Using the `RobotAttribute` is optional. It allows changing the 
 class name to a nicer name seen by the user and to indicate if that 
-robot should be used as default ptions.
+robot should be used as default option.
 
 `Robot` provides `SimpleRobot` easy access to `Player` (the robot itself), 
 `Game`, `Map`, `RobotCountryIds` (owned countries) and `Results`.

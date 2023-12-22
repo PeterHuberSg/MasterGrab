@@ -27,7 +27,7 @@ using System.Text;
 namespace MasterGrab {
 
   /// <summary>
-  /// Class for extension mehods of Exception
+  /// Class for extension methods of Exception
   /// </summary>
   public static class ExceptionExtension {
 
@@ -40,7 +40,7 @@ namespace MasterGrab {
 		public static string ToDetailString(this Exception thisException){
 			var exceptionInfo = new StringBuilder();
 			int startPos;
-			int titelLength; 
+			int titleLength; 
 			
 			// Loop through all exceptions
 			var currentException = thisException;	// Temp variable to hold InnerException object during the loop.
@@ -49,14 +49,14 @@ namespace MasterGrab {
 				// exception type and message as title
 				startPos = exceptionInfo.Length;
 				exceptionInfo.Append(currentException.GetType().FullName);
-				titelLength = exceptionInfo.Length - startPos;
+				titleLength = exceptionInfo.Length - startPos;
 				exceptionInfo.Append("\r\n");
 				if (exceptionCount==1) {
 				    //main exception
-					exceptionInfo.Append('=', titelLength);
+					exceptionInfo.Append('=', titleLength);
 				} else {
 					//inner exceptions
-					exceptionInfo.Append('-', titelLength);
+					exceptionInfo.Append('-', titleLength);
 				}
 				
 				exceptionInfo.Append("\r\n" + currentException.Message);

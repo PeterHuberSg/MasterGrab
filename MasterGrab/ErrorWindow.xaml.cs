@@ -50,7 +50,7 @@ namespace MasterGrab {
 
       var gameException = exception as GameException;
       var run = gameException is null
-          ? new Run("Game made an error, an exception occured")
+          ? new Run("Game made an error, an exception occurred")
           : new Run("Player made an error");
       run.FontSize = FontSize * 1.5;
       run.FontWeight = FontWeights.Bold;
@@ -62,11 +62,11 @@ namespace MasterGrab {
       var messageSpan = new Span();
       //Country (0, Owner: 2, Armies: 20)
       var messageParts = exception.Message.Split(new string[] { "Country (", ")" }, StringSplitOptions.RemoveEmptyEntries);
-      var isfoundCountry = false;
+      var isFoundCountry = false;
       var isWrongFormat = false;
       foreach (var messagePart in messageParts) {
-        if (isfoundCountry) {
-          isfoundCountry = false;
+        if (isFoundCountry) {
+          isFoundCountry = false;
           var integerPos = messagePart.IndexOf(Country.DebugStringOwnerLabel) + Country.DebugStringOwnerLength;
           if (integerPos<0) {
             isWrongFormat = true;
@@ -78,8 +78,8 @@ namespace MasterGrab {
             isWrongFormat = true;
             break;
           }
-          var palyerIdString = messagePart[integerPos..commaPos];
-          if (!int.TryParse(palyerIdString, out var playerId)) {
+          var playerIdString = messagePart[integerPos..commaPos];
+          if (!int.TryParse(playerIdString, out var playerId)) {
             isWrongFormat = true;
             break;
           }
@@ -88,7 +88,7 @@ namespace MasterGrab {
           messageSpan.Inlines.Add(new LineBreak());
 
         } else {
-          isfoundCountry = true;
+          isFoundCountry = true;
           run = new Run(messagePart);
           messageSpan.Inlines.Add(run);
           messageSpan.Inlines.Add(new LineBreak());

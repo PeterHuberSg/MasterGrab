@@ -3,7 +3,7 @@
 MasterGrab.BL.RingBuffer
 ========================
 
-Ringbuffer stores the last x items added to it, the rest gets overwritten.
+RingBuffer stores the last x items added to it, the rest gets overwritten.
 
 License
 -------
@@ -27,7 +27,7 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// Ringbuffer stores the last x items added to it, the rest gets overwritten.
+  /// RingBuffer stores the last x items added to it, the rest gets overwritten.
   /// </summary>
   public class RingBuffer<T> where T : struct {
     readonly int size;

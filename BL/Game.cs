@@ -24,7 +24,6 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 using System.Text;
 
 
@@ -46,7 +45,7 @@ namespace MasterGrab {
   /// The only class which can change the Game data (i.e. who holds which country, what is the army size in a country, etc.) is
   /// the GameController.</para>
   /// 
-  /// GameContoller -> GameFix -> Game -> Map -> Country
+  /// GameController -> GameFix -> Game -> Map -> Country
   /// </summary>
   public class Game {
 
@@ -55,7 +54,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// During a cycle (i.e. player and all robots have made one move), each country grows its armies based on its size and 
-    /// the ArmyGrowthFactor. Factor 1 means that after a cycle each country reaches his maximum capcity.
+    /// the ArmyGrowthFactor. Factor 1 means that after a cycle each country reaches his maximum capacity.
     /// </summary>
     public double ArmyGrowthFactor { get; private set; }
 
@@ -148,13 +147,11 @@ namespace MasterGrab {
       }
       for (var playerIndex = 0; playerIndex < players.Length; playerIndex++) {
         string name;
+        #pragma warning disable IDE0045 // Convert to conditional expression
         if (options.IsHumanPlaying) {
-          if (playerIndex==0) {
-            name = "User";
-          } else {
-            name = "Robot" + playerIndex;
-          }
+          name = playerIndex==0 ? "User" : "Robot" + playerIndex;
         } else {
+        #pragma warning restore IDE0045
           name = "Robot" + (playerIndex + 1);
         }
         players[playerIndex] = new Player(playerIndex, name, this);
@@ -205,7 +202,8 @@ namespace MasterGrab {
     //      -------
 
     /// <summary>
-    /// Returns Statistics (rank, number of countries and armies, ...) about of the players. The sttistics are sorted by Player.Id.
+    /// Returns Statistics (rank, number of countries and armies, ...) about of the players. The statistics are sorted 
+    /// by Player.Id.
     /// </summary>
     public Statistic[] GetPlayerStatistics() {
       //initialise empty statistics

@@ -3,7 +3,7 @@
 MasterGrab.BL.GameException
 ===========================
 
-Allows easy filtering out of atack game specific exceptions
+Allows easy filtering out of MasterGrab specific exceptions
 
 License
 -------
@@ -28,7 +28,7 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// Allows easy filtering out of atack game specific exceptions
+  /// Allows easy filtering out of MasterGrab specific exceptions
   /// </summary>
   public class GameException: Exception {
 
@@ -52,7 +52,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// GameException with Game data and countries invovled
+    /// GameException with Game data and countries involved
     /// </summary>
     public GameException(Game? game, int countryId, IReadOnlyList<int>? countryIds): base() {
       Game = game;
@@ -62,7 +62,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// GameException with Game data, countries invovled and error message
+    /// GameException with Game data, countries involved and error message
     /// </summary>
     public GameException(Game game, int countryId, IReadOnlyList<int> countryIds, string message): base(message) {
       Game = game;
@@ -72,7 +72,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// GameException with Game data, countries invovled, error message and error message arguments
+    /// GameException with Game data, countries involved, error message and error message arguments
     /// </summary>
     public GameException(Game? game, int countryId, IReadOnlyList<int> countryIds, string message, 
       params object[] args): base(string.Format(message, args)) 

@@ -12,6 +12,7 @@
     <None Remove="AttackHelpAfterCollect.png" />
     <None Remove="AttackHelpBeforeAttack.png" />
     <None Remove="AttackHelpBeforeCollect.png" />
+    <None Remove="TheMap.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +35,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="AttackHelpBeforeCollect.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="TheMap.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

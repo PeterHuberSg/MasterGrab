@@ -105,8 +105,11 @@ namespace MasterGrab {
       darkBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0x60, 0x60, 0x60));
       grayBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0xA0, 0xA0, 0xA0));
 
-      youTextBlock = new TextBlock {FontWeight = FontWeights.Bold, Foreground = animatedFontBrush };
-      youTextBlock.Text = " You ";
+      youTextBlock = new TextBlock {
+        FontWeight = FontWeights.Bold,
+        Foreground = animatedFontBrush,
+        Text = " You "
+      };
       mainStackPanel.Children.Add(youTextBlock);
 
       resultTextBlock = new TextBlock {FontWeight = FontWeights.Bold, Foreground = animatedFontBrush };

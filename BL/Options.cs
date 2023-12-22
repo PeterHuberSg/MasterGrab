@@ -84,7 +84,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// During a cycle (i.e. player and all robots have made one move), each country grows its armies based on its size and 
-    /// the ArmyGrowthFactor. Factor 1 means that after a cycle each country reaches his maximum capcity.
+    /// the ArmyGrowthFactor. Factor 1 means that after a cycle each country reaches his maximum capacity.
     /// </summary>
     public readonly double ArmyGrowthFactor;
     public static readonly OptionDef<double> ArmyGrowthFactorDef = new("Army Growth Factor", 
@@ -142,7 +142,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// How are the contries of one player distributed, i.e. randomly over the map or clustered together ? 
+    /// How are the countries of one player distributed, i.e. randomly over the map or clustered together ? 
     /// </summary>
     public readonly ClusteringEnum Clustering;
     public static readonly OptionDef<int> ClusteringDef = new("Countries distribution",
@@ -368,17 +368,19 @@ namespace MasterGrab {
     }
 
 
-    private ClusteringEnum randomizeClustering() {
+    private static ClusteringEnum randomizeClustering() {
       const int chanceForDiagHorVertDistribution = 3;
       const int chanceCompactDistribution = 2 * chanceForDiagHorVertDistribution;
-      const int chanceRandomeDistribution = chanceCompactDistribution;
-      const int allChancesCount = chanceForDiagHorVertDistribution + chanceCompactDistribution + chanceRandomeDistribution;
+      const int chanceRandomDistribution = chanceCompactDistribution;
+      const int allChancesCount = chanceForDiagHorVertDistribution + chanceCompactDistribution + chanceRandomDistribution;
       var randomResult = random.Next(0, allChancesCount);
-      if (randomResult<chanceRandomeDistribution) return ClusteringEnum.random;
-      if (randomResult<chanceRandomeDistribution + chanceCompactDistribution) return ClusteringEnum.compact;
-      var clustering = ClusteringEnum.diagonal + randomResult - chanceRandomeDistribution - chanceCompactDistribution;
+      if (randomResult<chanceRandomDistribution) return ClusteringEnum.random;
+      if (randomResult<chanceRandomDistribution + chanceCompactDistribution) return ClusteringEnum.compact;
+      var clustering = ClusteringEnum.diagonal + randomResult - chanceRandomDistribution - chanceCompactDistribution;
+      #pragma warning disable IDE0046 // Convert to conditional expression
       if (clustering<ClusteringEnum.diagonal || clustering>ClusteringEnum.horizontal)
         throw new ArgumentOutOfRangeException(((int)clustering).ToString());
+      #pragma warning restore IDE0046
 
       return clustering;
     }

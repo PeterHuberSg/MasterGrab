@@ -188,7 +188,7 @@ namespace MasterGrab {
 
 
     private static void verifyCountry(PixelMap map, CountryFix[] countryFixArray, int countryId, int x, int y, int size, 
-      int capacity, int[] neighbours, string borderCordinatesString) 
+      int capacity, int[] neighbours, string borderCoordinatesString) 
     {
       var country = countryFixArray[countryId];
       Assert.AreEqual(countryId, country.Id);
@@ -204,10 +204,10 @@ namespace MasterGrab {
       foreach (var coordinate in country.BorderCoordinates) {
         Assert.AreEqual(countryId, map[coordinate]);
       }
-      var borderCordinatesStrings = borderCordinatesString.Split('!');
-      Assert.AreEqual(borderCordinatesStrings.Length, country.BorderCoordinates.Count);
-      for (var bcIndex = 0; bcIndex < borderCordinatesStrings.Length; bcIndex++) {
-        var coordinateStrings = borderCordinatesStrings[bcIndex].Split(',');
+      var borderCoordinatesStrings = borderCoordinatesString.Split('!');
+      Assert.AreEqual(borderCoordinatesStrings.Length, country.BorderCoordinates.Count);
+      for (var bcIndex = 0; bcIndex < borderCoordinatesStrings.Length; bcIndex++) {
+        var coordinateStrings = borderCoordinatesStrings[bcIndex].Split(',');
         Assert.AreEqual(2, coordinateStrings.Length);
 
         var expectedCoordinate = new Coordinate(map, int.Parse(coordinateStrings[0]), int.Parse(coordinateStrings[1]));

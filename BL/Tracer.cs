@@ -37,13 +37,13 @@ Warning()->|->messageQueue->|->|->messageBuffer->|->GetTrace()
 Error()--->|        v                            |->Flush()
 Exception->|        +----->Pulse tracerThread
 
-tracerThread is a background thread, meaning the application can stop without explicitely stopping tracerThread. To shut down 
+tracerThread is a background thread, meaning the application can stop without explicitly stopping tracerThread. To shut down 
 nicely, Flush(true) can be used, which processes first all pending messages and then calls StopTracing().
 */
 
 
-// RealTimeTraceing is used for debugging Tracer in real time. Comment out the next line when using Tracer in your application
-//#define RealTimeTraceing
+// RealTimeTracing is used for debugging Tracer in real time. Comment out the next line when using Tracer in your application
+//#define RealTimeTracing
 
 
 using System;
@@ -70,6 +70,7 @@ namespace MasterGrab {
     /// <summary>
     /// Should tracing messaged be traced ? Default: true. Set to false to filter out tracer messages
     /// </summary>
+    #pragma warning disable CA2211 // Non-constant fields should not be visible
     public static bool IsTracing = true;
 
     /// <summary>
@@ -89,9 +90,9 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Trace messages get processed every TimerIntervallMilliseconds.
+    /// Trace messages get processed every TimerIntervalMilliseconds.
     /// </summary>
-    public const int TimerIntervallMilliseconds = 100;
+    public const int TimerIntervalMilliseconds = 100;
 
 
     /// <summary>
@@ -103,7 +104,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// The number of trace messages Tracer stores in messageQueue before reporting an overflow. messageQueue is an internal buffer and 
-    /// gets continously emptied.
+    /// gets continuously emptied.
     /// </summary>
     public const int MaxMessageQueue = MaxMessageBuffer/3;
 
@@ -122,10 +123,11 @@ namespace MasterGrab {
 
     /// <summary>
     /// Stop in the debugger if one is attached and the trace is an exception. In unit tests including the proper throwing of
-    /// exceptions, it's usefull to setIsBreakOnException IsBreakOnException as false.
+    /// exceptions, it's useful to setIsBreakOnException IsBreakOnException as false.
     /// </summary>
     public static bool IsBreakOnException = true;
-    #endregion
+     #pragma warning restore CA2211
+   #endregion
 
 
     #region Public tracing methods
@@ -210,7 +212,7 @@ namespace MasterGrab {
     public static TraceMessage[] GetTrace(bool needsFlushing = true) {
       if (needsFlushing) Flush(); //get also the messages in the temporary message buffer. This is important if trace is used during exception handling
 
-      //some messages might get losed between Flush and lock (messageBuffer), but that should be ok, because
+      //some messages might get lost between Flush and lock (messageBuffer), but that should be ok, because
       //GetTrace() will be called after tracing is done
       lock (messageBuffer) {
         return messageBuffer.ToArray();
@@ -219,7 +221,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Installs an eventhandler for MessagesTraced and returns a copy of all messages stored. Doing this
+    /// Installs an event handler for MessagesTraced and returns a copy of all messages stored. Doing this
     /// at the same time guarantees that no messages get lost. Remember to call RemoveMessagesTracedListener() 
     /// before disposing MessagesTracedHandler.
     /// </summary>
@@ -233,7 +235,7 @@ namespace MasterGrab {
 
     /// <summary>
     /// Removes a listener to MessagesTraced event. If needsFlushing, all messages from temporary storage gets processed first. This
-    /// is usefull to ensure that all messages are processed before the listener is removed.
+    /// is useful to ensure that all messages are processed before the listener is removed.
     /// </summary>
     public static void RemoveMessagesTracedListener(Action<TraceMessage[]> MessagesTracedHandler, bool needsFlushing = true) {
       if (needsFlushing) Flush(false);
@@ -342,7 +344,7 @@ namespace MasterGrab {
     private static Timer createTracerTimer() {
       isDoTracing = 1;
       var newTimer = new Timer(tracerTimerMethod);
-      newTimer.Change(TimerIntervallMilliseconds, TimerIntervallMilliseconds);
+      newTimer.Change(TimerIntervalMilliseconds, TimerIntervalMilliseconds);
       return newTimer;
     }
 
@@ -422,9 +424,10 @@ namespace MasterGrab {
           RealTimeTracer.Trace("TracerTimer: messageBuffer unlocked");
           #endif
 
-          //call eventhandlers for MessagesTraced
+          //call event handlers for MessagesTraced
           var wasMessagesTraced = MessagesTraced; //prevents multithreading issues if the only listener gets removed immediately after if.
           if (wasMessagesTraced!=null) {//events are immutable. Once we have a copy, the invocation list will not change
+            #pragma warning disable IDE0220 // Add explicit cast
             foreach (Action<TraceMessage[]> handler in wasMessagesTraced.GetInvocationList()) {
               try {
                 handler(newTracerMessages);
@@ -436,9 +439,10 @@ namespace MasterGrab {
                 //todo: show exception in the other exception handlers
               }
             }
-            #if RealTimeTraceing
+            #pragma warning restore IDE0220
+#if RealTimeTraceing
             RealTimeTracer.Trace("TracerTimer: all eventhandlers executed");
-            #endif
+#endif
           }
         } finally {
           isTracerTimerMethodRunning = 0;
@@ -471,8 +475,8 @@ namespace MasterGrab {
 
     /// <summary>
     /// Empties the internal temporary trace message buffer into the final MessageBuffer and raises the MessagesTraced 
-    /// event if messages got copied. Call Flush when application closes to ensure that all temporarilystored trace messages 
-    /// get processed by any MessagesTraced listerners.
+    /// event if messages got copied. Call Flush when application closes to ensure that all temporarily stored trace messages 
+    /// get processed by any MessagesTraced listeners.
     /// </summary>
     public static void Flush(bool needsStopTracing = false) {
       if (isTracerTimerMethodRunning>0) {
@@ -531,7 +535,7 @@ namespace MasterGrab {
       #if DEBUG
       try {
         if (IsBreakOnException && Debugger.IsAttached) {
-          //if an exception has occured, then the messge is available in the ouput window of the debugger
+          //if an exception has occurred, then the message is available in the output window of the debugger
           Debug.WriteLine("going to throw exception '" + ex.Message + "'");
           Debugger.Break();
         }
@@ -559,7 +563,7 @@ namespace MasterGrab {
       #if DEBUG
       try {
         if (Debugger.IsAttached) {
-          //if an exception has occured, then the messge is available in the ouput window of the debugger
+          //if an exception has occurred, then the message is available in the output window of the debugger
           Debug.WriteLine(DateTime.Now.ToString("mm:ss.fff") + " BreakInDebuggerOrDoNothing");
           Debugger.Break();
         }

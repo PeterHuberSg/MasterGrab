@@ -3,7 +3,7 @@
 MasterGrab.BL.Country
 =====================
 
-Gives acces to fixed data of a country, like ID of the country and its neighbour countries, and data of a 
+Gives access to fixed data of a country, like ID of the country and its neighbour countries, and data of a 
 country which changes over time, like owner of the country or army size in the country
 
 License
@@ -31,7 +31,7 @@ using System.Text;
  Country versus CountryFix
  --------------------------
 
- Country gives acces to country data actually stored in CountryFix which do not change during a game (example: neighbour 
+ Country gives access to country data actually stored in CountryFix which do not change during a game (example: neighbour 
  countries) and data which does change when game moves are made (example: owner of country, which are actually stored 
  directly in Country.
 
@@ -47,7 +47,7 @@ namespace MasterGrab {
   //      ------------
 
   /// <summary>
-  /// State of a country during a game. It gets updated eachtime before the GUI player can make another move
+  /// State of a country during a game. It gets updated each time before the GUI player can make another move
   /// </summary>
   public enum CountryStateEnum {
     /// <summary>
@@ -55,7 +55,7 @@ namespace MasterGrab {
     /// </summary>
     normal,
     /// <summary>
-    /// Armies from same owner wheremoved to this country.
+    /// Armies from same owner were moved to this country.
     /// </summary>
     moved,
     /// <summary>
@@ -74,7 +74,7 @@ namespace MasterGrab {
 
 
   /// <summary>
-  /// Gives acces to fixed data of a country, like ID of the country and its neighbour countries, and data of a country
+  /// Gives access to fixed data of a country, like ID of the country and its neighbour countries, and data of a country
   /// which changes over time, like owner of the country or army size in the country
   /// </summary>
   public class Country: IComparable<Country> {
@@ -146,7 +146,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Player.Id of owner who owned the country prevously
+    /// Player.Id of owner who owned the country previously
     /// </summary>
     public int PreviousOwnerId { get; internal set; }
 
@@ -167,7 +167,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// State of a country during a game. It gets updated eachtime before the GUI player can make another move
+    /// State of a country during a game. It gets updated each time before the GUI player can make another move
     /// </summary>
     public CountryStateEnum State { get; internal set; }
 
@@ -302,9 +302,7 @@ namespace MasterGrab {
       foreach (var neighbourId in NeighbourIds) {
         var neighbour = Map[neighbourId];
         if (neighbour.ownerId!=OwnerId) {
-          if (neededArmiesByEnemy==null) {
-            neededArmiesByEnemy = new Dictionary<int, double>();
-          }
+          neededArmiesByEnemy ??= new Dictionary<int, double>();
           if (neededArmiesByEnemy.ContainsKey(neighbour.ownerId)) {
             neededArmiesByEnemy[neighbour.ownerId] += neighbour.ArmySize;
           } else {
@@ -355,7 +353,7 @@ namespace MasterGrab {
     //      --------------------------
 
     // A robot might collect the highest armyCount possible in one country, then move them to the nearest enemy, which can
-    // be done with GetNeigbourToNearestEnemy().
+    // be done with GetNeighbourToNearestEnemy().
 
 
     private class searchCountryInfo {
@@ -375,10 +373,10 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// GetNeigbourToNearestEnemy returns the neighbour which needs to cross the fewest number of countries to reach 
+    /// GetNeighbourToNearestEnemy returns the neighbour which needs to cross the fewest number of countries to reach 
     /// an enemy. All neighbours of this country must have the same owner. 
     /// </summary>
-    public Country GetNeigbourToNearestEnemy() {
+    public Country GetNeighbourToNearestEnemy() {
       //process every country only once
       var searchedCountryIds = new HashSet<int>();
       //next country to be searched. The search goes in circles. First are the neighbours of the starting country checked
@@ -389,7 +387,7 @@ namespace MasterGrab {
       foreach (var neighbourId in NeighbourIds) {
         var neighbour = Map[neighbourId];
         if (neighbour.ownerId!=ownerId) {
-          //a neighbour has a differnt owner. This is actually an error, but it's better not to throw an exception
+          //a neighbour has a different owner. This is actually an error, but it's better not to throw an exception
           //otherwise testing gets difficult. It's easier if the caller just assumes that the return value is never
           //null and an exception gets thrown if it is not so.
           return null!;
@@ -400,7 +398,7 @@ namespace MasterGrab {
 
       //search repeatedly until enemy is found
       searchCountryInfo? finalDestinationCountryInfo = null;
-      var maxTotalArmies = int.MinValue; //max armySize of nearest enemies. Attack the enemy with the greates armySize
+      var maxTotalArmies = int.MinValue; //max armySize of nearest enemies. Attack the enemy with the greatest armySize
       var maxIteration = int.MaxValue; //max iterations needed to find nearest enemy
       while (searchCountries.Count>0) {
         var searchCountry = searchCountries.Dequeue();
@@ -425,7 +423,8 @@ namespace MasterGrab {
 
       //an enemy country should be found here
       if (finalDestinationCountryInfo==null || finalDestinationCountryInfo.Parent==null) {
-        //could thorw ane exception here, but better just return null and let the caller throw an exception if nul is a problem;
+        //could throw ane exception here, but better just return null and let the caller throw an exception if
+        //null is a problem;
         return null!;
       }
       //trace back to immediate neighbour of the country where the search started

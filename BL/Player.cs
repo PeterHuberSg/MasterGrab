@@ -21,7 +21,6 @@ Written 2016-2022 in Switzerland & Singapore by Jürgpeter Huber
 Contact: https://github.com/PeterHuberSg/MasterGrab
 ********************************************************************************************************/
 
-using System;
 using System.Collections.Generic;
 
 
@@ -104,7 +103,7 @@ namespace MasterGrab {
 
 
     /// <summary>
-    /// Remove COuntry from Player. He no longer owns it.
+    /// Remove Country from Player. He no longer owns it.
     /// </summary>
     internal void RemoveCountry(int countryId) {
       countryIds.Remove(countryId);

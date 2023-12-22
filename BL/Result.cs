@@ -68,7 +68,7 @@ namespace MasterGrab {
     readonly int[]? countryIds;
 
     /// <summary>
-    /// True is an attacks succeeds and always truee for a mover, if there was no error. Always false if there was an error.
+    /// True is an attacks succeeds and always true for a mover, if there was no error. Always false if there was an error.
     /// </summary>
     public readonly bool IsSuccess;
 

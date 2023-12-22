@@ -54,10 +54,10 @@ namespace MasterGrab {
     //      -----------
 
     readonly int robotsCount;
-    readonly TextBlock[,] textblocks;
+    readonly TextBlock[,] textBlocks;
     readonly ColorBox[] colorBoxes;
     readonly ComboBox[] comboBoxes;
-    readonly ComboBoxItem[] robotsComboboxItems;
+    readonly ComboBoxItem[] robotsComboBoxItems;
 
     int mountainsPercentage;
     double armiesInBiggestCountry;
@@ -98,7 +98,7 @@ namespace MasterGrab {
 
       //RobotsGrid
       robotsCount = Options.ColorsCount - 1;
-      textblocks = new TextBlock[robotsCount, 4];
+      textBlocks = new TextBlock[robotsCount, 4];
       colorBoxes = new ColorBox[robotsCount];
       comboBoxes = new ComboBox[robotsCount];
       RobotsGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
@@ -107,10 +107,10 @@ namespace MasterGrab {
       RobotsGrid.ColumnDefinitions.Add(new ColumnDefinition());
 
       //ComboBoxItem values for robots
-      robotsComboboxItems = new ComboBoxItem[Options.RobotInfos.Count];
+      robotsComboBoxItems = new ComboBoxItem[Options.RobotInfos.Count];
       for (int robotInfosIndex = 0; robotInfosIndex < Options.RobotInfos.Count; robotInfosIndex++) {
         var robotInfo = Options.RobotInfos[robotInfosIndex];
-        robotsComboboxItems[robotInfosIndex] = new ComboBoxItem { Content = robotInfo.Name, ToolTip = robotInfo.Description };
+        robotsComboBoxItems[robotInfosIndex] = new ComboBoxItem { Content = robotInfo.Name, ToolTip = robotInfo.Description };
       }
 
       copyOptionsToScreen(options);
@@ -139,19 +139,19 @@ namespace MasterGrab {
 
     private void addRobotRow(Options options, int robotIndex) {
       RobotsGrid.RowDefinitions.Add(new RowDefinition());
-      TextBlock textblock;
-      if (textblocks[robotIndex, 0]==null) {
-        textblock = new TextBlock {Padding=new Thickness(2) };
-        textblocks[robotIndex, 0] = textblock;
-        textblock.Text = "Robot" + (robotIndex + 1);
+      TextBlock textBlock;
+      if (textBlocks[robotIndex, 0]==null) {
+        textBlock = new TextBlock {Padding=new Thickness(2) };
+        textBlocks[robotIndex, 0] = textBlock;
+        textBlock.Text = "Robot" + (robotIndex + 1);
       } else {
-        textblock = textblocks[robotIndex, 0];
+        textBlock = textBlocks[robotIndex, 0];
       }
-      textblock.Background = Brushes.White;
-      textblock.Margin = robotIndex==0 ? new Thickness(lineWidth) : new Thickness(lineWidth, 0, lineWidth, lineWidth);
-      RobotsGrid.Children.Add(textblock);
-      Grid.SetRow(textblock, robotIndex);
-      Grid.SetColumn(textblock, 0);
+      textBlock.Background = Brushes.White;
+      textBlock.Margin = robotIndex==0 ? new Thickness(lineWidth) : new Thickness(lineWidth, 0, lineWidth, lineWidth);
+      RobotsGrid.Children.Add(textBlock);
+      Grid.SetRow(textBlock, robotIndex);
+      Grid.SetColumn(textBlock, 0);
 
       ColorBox colorBox;
       if (colorBoxes[robotIndex]==null) {
@@ -169,7 +169,7 @@ namespace MasterGrab {
 
       ComboBox comboBox;
       if (comboBoxes[robotIndex]==null) {
-        comboBox = new ComboBox {ItemsSource = robotsComboboxItems};
+        comboBox = new ComboBox {ItemsSource = robotsComboBoxItems};
         comboBoxes[robotIndex] = comboBox;
       } else {
         comboBox = comboBoxes[robotIndex];
@@ -231,14 +231,14 @@ namespace MasterGrab {
     private void removeRobot() {
       int robotId = RobotsGrid.RowDefinitions.Count-1;
       RobotsGrid.RowDefinitions.RemoveAt(robotId);
-      RobotsGrid.Children.Remove(textblocks[robotId, 0]);
+      RobotsGrid.Children.Remove(textBlocks[robotId, 0]);
       RobotsGrid.Children.Remove(colorBoxes[robotId]);
       RobotsGrid.Children.Remove(comboBoxes[robotId]);
     }
 
 
     private void AdvancedOptionsButton_Click(object sender, RoutedEventArgs e) {
-      AdvancedOptionsWindow advancedOptionsWindow = new AdvancedOptionsWindow(mountainsPercentage, armiesInBiggestCountry, 
+      AdvancedOptionsWindow advancedOptionsWindow = new(mountainsPercentage, armiesInBiggestCountry, 
         armyGrowthFactor, protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions);
       bool? dialogResult = advancedOptionsWindow.ShowDialog(); 
 
