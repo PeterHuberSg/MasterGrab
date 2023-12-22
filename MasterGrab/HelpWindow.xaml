@@ -14,7 +14,7 @@
       <Paragraph>
         The MasterGrab game shows per default a map of countries for 4 players. 3 players are simulated by the computer, the countries 
         with the
-        <Run Foreground="#FF4040">red coulour</Run> are owned by the user. The goal is to grab all countries. 
+        <Run Foreground="#FF4040">red colour</Run> are owned by the user. The goal is to grab all countries. 
       </Paragraph>
       <Paragraph>
         The map itself has no borders, like earth, which has also no edge. The countries at the left border of the window wrap around to the right window border.
