@@ -10,7 +10,10 @@ the game, strategic thinking is required.
 For programmers, it might be even more fun to write your own robot, which can 
 be done with only a few lines of code.
 
-How you can play MasterGrab is described in the Help section of the game. 
+How you can play MasterGrab is described in the Help section of the game. A 
+more detailed explanation is here:
+https://www.codeproject.com/Articles/5374670/MasterGrab-PC-Strategy-Game-Easy-to-Learn-Fun-to-2
+
 This rest of this document provides the information needed to write a robot.
 
 # Overview MasterGrab VS Solution
