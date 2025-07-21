@@ -23,10 +23,13 @@ Contact: https://github.com/PeterHuberSg/MasterGrab
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
+
 namespace MasterGrab {
+
 
   /// <summary>
   /// Info Window can be hidden or show ranking of players or the last move of each player
@@ -53,7 +56,15 @@ namespace MasterGrab {
     /// <summary>
     /// Paint countries in a gray shade according to their size
     /// </summary>
-    CountrySize
+    CountrySize,
+    /// <summary>
+    /// Display countries owned by robots which has the fewest neighbours
+    /// </summary>
+    FewestNeighbours,
+    /// <summary>
+    /// max value of ShowOptionEnum
+    /// </summary>
+    max
   }
 
 
@@ -307,7 +318,10 @@ namespace MasterGrab {
     internal GlyphDrawer GlyphDrawerNormal { get; private set; }
     internal GlyphDrawer GlyphDrawerBold { get; private set; }
     internal GlyphDrawer GlyphDrawerItalic { get; private set; }
-    
+
+
+    bool[]? countriesMinNeighboursIds;
+
 
     protected override void OnRenderContent(DrawingContext drawingContext, Size renderContentSize) {
       if (controller==null) {
@@ -323,21 +337,45 @@ namespace MasterGrab {
       }
 
       if (PixelMap!=null) {
+        if (showOption==ShowOptionEnum.FewestNeighbours && (countriesMinNeighboursIds is null || countriesMinNeighboursIds.Length!=Game.Map.Count)) {
+          countriesMinNeighboursIds = new bool[Game.Map.Count];
+        }
         double maxArmies = 0;
         foreach (var country in Game.Map) {
           maxArmies = Math.Max(maxArmies, (int)country.ArmySize);
         }
         var armyDelta = (maxArmies + 1) / shadeCount;
 
+        if (showOption==ShowOptionEnum.FewestNeighbours) {
+          //collect the robot owned countries with the fewest neighbours
+          var minNeighbourCount = int.MaxValue;
+          foreach (var country in Game.Map) {
+            if (country.IsMountain || country.OwnerId==GuiPlayer!.Id) continue;
+
+            if (minNeighbourCount>country.NeighbourIds.Count) {
+              Array.Clear(countriesMinNeighboursIds!);
+              minNeighbourCount = country.NeighbourIds.Count;
+            }
+            if (minNeighbourCount==country.NeighbourIds.Count) {
+              countriesMinNeighboursIds![country.Id] = true;
+            }
+          }
+        }
+
         //other thread has created a map
         //draw country colours and borders
         foreach (var country in Game.Map) {
-          if (showOption is ShowOptionEnum.Armies or ShowOptionEnum.CountryId) {
+          if (showOption is ShowOptionEnum.Armies or ShowOptionEnum.CountryId or ShowOptionEnum.FewestNeighbours) {
             if (country.IsMountain) {
               drawingContext.DrawGeometry(BorderPen.Brush, BorderPen, GeometryByCountry[country.Id]);
             } else {
-              var shade = Math.Max(shadeCount - 1 - (int)(country.ArmySize / armyDelta), 0);
-              var countryBrush = PlayerBrushes2[country.OwnerId, shade];
+              Brush countryBrush;
+              if (showOption==ShowOptionEnum.FewestNeighbours && countriesMinNeighboursIds![country.Id]) {
+                countryBrush = Brushes.White;
+              } else { 
+                var shade = Math.Max(shadeCount - 1 - (int)(country.ArmySize / armyDelta), 0);
+                countryBrush = PlayerBrushes2[country.OwnerId, shade];
+              }
               drawingContext.DrawGeometry(countryBrush, BorderPen, GeometryByCountry[country.Id]);
             }
 
@@ -364,7 +402,7 @@ namespace MasterGrab {
         }
 
         //draw arrows
-        if (showOption is ShowOptionEnum.Armies or ShowOptionEnum.CountryId) {
+        if (showOption is ShowOptionEnum.Armies or ShowOptionEnum.CountryId or ShowOptionEnum.FewestNeighbours) {
           foreach (var result in Game.Results) {
             if (result.CountryIds!=null) {
               var toCountry = Game.Map[result.CountryId];
@@ -388,6 +426,7 @@ namespace MasterGrab {
 
           switch (showOption) {
           case ShowOptionEnum.Armies:
+          case ShowOptionEnum.FewestNeighbours:
             switch (country.State) {
             case CountryStateEnum.normal:
               break;

@@ -43,6 +43,16 @@ namespace MasterGrab {
     public MainWindow() {
       InitializeComponent();
 
+      if (SystemParameters.WorkArea.Width>2000) {
+        WindowState = WindowState.Normal;
+        var length = Math.Min(SystemParameters.WorkArea.Width, SystemParameters.WorkArea.Height);
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        Left = (SystemParameters.WorkArea.Width-length)/2;
+        Top = (SystemParameters.WorkArea.Height-length)/2;
+        Width = length;
+        Height = length;
+      }
+
       StartButton.Click += StartButton_Click;
       OptionsButton.Click += OptionsButton_Click;
       ReplayButton.Click += ReplayButton_Click;
@@ -107,7 +117,7 @@ namespace MasterGrab {
 
     private void ShowComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       var selectedIndex = ShowComboBox.SelectedIndex;
-      if (selectedIndex<0 || selectedIndex>(int)ShowOptionEnum.CountrySize) throw new NotSupportedException();
+      if (selectedIndex<0 || selectedIndex>(int)ShowOptionEnum.max) throw new NotSupportedException();
 
       mapControl.ShowOption = (ShowOptionEnum)selectedIndex;
     }

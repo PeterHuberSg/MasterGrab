@@ -22,6 +22,7 @@
         <ComboBoxItem IsSelected="True">Armies</ComboBoxItem>
         <ComboBoxItem >Country Ids</ComboBoxItem>
         <ComboBoxItem >Country Size</ComboBoxItem>
+        <ComboBoxItem >Smallest</ComboBoxItem>
       </ComboBox>
       <Button x:Name="NextStepButton" Content="Next _Step" Margin="15,2,3,2" VerticalAlignment="Center"/>
       <StackPanel x:Name="AutoPlayStackPanel" Orientation="Horizontal" Visibility="Collapsed">
