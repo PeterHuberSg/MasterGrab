@@ -259,12 +259,12 @@ namespace MasterGrab {
 
     #if DEBUG
     Size arrangeConstraintSize;
-    Size arrangeContentSize;
     Size arrangeRequestedSize;
     #endif
+    Size arrangeContentSize;
 
 
-    private Size doArrangeOverride(Size arrangeBounds) {
+        private Size doArrangeOverride(Size arrangeBounds) {
       /*
       ArrangeOverride() gets called by FrameworkElement.ArrangeCore() which gets called by UIElement.Arrange() 
 
@@ -303,7 +303,6 @@ namespace MasterGrab {
 #if DEBUG
       arrangeConstraintSize = arrangeBounds;
       #else
-      Size arrangeContentSize;
       Size arrangeRequestedSize;
       #endif
 
