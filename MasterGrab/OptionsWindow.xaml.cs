@@ -87,15 +87,6 @@ namespace MasterGrab {
       DefaultButton.Click += DefaultButton_Click;
       ApplyButton.Click += ApplyButton_Click;
 
-      //store values for AdvancedOptionsWindow
-      mountainsPercentage = options.MountainsPercentage;
-      armiesInBiggestCountry = options.ArmiesInBiggestCountry;
-      armyGrowthFactor = options.ArmyGrowthFactor;
-      protectionFactor = options.ProtectionFactor;
-      attackFactor = options.AttackFactor;
-      attackBenefitFactor = options.AttackBenefitFactor;
-      isRandomOptions = options.IsRandomOptions;
-
       //RobotsGrid
       robotsCount = Options.ColorsCount - 1;
       textBlocks = new TextBlock[robotsCount, 4];
@@ -115,6 +106,24 @@ namespace MasterGrab {
 
       copyOptionsToScreen(options);
 
+      //row of configuration buttons
+      foreach (var option in Options.Configurations) {
+
+      }
+      for (int configurationIndex = 0; configurationIndex<Options.Configurations.Count; configurationIndex++) {
+        var option = Options.Configurations[configurationIndex];
+        var configurationButton = new Button {
+          Content = $"_{configurationIndex}",
+          VerticalAlignment = VerticalAlignment.Center,
+          HorizontalAlignment = HorizontalAlignment.Left,
+          Margin = new Thickness(5, 4, 0, 6),
+          ToolTip = option.Description,
+          Tag = configurationIndex
+        };
+        configurationButton.Click += ConfigurationButton_Click;
+        ConfigurationsStackPanel.Children.Add(configurationButton);
+      }
+
       updateButtonState();
       PlayerEnabledCheckBox.Checked += PlayerEnabledCheckBox_Checked;
       PlayerEnabledCheckBox.Unchecked += PlayerEnabledCheckBox_Checked;
@@ -131,6 +140,14 @@ namespace MasterGrab {
       for (var robotIndex = 0; robotIndex < options.Robots.Count; robotIndex++) {
         addRobotRow(options, robotIndex);
       }
+      //store values for AdvancedOptionsWindow
+      mountainsPercentage = options.MountainsPercentage;
+      armiesInBiggestCountry = options.ArmiesInBiggestCountry;
+      armyGrowthFactor = options.ArmyGrowthFactor;
+      protectionFactor = options.ProtectionFactor;
+      attackFactor = options.AttackFactor;
+      attackBenefitFactor = options.AttackBenefitFactor;
+      isRandomOptions = options.IsRandomOptions;
     }
 
 
@@ -254,13 +271,25 @@ namespace MasterGrab {
     }
 
 
-    private void DefaultButton_Click(object sender, RoutedEventArgs e) {
-      while (RobotsGrid.RowDefinitions.Count>0) {
+    private void set(Options options) {
+      while (RobotsGrid.RowDefinitions.Count > 0) {
         removeRobot();
       }
-      copyOptionsToScreen(Options.Default);
-      NumberOfCountriesNumberTextBox.Value = Options.Default.CountriesCount;
+      copyOptionsToScreen(options);
+      NumberOfCountriesNumberTextBox.Value = options.CountriesCount;
       updateButtonState();
+    }
+
+
+    private void DefaultButton_Click(object sender, RoutedEventArgs e) {
+      set(Options.Default);
+    }
+
+
+    private void ConfigurationButton_Click(object sender, RoutedEventArgs e) {
+      var configurationButton = (Button)sender;
+      var configurationIndex = (int)configurationButton.Tag;
+      set(Options.Configurations[configurationIndex]);
     }
 
 
@@ -296,7 +325,8 @@ namespace MasterGrab {
         isRandomOptions: isRandomOptions,
         isHumanPlaying: PlayerEnabledCheckBox.IsChecked??false,
         clustering: (ClusteringEnum)DistributionComboBox.SelectedIndex,
-        robots: robots);
+        robots: robots,
+        colors: new byte[Options.ColorsCount, Options.BytesPerColor]);//the colours are set in the next lines
 
       var playerColor = PlayerColorBox.Color;
       NewOptions.SetColor(0, playerColor.A, playerColor.R, playerColor.G, playerColor.B);

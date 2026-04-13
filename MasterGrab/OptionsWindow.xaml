@@ -15,6 +15,7 @@
       <RowDefinition Height="auto"/>
       <RowDefinition Height="auto"/>
       <RowDefinition Height="auto"/>
+      <RowDefinition Height="auto"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="auto"/>
@@ -22,7 +23,7 @@
       <ColumnDefinition Width="auto"/>
     </Grid.ColumnDefinitions>
 
-    <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="5" Fill="WhiteSmoke" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+    <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Fill="WhiteSmoke" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
     <Label Grid.Row="0" Grid.Column="0" Content="Number of coutries:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
     <local:IntTextBox Grid.Row="0" Grid.Column="1" x:Name="NumberOfCountriesNumberTextBox" 
                       VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="3"/>
@@ -42,11 +43,15 @@
     <Button Grid.Row="4" Grid.Column="1"  Content="_Add" Name="AddButton" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3"/>
     <Button Grid.Row="4" Grid.Column="2"  Content="_Remove" Name="RemoveButton" HorizontalAlignment="right" VerticalAlignment="Center" Margin="3"/>
 
-    <Rectangle Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Fill="Gainsboro" />
-    <StackPanel Grid.Row="5" Grid.Column="0" Orientation="Horizontal">
+    <Rectangle Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Fill="WhiteSmoke" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+    <Label Grid.Row="5" Grid.Column="0" Content="Configurations:" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+    <StackPanel Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" x:Name="ConfigurationsStackPanel" Orientation="Horizontal"/>
+
+    <Rectangle Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Fill="Gainsboro" />
+    <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal">
       <Button Name="DefaultButton" Content="_Default" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,4,0,6"/>
       <Button Name="AdvancedOptionsButton" Content="Ad_vanced" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,4,0,6"/>
     </StackPanel>
-    <Button Grid.Row="5" Grid.Column="2" Name="ApplyButton" Content="A_pply" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5"/>
+    <Button Grid.Row="6" Grid.Column="2" Name="ApplyButton" Content="A_pply" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5"/>
   </Grid>
 </Window>

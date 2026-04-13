@@ -199,7 +199,7 @@ namespace MasterGrab {
       return new Options(countriesCount, mountainsPercentage, xCount, yCount, armiesInBiggestCountry, armyGrowthFactor, 
         protectionFactor, attackFactor, attackBenefitFactor, isRandomOptions: false, isHumanPlaying: true,
         //todo: add isClusteredOwnership to options window 
-        ClusteringEnum.random, robots);
+        ClusteringEnum.random, robots, Options.DefaultColors);
     }
 
 

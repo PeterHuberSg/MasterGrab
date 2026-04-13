@@ -239,7 +239,8 @@ namespace MasterGrab {
         isRandomOptions: false,
         isHumanPlaying: true,
         ClusteringEnum.random,
-        robots: robotInfos);
+        robots: robotInfos,
+        colors: Options.DefaultColors);
         _ = new PixelMap(options, 0, out var countryFixArray, out _);
 
         var totalSize = 0;

@@ -1,7 +1,7 @@
 ﻿/********************************************************************************************************
 
-MasterGrab.MasterGrab.CustomControlBase
-=======================================
+MasterGrab.CustomControlBase
+============================
 
 Base class for custom controls, allowing the control to draw and to add any other WPF controls as 
 children.
